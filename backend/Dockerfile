@@ -16,20 +16,21 @@ RUN apt-get update && apt-get install -y \
 ENV COMPOSER_ALLOW_SUPERUSER=1
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
+
 # Set working directory
-WORKDIR /var/www
+# WORKDIR /var/www
 
 # Copy existing application directory contents
-COPY . .
+# COPY . .
 
 # Copy the entrypoint script into the container and make it executable
-COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+# COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+# RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 # Install Laravel dependencies
-RUN composer install --prefer-dist --no-scripts --no-dev --no-interaction
+# RUN composer install --prefer-dist --no-scripts --no-dev --no-interaction
 
 # Expose port if needed (or let the web server handle it)
-EXPOSE 8000
+# EXPOSE 8000
 
 
-ENTRYPOINT ["docker-entrypoint.sh"]
+# ENTRYPOINT ["docker-entrypoint.sh"]

@@ -1,11 +1,23 @@
-version: '3.8'
+version: "3.8"
 
 services:
   backend:
-    build: ./backend
-    container_name: laravel_backend
+    container_name: backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    working_dir: /backend
+    command: php artisan serve --host=0.0.0.0 --port=8000
+
     volumes:
-      - ./backend:/var/www
+      - source: ./backend
+        target: /backend
+        type: bind
+
+      - source: backend
+        target: /backend/vendor
+        type: volume
+
     ports:
       - "8000:8000"
     environment:
@@ -24,10 +36,20 @@ services:
       - db
 
   frontend:
-    build: ./frontend
-    container_name: nextjs_frontend
+    container_name: frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    working_dir: /frontend 
+    command: npm run dev
     volumes:
-      - ./frontend:/app
+      - source: ./frontend
+        target: /frontend
+        type: bind
+
+      - source: frontend
+        target: /frontend/node_modules
+        type: volume
     ports:
       - "3000:3000"
 
@@ -47,3 +69,5 @@ services:
 
 volumes:
   db_data:
+  frontend:
+  backend:
