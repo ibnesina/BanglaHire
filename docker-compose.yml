@@ -51,12 +51,13 @@ services:
         target: /frontend/node_modules
         type: volume
     ports:
-      - "3000:3000"
+      - target: 3000
+        published: 3000 
+        protocol: tcp
 
   db:
     image: mysql:8.0
     container_name: mysql_db
-    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
       MYSQL_DATABASE: laravel
