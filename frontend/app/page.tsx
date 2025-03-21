@@ -1,13 +1,11 @@
-import NavBar from "@/components/NavBar";
 import Image from "next/image";
 
 export default function Home() {
   return (
     <div>
-      <NavBar />
       <div className="flex justify-center items-center h-screen bg-slate-100">
         <div className="flex flex-col items-center">
-          <Image src="/logo.png" width={100} height={100} />
+          <Image src="/logo.png" alt="banglahire" width={100} height={100} />
           <h1 className="text-4xl font-bold text-center">
             Welcome to BanglaHire
           </h1>
@@ -15,7 +13,7 @@ export default function Home() {
             The best place to find Bangladeshi talent
           </p>
         </div>
-      </div> 
+      </div>
     </div>
   );
 }
