@@ -12,13 +12,17 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
+            $table->uuid('id')->primary(); // UUID instead of auto-increment ID
+            $table->enum('type', ['Admin', 'Freelancer', 'Client'])->default('Freelancer');
             $table->string('email')->unique();
-            $table->tinyInteger('role')->default('1');
-            $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->rememberToken();
+            $table->string('name');
+            $table->string('profile_picture')->nullable();
+            $table->string('payment_phone')->nullable();
+            $table->decimal('balance', 10, 2)->default(0.00);
+            // $table->foreignId('payment_history_id')->nullable()->constrained('payment_histories')->onDelete('set null');
+            $table->unsignedBigInteger('payment_history_id')->nullable();
+            $table->string('nationality')->nullable();
             $table->timestamps();
         });
 
