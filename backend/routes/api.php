@@ -35,7 +35,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/admins', [AdminController::class, 'index']);
         Route::get('/admins/{id}', [AdminController::class, 'show']);
 
-        // Create or update the admin record
+        // update the admin record
         Route::put('/admins', [AdminController::class, 'storeOrUpdate']);
 
         // Delete an admin record
@@ -69,7 +69,3 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::delete('/clients/{id}', [ClientController::class, 'destroy']);
     });
 });
-
-// Route::get('/user', function (Request $request) {
-//     return $request->user();
-// })->middleware('auth:sanctum');
