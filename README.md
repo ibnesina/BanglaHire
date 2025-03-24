@@ -22,6 +22,7 @@
 - **Gamification & Analytics Dashboard** for performance tracking and engagement.
 
 
+## Docker
 ```bash
 docker compose run --build --rm backend composer install --prefer-dist --no-scripts --no-dev --no-interaction
 
