@@ -1,11 +1,13 @@
 <?php
 
 use App\Http\Controllers\API\AdminController;
+use App\Http\Controllers\API\AssignedProjectController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\BiddingController;
 use App\Http\Controllers\API\ClientController;
 use App\Http\Controllers\API\FreelancerController;
 use App\Http\Controllers\API\ProjectController;
+use App\Http\Controllers\API\ReviewController;
 use Illuminate\Support\Facades\Route;
 
 // Public Routes
@@ -30,6 +32,14 @@ Route::get('/projects/{id}', [ProjectController::class, 'show']);     // public
 // Protected Routes
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
+
+    // Assigned Projects routes (visible to all authenticated users)
+    Route::get('/assignments', [AssignedProjectController::class, 'index']);
+    Route::get('/assignments/{id}', [AssignedProjectController::class, 'show']);
+
+    // Reviews routes
+    Route::get('/reviews', [ReviewController::class, 'index']);
+    Route::get('/reviews/{id}', [ReviewController::class, 'show']);
 
     // Admin-only routes
     Route::middleware('role:Admin')->group(function () {
@@ -65,6 +75,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         // Projects
         Route::post('projects/{projectId}/apply', [BiddingController::class, 'store']);
+
+        // Fetch reviews by freelancer ID for profile views
+        Route::get('/freelancer-reviews', [ReviewController::class, 'getByFreelancer']);
     });
 
     // Client-only routes
@@ -80,5 +93,20 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/projects', [ProjectController::class, 'store']);
         Route::put('/projects/{id}', [ProjectController::class, 'update']);
         Route::delete('/projects/{id}', [ProjectController::class, 'destroy']);
+
+        // Only clients can create, update, or delete assignments (project assignment is done by the client who created the project)
+        Route::post('/assignments', [AssignedProjectController::class, 'store']);
+        Route::put('/assignments/{id}', [AssignedProjectController::class, 'update']);
+        Route::delete('/assignments/{id}', [AssignedProjectController::class, 'destroy']);
+
+        // Only clients can submit, update, or delete reviews after a project is completed
+        Route::post('/reviews', [ReviewController::class, 'store']);
+        Route::put('/reviews/{id}', [ReviewController::class, 'update']);
+        Route::delete('/reviews/{id}', [ReviewController::class, 'destroy']);
+
+        // Fetch reviews by client ID for profile views
+        Route::get('/client-reviews', [ReviewController::class, 'getByClient']);
     });
+
+
 });
