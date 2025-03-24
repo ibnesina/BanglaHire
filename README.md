@@ -21,24 +21,6 @@
 - **AI-Powered Matching & Proposal Assistance** to optimize hiring and bidding.
 - **Gamification & Analytics Dashboard** for performance tracking and engagement.
 
-## Getting Started
-
-1. Clone the repository
-2. Install dependencies
-3. Start development
-
-## Development Guidelines
-
-1. Create feature branches
-2. Make small, focused commits
-3. Write descriptive commit messages
-4. Create pull requests for review
-
-## Resources
-
-- [Project Documentation](docs/)
-- [Development Setup](docs/setup.md)
-- [Contributing Guidelines](CONTRIBUTING.md)
 
 ```bash
 docker compose run --build --rm backend composer install --prefer-dist --no-scripts --no-dev --no-interaction
