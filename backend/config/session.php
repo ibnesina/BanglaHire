@@ -18,7 +18,7 @@ return [
     |
     */
 
-    'driver' => env('SESSION_DRIVER', 'database'),
+    'driver' => env('SESSION_DRIVER', 'file'),
 
     /*
     |--------------------------------------------------------------------------
@@ -103,6 +103,7 @@ return [
 
     'store' => env('SESSION_STORE'),
 
+
     /*
     |--------------------------------------------------------------------------
     | Session Sweeping Lottery
@@ -169,7 +170,9 @@ return [
     |
     */
 
-    'secure' => env('SESSION_SECURE_COOKIE'),
+    // 'secure' => env('SESSION_SECURE_COOKIE'),
+    'secure' => env('SESSION_SECURE_COOKIE', false),
+
 
     /*
     |--------------------------------------------------------------------------
