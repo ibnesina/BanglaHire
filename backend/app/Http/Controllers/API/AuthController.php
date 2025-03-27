@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
+use Laravel\Socialite\Facades\Socialite;
+use Illuminate\Support\Facades\Http;
 
 
 class AuthController extends Controller
@@ -60,6 +62,7 @@ class AuthController extends Controller
         }
 
         // Create a Sanctum token for API authentication
+        // Sanctum Token: After successfully authenticating, we generate a Sanctum token for the user, which they can use for subsequent API requests.
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
@@ -113,4 +116,136 @@ class AuthController extends Controller
 
         return response()->json(['message' => 'Successfully logged out']);
     }
+
+    // Google login
+    // This still uses Socialite to redirect the user to Google for authentication.
+    public function redirectToGoogle()
+    {
+        return Socialite::driver('google')->redirect();
+    }
+
+
+    // Handle Google callback (manually handle the OAuth code exchange) 
+    // Instead of directly calling Socialite's user() method, we manually handle the authorization code (code), and use it to request an access token and user data from Google’s API.
+    // After receiving the user data, we check if the user exists in the database. If not, we create the user and associate them with the correct role (Freelancer, Client, Admin).
+    public function handleGoogleCallback(Request $request)
+    {
+        try {
+            \Log::info('Google OAuth Callback Data:', request()->all());
+            
+            // Step 1: Exchange the authorization code for an access token
+            $code = $request->get('code');
+            $response = Http::asForm()->post('https://oauth2.googleapis.com/token', [
+                'code' => $code,
+                'client_id' => env('GOOGLE_CLIENT_ID'),
+                'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+                'redirect_uri' => env('GOOGLE_REDIRECT_URI'),
+                'grant_type' => 'authorization_code',
+            ]);
+    
+            if ($response->failed()) {
+                \Log::error('Failed to get access token', ['error' => $response->body()]);
+                return response()->json(['error' => 'Unable to login with Google'], 500);
+            }
+    
+            $tokens = $response->json();
+            $accessToken = $tokens['access_token'];
+    
+            \Log::info('Google Tokens:', ['accessToken' => $accessToken]);
+    
+            // Step 2: Retrieve user information using the access token
+            $userResponse = Http::withToken($accessToken)->get('https://www.googleapis.com/oauth2/v3/userinfo');
+    
+            if ($userResponse->failed()) {
+                \Log::error('Failed to fetch user info', ['error' => $userResponse->body()]);
+                return response()->json(['error' => 'Unable to fetch user data'], 500);
+            }
+    
+            $googleUser = $userResponse->json();
+            \Log::info('Google User Data:', ['googleUser' => $googleUser]);
+    
+            // Step 3: Retrieve the role passed from frontend (either 'Client' or 'Freelancer')
+            $role = session()->get('role', 'No Role'); // Default to 'No Role' if not found
+            // $role = 'Freelancer';
+            // $role = 'Client';
+            // $role = 'Admin';
+            
+            /*
+                // When user clicks on the Freelancer button
+                document.getElementById("freelancer-btn").onclick = function() {
+                    // Save the selected role (Freelancer in this case)
+                    sessionStorage.setItem('role', 'Freelancer');
+                    // Redirect to Google OAuth
+                    window.location.href = "url";  // or use the Google redirect URL
+                };
+
+                // When user clicks on the Client button
+                document.getElementById("client-btn").onclick = function() {
+                    // Save the selected role (Client in this case)
+                    sessionStorage.setItem('role', 'Client');
+                    // Redirect to Google OAuth
+                    window.location.href = "url";  // or use the Google redirect URL
+                };
+
+            */
+    
+            \Log::info('Role Received:', ['role' => $role]);
+    
+            // Validate the role
+            $validRoles = ['Freelancer', 'Client','Admin'];
+            if (!in_array($role, $validRoles)) {
+                \Log::error('Invalid role provided', ['role' => $role]);
+                return response()->json(['error' => 'Invalid role'], 400);
+            }
+    
+            // Step 4: Check if the user already exists by Google ID or email
+            $user = User::where('google_id', $googleUser['sub'])->orWhere('email', $googleUser['email'])->first();
+    
+            if (!$user) {
+                // Create the user if not exists
+                $user = User::create([
+                    'id'        => (string) Str::uuid(),
+                    'name'      => $googleUser['name'],
+                    'email'     => $googleUser['email'],
+                    'google_id' => $googleUser['sub'],
+                    'password'  => '', // No password needed for Google login
+                    'type'      => $role, // Use the selected role ('Freelancer' or 'Client')
+                ]);
+    
+                // Create associated role record
+                if ($user->type === 'Freelancer') {
+                    Freelancer::create(['freelancer_id' => $user->id]);
+                } elseif ($user->type === 'Client') {
+                    Client::create(['client_id' => $user->id]);
+                } elseif ($user->type === 'Admin') {
+                    Admin::create(['admin_id' => $user->id]);
+                }
+            }
+    
+            // Step 5: Log the user in
+            Auth::login($user);
+    
+            // Step 6: Create a Sanctum token for the logged-in user
+            $token = $user->createToken('auth_token')->plainTextToken;
+    
+            return response()->json([
+                'user'  => $user,
+                'token' => $token,
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Google login error', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            return response()->json(['error' => 'Unable to login with Google'], 500);
+        }
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+
+    
+
 }
