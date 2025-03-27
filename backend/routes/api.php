@@ -6,6 +6,7 @@ use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\BiddingController;
 use App\Http\Controllers\API\ClientController;
 use App\Http\Controllers\API\FreelancerController;
+use App\Http\Controllers\API\PaymentHistoryController;
 use App\Http\Controllers\API\ProjectController;
 use App\Http\Controllers\API\ReviewController;
 use Illuminate\Support\Facades\Route;
@@ -80,6 +81,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
         // Freelancer and Client Control
         Route::put('/freelancers/{id}/update-stats', [FreelancerController::class, 'updateStats']);
         Route::put('/clients/{id}/update-stats', [ClientController::class, 'updateStats']);
+
+        // Payment History endpoints
+        Route::get('/payments', [PaymentHistoryController::class, 'index']);
+        Route::get('/payments/{id}', [PaymentHistoryController::class, 'show']);
+        // Note: We no longer use PaymentHistoryController::store because payment records are auto-created on assignment completion.
+        Route::put('/payments/{id}', [PaymentHistoryController::class, 'update']);
+        Route::delete('/payments/{id}', [PaymentHistoryController::class, 'destroy']);
     });
 
     // Freelancer-only routes
@@ -96,6 +104,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         // Fetch reviews by freelancer ID for profile views
         Route::get('/freelancer-reviews', [ReviewController::class, 'getByFreelancer']);
+
+        // Endpoints to get payments for authenticated freelancers
+        Route::get('/freelancer-payments', [PaymentHistoryController::class, 'getFreelancerPayments'])->middleware('role:Freelancer');
     });
 
     // Client-only routes
@@ -124,6 +135,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         // Fetch reviews by client ID for profile views
         Route::get('/client-reviews', [ReviewController::class, 'getByClient']);
+    
+        // Endpoints to get payments for authenticated clients
+        Route::get('/client-payments', [PaymentHistoryController::class, 'getClientPayments'])->middleware('role:Client');
     });
 
 
