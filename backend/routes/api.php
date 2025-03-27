@@ -16,6 +16,24 @@ use Illuminate\Support\Facades\Route;
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
+// // Redirect to Google for authentication
+// Route::get('login/google', [AuthController::class, 'redirectToGoogle']);
+
+// // Callback route to handle Google response
+// Route::get('login/google/callback', [AuthController::class, 'handleGoogleCallback']);
+
+Route::middleware(['web'])->group(function () {
+    Route::get('login/google', [AuthController::class, 'redirectToGoogle']);
+    Route::get('login/google/callback', [AuthController::class, 'handleGoogleCallback']);
+});
+
+// // Route to redirect to Google
+// Route::get('login/google', [AuthController::class, 'redirectToGoogle'])->name('login.google');
+
+// // Route to handle the Google OAuth callback
+// Route::get('login/google/callback', [AuthController::class, 'handleGoogleCallback']);
+
+
 // Freelancer section
 Route::get('/freelancers', [FreelancerController::class, 'index']);
 Route::get('/freelancers/{id}', [FreelancerController::class, 'show']);
@@ -107,6 +125,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
         // Fetch reviews by client ID for profile views
         Route::get('/client-reviews', [ReviewController::class, 'getByClient']);
     });
+
+
+
+
 
 
 });
