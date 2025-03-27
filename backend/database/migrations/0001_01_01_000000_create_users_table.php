@@ -20,7 +20,9 @@ return new class extends Migration
             $table->string('profile_picture')->nullable();
             $table->string('payment_phone')->nullable();
             $table->decimal('balance', 10, 2)->default(0.00);
-            // $table->foreignId('payment_history_id')->nullable()->constrained('payment_histories')->onDelete('set null');
+            // Add google_id column here and make it nullable
+            $table->string('google_id')->nullable()->unique(); // nullable and unique to prevent duplicate google_id
+            $table->string('avatar')->nullable(); // If you want to store the avatar as well
             $table->unsignedBigInteger('payment_history_id')->nullable();
             $table->string('nationality')->nullable();
             $table->timestamps();
