@@ -4,7 +4,9 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\AssignedProject;
+use App\Models\PaymentHistory;
 use App\Models\Project;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -69,6 +71,39 @@ class AssignedProjectController extends Controller
             'completion_date'=> 'sometimes|nullable|date',
             'review_id'      => 'sometimes|nullable|exists:reviews,id',
         ]);
+
+        // If status is updated to Completed, ensure payment details are provided
+        if (isset($validatedData['status']) && $validatedData['status'] === 'Completed'
+                && isset($validatedData['payment_status']) && $validatedData['payment_status'] === 'Released') {
+            
+            // Check if a payment record already exists to avoid duplicates
+            $existingPayment = PaymentHistory::where('project_id', $assignment->project_id)
+                ->where('sender_id', $assignment->client_id)
+                ->where('receiver_id', $assignment->freelancer_id)
+                ->first();
+
+            if (!$existingPayment) {
+                // Deduct payment_amount from client's balance
+                $client = User::find($assignment->client_id);
+                
+                if ($client && $client->balance >= $assignment->payment_amount) {
+                    $client->balance -= $assignment->payment_amount;
+                    $client->save();
+
+                    PaymentHistory::create([
+                        'amount'          => $assignment->payment_amount,
+                        'sender_id'       => $assignment->client_id,
+                        'receiver_id'     => $assignment->freelancer_id,
+                        'project_id'      => $assignment->project_id,
+                        'status'          => 'Pending',
+                        'payment_type'    => 'Fixed-Price'
+                    ]);
+
+                } else {
+                    return response()->json(['error' => 'Client has insufficient balance.'], 400);
+                }
+            }
+        }
 
         $assignment->update($validatedData);
 
