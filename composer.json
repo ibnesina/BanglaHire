@@ -1,6 +1,0 @@
-{
-    "require": {
-        "laravel/socialite": "^5.18",
-        "laravel/breeze": "^2.3"
-    }
-}
