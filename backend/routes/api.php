@@ -6,6 +6,7 @@ use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\BiddingController;
 use App\Http\Controllers\API\ClientController;
 use App\Http\Controllers\API\FreelancerController;
+use App\Http\Controllers\Api\LocalJobController;
 use App\Http\Controllers\API\PaymentHistoryController;
 use App\Http\Controllers\API\ProjectController;
 use App\Http\Controllers\API\ReviewController;
@@ -44,8 +45,12 @@ Route::get('/clients', [ClientController::class, 'index']);
 Route::get('/clients/{id}', [ClientController::class, 'show']);
 
 // Projects section
-Route::get('/projects', [ProjectController::class, 'index']);         // public
-Route::get('/projects/{id}', [ProjectController::class, 'show']);     // public
+Route::get('/projects', [ProjectController::class, 'index']);         
+Route::get('/projects/{id}', [ProjectController::class, 'show']);
+
+// Local Jobs section
+Route::get('/local-jobs', [LocalJobController::class, 'index']);
+Route::get('/local-jobs/{id}', [LocalJobController::class, 'show']);
 
 
 // Protected Routes
@@ -138,6 +143,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
     
         // Endpoints to get payments for authenticated clients
         Route::get('/client-payments', [PaymentHistoryController::class, 'getClientPayments'])->middleware('role:Client');
+
+        // Local Jobs section
+        Route::post('/local-jobs', [LocalJobController::class, 'store']);
+        Route::put('/local-jobs/{id}', [LocalJobController::class, 'update']);
+        Route::delete('/local-jobs/{id}', [LocalJobController::class, 'destroy']);
     });
 
 
