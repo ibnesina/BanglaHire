@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\API\AdminController;
 use App\Http\Controllers\API\AssignedProjectController;
+use App\Http\Controllers\API\AssignedProjectRequestController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\BiddingController;
 use App\Http\Controllers\API\ClientController;
@@ -112,6 +113,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         // Endpoints to get payments for authenticated freelancers
         Route::get('/freelancer-payments', [PaymentHistoryController::class, 'getFreelancerPayments'])->middleware('role:Freelancer');
+
+        // Project Request creation
+        Route::get('project-requests', [AssignedProjectRequestController::class, 'index']);
+        Route::patch('project-requests/{id}', [AssignedProjectRequestController::class, 'update']);
+        Route::get('project-requests/{id}', [AssignedProjectRequestController::class, 'show']);
     });
 
     // Client-only routes
@@ -148,6 +154,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/local-jobs', [LocalJobController::class, 'store']);
         Route::put('/local-jobs/{id}', [LocalJobController::class, 'update']);
         Route::delete('/local-jobs/{id}', [LocalJobController::class, 'destroy']);
+
+        // Project Request creation
+        Route::post('project-requests', [AssignedProjectRequestController::class, 'store']);
     });
 
 
