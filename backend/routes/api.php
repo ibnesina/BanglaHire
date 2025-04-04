@@ -1,5 +1,8 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
+
 use App\Http\Controllers\API\AdminController;
 use App\Http\Controllers\API\AssignedProjectController;
 use App\Http\Controllers\API\AssignedProjectRequestController;
@@ -7,17 +10,30 @@ use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\BiddingController;
 use App\Http\Controllers\API\ClientController;
 use App\Http\Controllers\API\FreelancerController;
-use App\Http\Controllers\Api\LocalJobController;
+use App\Http\Controllers\API\LocalJobController;
 use App\Http\Controllers\API\PaymentHistoryController;
 use App\Http\Controllers\API\ProjectController;
 use App\Http\Controllers\API\ReviewController;
-use Illuminate\Support\Facades\Route;
 
 // Public Routes
 
-// Authentication
+// Registration & Login
 Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login'])->name('login');
+
+// Forgot & Reset Password
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+
+// Email Verification Route
+Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'emailVerification'])->middleware('signed')->name('verification.verify');
+Route::get('/reset-password/{token}', function (Request $request, $token) {
+    return response()->json([
+        'message' => 'Password reset link is valid. Use the token to reset your password via your client application.',
+        'token'   => $token,
+        'email'   => $request->query('email')
+    ]);
+})->name('password.reset');
 
 // // Redirect to Google for authentication
 // Route::get('login/google', [AuthController::class, 'redirectToGoogle']);
@@ -55,7 +71,7 @@ Route::get('/local-jobs/{id}', [LocalJobController::class, 'show']);
 
 
 // Protected Routes
-Route::middleware(['auth:sanctum'])->group(function () {
+Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
 
     // Assigned Projects routes (visible to all authenticated users)
