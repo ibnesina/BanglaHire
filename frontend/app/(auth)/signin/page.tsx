@@ -4,20 +4,21 @@ import Link from "next/link";
 import { useState } from "react";
 
 const variants = {
-  initial: { scale: 0.9, opacity: 0 },
+  initial: { scale: 0.9, opacity: 0  },
   animate: { scale: 1, opacity: 1, transition: { duration: 0.5 } },
 };
 
 export default function Signin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<{ message: string|null }>({ message: null });
+  const [error, setError] = useState<{ message: string|null }>({ message: "" });
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     try {
       console.log(email, password);
     } catch (error) {
+      setError({ message: "Invalid email or password" });
       console.log(error);
     }
   };

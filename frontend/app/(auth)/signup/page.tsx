@@ -132,12 +132,12 @@ export default function Signup() {
           >
             Sign up
           </button>
-          <p className="text-center text-sm text-gray-600">
+          <div className="text-center text-sm text-gray-600">
             Already have an account?
             <Link href="/signin">
               <p className="text-blue-500 hover:underline">Sign in</p>
             </Link>
-          </p>
+          </div>
         </form>
       </div>
     </motion.div>
