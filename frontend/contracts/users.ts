@@ -1,3 +1,4 @@
+import { z } from "zod";
 
 export interface User {
   id: string; // UUID
@@ -15,3 +16,18 @@ export interface User {
   created_at: string; // datetime
   updated_at: string; // datetime
 }
+
+export const userRegistrationSchema = z
+  .object({
+    name: z.string().nonempty("Name is required"),
+    email: z.string().email("Invalid email address"),
+    password: z.string().min(8, "Password must be at least 8 characters long"),
+    password_confirmation: z.string(),
+    type: z.enum(["Freelancer", "Client"]),
+  })
+  .refine((data) => data.password === data.password_confirmation, {
+    message: "Passwords do not match",
+    path: ["password_confirmation"],
+  });
+
+export type TUserRegistrationSchema = z.infer<typeof userRegistrationSchema>;

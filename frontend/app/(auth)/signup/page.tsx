@@ -1,40 +1,41 @@
 "use client";
+import {
+  TUserRegistrationSchema,
+  userRegistrationSchema,
+} from "@/contracts/users";
+import { signupAPI } from "@/lib/api/authAPI";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
-
-const formDataSchema = z.object({
-  name: z.string().nonempty("Name is required"),
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters long"),
-  passwordConfirmation: z.string(),
-  type: z.enum(["Freelancer", "Client"]),
-}).refine((data) => data.password === data.passwordConfirmation, {
-  message: "Passwords do not match",
-  path: ["passwordConfirmation"],
-});
-
-type FormData = z.infer<typeof formDataSchema>;
 
 export default function Signup() {
-  const { register, handleSubmit } = useForm<FormData>({
-    resolver: async (values, context, options) => {
-      try {
-        const result = await formDataSchema.parseAsync(values);
-        return { values: result };
-      } catch (error) {
-        return { errors: error.flatten() };
-      }
+
+  const inputFieldDesign="block w-full px-4 py-2 text-gray-700 bg-white border rounded-md focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40 focus:outline-none focus:ring";
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<TUserRegistrationSchema>({
+    resolver: zodResolver(userRegistrationSchema),
+    defaultValues: {
+      type: "Freelancer",
+      name: "",
+      email: "",
+      password: "",
+      password_confirmation: "",
     },
   });
 
-  const onSubmit = async (data: FormData) => {
-    console.log(data);
+  const onSubmit = async (data: TUserRegistrationSchema) => {
+    // console.log(data);
+    await signupAPI(data);
   };
 
   return (
     <motion.div
+      key="signup"
       className="h-screen overflow-scroll flex flex-col items-center justify-center bg-gradient-to-r from-sky-500 to-sky-700"
     >
       <div className="text-5xl font-bold text-white mb-6">
@@ -58,8 +59,15 @@ export default function Signup() {
               type="text"
               id="name"
               {...register("name")}
-              className="block w-full px-4 py-2 text-gray-700 bg-white border rounded-md focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40"
+              className={`${inputFieldDesign} ${
+                errors.name ? "border-red-500" : ""
+              }`}
             />
+            {errors.name && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.name.message}
+              </p>
+            )}
           </div>
           <div className="space-y-2">
             <label
@@ -72,8 +80,15 @@ export default function Signup() {
               type="email"
               id="email"
               {...register("email")}
-              className="block w-full px-4 py-2 text-gray-700 bg-white border rounded-md focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40"
+              className={`${inputFieldDesign} ${
+                errors.email ? "border-red-500" : ""
+              }`}
             />
+            {errors.email && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.email.message}
+              </p>
+            )}
           </div>
           <div className="space-y-2">
             <label
@@ -86,8 +101,15 @@ export default function Signup() {
               type="password"
               id="password"
               {...register("password")}
-              className="block w-full px-4 py-2 text-gray-700 bg-white border rounded-md focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40"
+              className={`${inputFieldDesign} ${
+                errors.password ? "border-red-500" : ""
+              }`}
             />
+            {errors.password && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.password.message}
+              </p>
+            )}
           </div>
           <div className="space-y-2">
             <label
@@ -99,9 +121,16 @@ export default function Signup() {
             <input
               type="password"
               id="password-confirmation"
-              {...register("passwordConfirmation")}
-              className="block w-full px-4 py-2 text-gray-700 bg-white border rounded-md focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40"
+              {...register("password_confirmation")}
+              className={`${inputFieldDesign} ${
+                errors.password_confirmation ? "border-red-500" : ""
+              }`}
             />
+            {errors.password_confirmation && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.password_confirmation.message}
+              </p>
+            )}
           </div>
           <button
             type="submit"

@@ -1,3 +1,5 @@
+import { toast } from "sonner";
+
 interface ApiFetchOptions extends RequestInit {
   url: string;
   params?: Record<string, unknown>; // JSON-friendly object
@@ -25,7 +27,7 @@ export default async function apiRequest(meta: ApiFetchOptions) {
     requestHeaders = {
       ...headers,
       Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       Accept: "application/json",
     };
   }
@@ -34,15 +36,25 @@ export default async function apiRequest(meta: ApiFetchOptions) {
   const shouldHaveBody = !["GET", "HEAD"].includes(method.toUpperCase());
   const body = shouldHaveBody && data ? JSON.stringify(data) : undefined;
 
-  const response = await fetch(urlWithParams, {
-    method:method.toUpperCase(),
-    headers: requestHeaders,
-    body,
-    ...rest,
-  });
-  if (response.status === 401) {
-    localStorage.removeItem("token");
-    window.location.href = "/login";
+  try {
+    console.log(urlWithParams)
+    const response = await fetch(urlWithParams, {
+      method: method.toUpperCase(),
+      headers: requestHeaders,
+      body,
+      ...rest,
+    });
+
+    if (response.status === 401) {
+      localStorage.removeItem("token");
+      window.location.href = "/login";
+    }
+
+    console.log(response   )
+    return response.json();
+  } catch (error) {
+    console.error("API request failed:", error);
+    toast("Network error: Failed to reach the server");
+    throw error; // or return a consistent error object if you prefer
   }
-  return response.json();
 }
