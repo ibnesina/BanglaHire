@@ -25,6 +25,7 @@ return new class extends Migration
             $table->string('avatar')->nullable(); // If you want to store the avatar as well
             $table->unsignedBigInteger('payment_history_id')->nullable();
             $table->string('nationality')->nullable();
+            $table->dateTime('email_verified_at')->nullable();
             $table->timestamps();
         });
 
