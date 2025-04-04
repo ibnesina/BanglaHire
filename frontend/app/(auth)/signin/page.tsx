@@ -11,7 +11,7 @@ const variants = {
 export default function Signin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<{ message: string|null }>({ message: null });
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -73,7 +73,7 @@ export default function Signin() {
                 required
               />
             </div>
-            {error && <p className="text-red-600 text-sm">{error}</p>}
+            {error && <p className="text-red-600 text-sm">{error.message}</p>}
             <div className="flex items-center justify-between">
               <button
                 type="submit"
