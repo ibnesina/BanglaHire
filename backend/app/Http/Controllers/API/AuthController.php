@@ -14,13 +14,13 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Facades\Http;
-
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Password;
 
 class AuthController extends Controller
 {
-    // Register a new user
-    public function register(Request $request)
-    {
+    // Register a new user with email verification
+    public function register(Request $request) {
         $request->validate([
             'name'     => 'required|string|max:255',
             'email'    => 'required|string|email|max:255|unique:users',
@@ -37,45 +37,40 @@ class AuthController extends Controller
             'type'     => $request->type,
         ]);
 
-        // Automatically create the associated role record using the user id as a foreign key
+        // Create the associated role record
         switch ($user->type) {
             case 'Freelancer':
                 Freelancer::create([
                     'freelancer_id' => $user->id,
-                    // Optionally, set default values for other freelancer fields here.
                 ]);
                 break;
-
             case 'Client':
                 Client::create([
                     'client_id' => $user->id,
-                    // Optionally, set default values for other client fields here.
                 ]);
                 break;
-
             case 'Admin':
                 Admin::create([
                     'admin_id' => $user->id,
-                    // Optionally, set default values for other admin fields here.
                 ]);
                 break;
         }
 
+        // Send the email verification notification
+        $user->sendEmailVerificationNotification();
+
         // Create a Sanctum token for API authentication
-        // Sanctum Token: After successfully authenticating, we generate a Sanctum token for the user, which they can use for subsequent API requests.
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
-            'user'  => $user,
-            'token' => $token,
+            'user'    => $user,
+            'token'   => $token,
+            'message' => 'Registration successful. Please check your email to verify your account.',
         ], 201);
     }
 
-    /**
-     * Login the user and return their info along with the associated role data.
-     */
-    public function login(Request $request)
-    {
+    // Login the user and return their info along with associated role data
+    public function login(Request $request) {
         $request->validate([
             'email'    => 'required|string|email',
             'password' => 'required|string',
@@ -89,31 +84,108 @@ class AuthController extends Controller
             ]);
         }
 
+        // Check if the user's email is verified
+        if (!$user->hasVerifiedEmail()) {
+            return response()->json([
+                'message' => 'Please verify your email address before logging in.'
+            ], 403);
+        }
+
         $token = $user->createToken('auth_token')->plainTextToken;
 
-        // Load the associated role data based on the user's type.
+        // Load the associated role data based on the user's type
         $roleData = null;
         if ($user->type === 'Freelancer') {
-            $roleData = $user->freelancer;  // retrieves the Freelancer record
+            $roleData = $user->freelancer;
         } elseif ($user->type === 'Client') {
-            $roleData = $user->client;      // retrieves the Client record
+            $roleData = $user->client;
         } elseif ($user->type === 'Admin') {
-            $roleData = $user->admin;       // retrieves the Admin record
+            $roleData = $user->admin;
         }
 
         return response()->json([
             'message'   => 'Login successful',
             'user'      => $user,
-            'role_data' => $roleData,
+            // 'role_data' => $roleData,
             'token'     => $token,
         ]);
     }
 
-    // Logout user
-    public function logout(Request $request)
+    // Send a password reset link to the user's email
+    public function forgotPassword(Request $request)
     {
-        $request->user()->tokens()->delete();
+        $request->validate([
+            'email' => 'required|email|exists:users,email',
+        ]);
 
+        // Send the password reset link via the Password broker
+        $status = Password::sendResetLink(
+            $request->only('email')
+        );
+
+        if ($status == Password::RESET_LINK_SENT) {
+            return response()->json(['message' => 'Password reset link sent!'], 200);
+        }
+
+        return response()->json(['error' => 'Unable to send reset link'], 500);
+    }
+
+    // Reset the password using the reset token
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'email'        => 'required|email|exists:users,email',
+            'old_password' => 'required|string',
+            'password'     => 'required|string|min:8|confirmed',
+        ]);
+    
+        // Fetch the user by email
+        $user = User::where('email', $request->email)->first();
+    
+        // Verify the provided old password
+        if (! Hash::check($request->old_password, $user->password)) {
+            return response()->json(['error' => 'Old password does not match.'], 422);
+        }
+    
+        // Check if the new password is the same as the old one
+        if (Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'error' => 'The new password cannot be the same as the old password.'
+            ], 422);
+        }
+    
+        // Update the user's password
+        $user->password = Hash::make($request->password);
+        $user->save();
+    
+        return response()->json(['message' => 'Password updated successfully'], 200);
+        
+    }
+
+
+    // Email Verification
+    public function emailVerification(Request $request, $id, $hash) {
+        $user = User::findOrFail($id);
+    
+        // Check if the hash is valid for the given user's email
+        if (! hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
+            return response()->json(['message' => 'Invalid verification link.'], 403);
+        }
+    
+        // If already verified, you can simply return a message
+        if ($user->hasVerifiedEmail()) {
+            return response()->json(['message' => 'Email already verified.'], 200);
+        }
+    
+        // Mark the user's email as verified
+        $user->markEmailAsVerified();
+    
+        return response()->json(['message' => 'Email verified successfully.'], 200);
+    }
+
+    // Logout user by revoking Sanctum tokens
+    public function logout(Request $request) {
+        $request->user()->tokens()->delete();
         return response()->json(['message' => 'Successfully logged out']);
     }
 
@@ -131,7 +203,7 @@ class AuthController extends Controller
     public function handleGoogleCallback(Request $request)
     {
         try {
-            \Log::info('Google OAuth Callback Data:', request()->all());
+            Log::info('Google OAuth Callback Data:', request()->all());
             
             // Step 1: Exchange the authorization code for an access token
             $code = $request->get('code');
@@ -144,25 +216,25 @@ class AuthController extends Controller
             ]);
     
             if ($response->failed()) {
-                \Log::error('Failed to get access token', ['error' => $response->body()]);
+                Log::error('Failed to get access token', ['error' => $response->body()]);
                 return response()->json(['error' => 'Unable to login with Google'], 500);
             }
     
             $tokens = $response->json();
             $accessToken = $tokens['access_token'];
     
-            \Log::info('Google Tokens:', ['accessToken' => $accessToken]);
+            Log::info('Google Tokens:', ['accessToken' => $accessToken]);
     
             // Step 2: Retrieve user information using the access token
             $userResponse = Http::withToken($accessToken)->get('https://www.googleapis.com/oauth2/v3/userinfo');
     
             if ($userResponse->failed()) {
-                \Log::error('Failed to fetch user info', ['error' => $userResponse->body()]);
+                Log::error('Failed to fetch user info', ['error' => $userResponse->body()]);
                 return response()->json(['error' => 'Unable to fetch user data'], 500);
             }
     
             $googleUser = $userResponse->json();
-            \Log::info('Google User Data:', ['googleUser' => $googleUser]);
+            Log::info('Google User Data:', ['googleUser' => $googleUser]);
     
             // Step 3: Retrieve the role passed from frontend (either 'Client' or 'Freelancer')
             $role = session()->get('role', 'No Role'); // Default to 'No Role' if not found
@@ -189,12 +261,12 @@ class AuthController extends Controller
 
             */
     
-            \Log::info('Role Received:', ['role' => $role]);
+            Log::info('Role Received:', ['role' => $role]);
     
             // Validate the role
             $validRoles = ['Freelancer', 'Client','Admin'];
             if (!in_array($role, $validRoles)) {
-                \Log::error('Invalid role provided', ['role' => $role]);
+                Log::error('Invalid role provided', ['role' => $role]);
                 return response()->json(['error' => 'Invalid role'], 400);
             }
     
@@ -233,7 +305,7 @@ class AuthController extends Controller
                 'token' => $token,
             ]);
         } catch (\Exception $e) {
-            \Log::error('Google login error', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            Log::error('Google login error', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             return response()->json(['error' => 'Unable to login with Google'], 500);
         }
     }

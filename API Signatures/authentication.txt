@@ -1,0 +1,199 @@
+// Additional Comments:
+// - Email Verification: GET /email/verify/{id}/{hash} validates the user's email via a signed URL.
+// - Forgot Password: POST /forgot-password sends a password reset link to the user's email.
+// - Reset Password: POST /reset-password verifies the old password and updates to a new one.
+// - Reset Password Link Validation: GET /reset-password/{token}?email=... confirms that the reset token is valid.
+// - Google OAuth endpoints (redirectToGoogle and handleGoogleCallback) manage authentication using Google's API.
+// - Logout: POST /logout revokes the user's Sanctum token.
+
+{
+  register: {
+    method: "POST",
+    url: "/register",
+    request: {
+      name: "string (max:255)",
+      email: "string (email, unique, max:255)",
+      password: "string (min:8)",
+      password_confirmation: "string (must match password)",
+      type: "'Admin' | 'Freelancer' | 'Client'"
+    },
+    response: {
+      user: {
+        id: "string (UUID)",
+        type: "'Admin' | 'Freelancer' | 'Client'",
+        email: "string",
+        name: "string",
+        profile_picture: "string | null",
+        payment_phone: "string | null",
+        balance: "string (decimal, e.g., '0.00')",
+        google_id: "string | null",
+        avatar: "string | null",
+        payment_history_id: "number | null",
+        nationality: "string | null",
+        email_verified_at: "string (datetime) | null",
+        created_at: "string (datetime)",
+        updated_at: "string (datetime)"
+      },
+      token: "string",
+      message: "string"
+    }
+  },
+  login: {
+    method: "POST",
+    url: "/login",
+    request: {
+      email: "string (email)",
+      password: "string"
+    },
+    response: {
+      message: "string",
+      user: {
+        id: "string (UUID)",
+        type: "'Admin' | 'Freelancer' | 'Client'",
+        email: "string",
+        name: "string",
+        profile_picture: "string | null",
+        payment_phone: "string | null",
+        balance: "string (decimal)",
+        google_id: "string | null",
+        avatar: "string | null",
+        payment_history_id: "number | null",
+        nationality: "string | null",
+        email_verified_at: "string (datetime) | null",
+        created_at: "string (datetime)",
+        updated_at: "string (datetime)"
+      },
+      token: "string"
+    },
+    error: {
+      invalid_credentials: {
+        errors: {
+          email: ["string"]
+        }
+      },
+      email_not_verified: {
+        message: "string"
+      }
+    }
+  },
+  forgotPassword: {
+    method: "POST",
+    url: "/forgot-password",
+    request: {
+      email: "string (email)"
+    },
+    response: {
+      message: "string"
+    },
+    error: {
+      unable_to_send: {
+        error: "string"
+      }
+    }
+  },
+  resetPassword: {
+    method: "POST",
+    url: "/reset-password",
+    request: {
+      email: "string (email)",
+      old_password: "string",
+      password: "string (min:8)",
+      password_confirmation: "string (must match password)"
+    },
+    response: {
+      message: "string"
+    },
+    error: {
+      old_password_mismatch: {
+        error: "string"
+      },
+      new_password_same: {
+        error: "string"
+      }
+    }
+  },
+  emailVerification: {
+    method: "GET",
+    url: "/email/verify/{id}/{hash}",
+    url_params: {
+      id: "string (UUID)",
+      hash: "string (SHA1 hash of email)"
+    },
+    response: {
+      verified: {
+        message: "Email verified successfully."
+      },
+      already_verified: {
+        message: "Email already verified."
+      }
+    },
+    error: {
+      invalid_link: {
+        message: "Invalid verification link."
+      }
+    }
+  },
+  validateResetPasswordLink: {
+    method: "GET",
+    url: "/reset-password/{token}",
+    url_params: {
+      token: "string"
+    },
+    query_params: {
+      email: "string (email)"
+    },
+    response: {
+      message:
+        "Password reset link is valid. Use the token to reset your password via your client application.",
+      token: "string",
+      email: "string"
+    }
+  },
+  redirectToGoogle: {
+    method: "GET",
+    url: "/login/google",
+    description:
+      "Redirects the user to Google's OAuth consent screen (no JSON response; performs HTTP redirection)"
+  },
+  handleGoogleCallback: {
+    method: "GET",
+    url: "/login/google/callback",
+    query_params: {
+      code: "string"
+    },
+    response: {
+      user: {
+        id: "string (UUID)",
+        type: "'Admin' | 'Freelancer' | 'Client'",
+        email: "string",
+        name: "string",
+        profile_picture: "string | null",
+        payment_phone: "string | null",
+        balance: "string (decimal)",
+        google_id: "string | null",
+        avatar: "string | null",
+        payment_history_id: "number | null",
+        nationality: "string | null",
+        email_verified_at: "string (datetime) | null",
+        created_at: "string (datetime)",
+        updated_at: "string (datetime)"
+      },
+      token: "string"
+    },
+    error: {
+      google_login_error: {
+        error: "string"
+      }
+    }
+  },
+  logout: {
+    method: "POST",
+    url: "/logout",
+    headers: {
+      Authorization: "string (Bearer token)"
+    },
+    response: {
+      message: "Successfully logged out"
+    }
+  }
+}
