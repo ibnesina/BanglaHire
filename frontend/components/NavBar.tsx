@@ -1,4 +1,4 @@
-import React from "react";
+import Link from "next/link";
 import { Button } from "./ui/button";
 
 function NavBar() {
@@ -7,13 +7,19 @@ function NavBar() {
       <p className="font-bold text-4xl ">BanglaHire</p>
       <div className="flex gap-5">
         <a href="#">
-          <p className="px-4 border hover:bg-slate-300 hover:text-zinc-600 hover:font-semibold">Hire Talent</p>
+          <p className="px-4 border hover:bg-slate-300 hover:text-zinc-600 hover:font-semibold">
+            Hire Talent
+          </p>
         </a>
         <a href="#">
-          <p className="px-8 border hover:bg-slate-300 hover:text-zinc-600 hover:font-semibold">Find Work</p>
+          <p className="px-8 border hover:bg-slate-300 hover:text-zinc-600 hover:font-semibold">
+            Find Work
+          </p>
         </a>
         <a href="#">
-          <p className="px-4 border hover:bg-slate-300 hover:text-zinc-600 hover:font-semibold">About Us</p>
+          <p className="px-4 border hover:bg-slate-300 hover:text-zinc-600 hover:font-semibold">
+            About Us
+          </p>
         </a>
       </div>
       <div className="relative">
@@ -27,12 +33,23 @@ function NavBar() {
         </button>
       </div>
       <div className="flex gap-2">
-        <a href="#">
-          <Button variant={"outline"} className="px-5 text-black cursor-pointer" >Sign In</Button>
-        </a>
-        <a href="#">
-          <Button variant={"outline"} className="px-5 text-black cursor-pointer">Sign Up</Button>
-        </a>
+        <Link href="/signin">
+          <Button
+            variant="outline"
+            className="px-5 text-black cursor-pointer hover:bg-slate-300 hover:text-zinc-600 hover:font-semibold"
+          >
+            Sign In
+          </Button>
+        </Link>
+
+        <Link href="/signup">
+          <Button
+            variant="outline"
+            className="px-5 text-black cursor-pointer hover:bg-slate-300 hover:text-zinc-600 hover:font-semibold"
+          >
+            Sign Up
+          </Button>
+        </Link>
       </div>
     </div>
   );
