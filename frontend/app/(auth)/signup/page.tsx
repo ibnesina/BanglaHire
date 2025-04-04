@@ -1,40 +1,41 @@
-"use client"
-import { motion } from 'framer-motion'
-import Link from 'next/link'
-import { useState } from 'react'
+"use client";
+import { motion } from "framer-motion";
+import Link from "next/link";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
-const variants = {
-  initial: { scale: 0.9, opacity: 0 },
-  animate: { scale: 1, opacity: 1, transition: { duration: 0.5 } },
-}
+const formDataSchema = z.object({
+  name: z.string().nonempty("Name is required"),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters long"),
+  passwordConfirmation: z.string(),
+  type: z.enum(["Freelancer", "Client"]),
+}).refine((data) => data.password === data.passwordConfirmation, {
+  message: "Passwords do not match",
+  path: ["passwordConfirmation"],
+});
+
+type FormData = z.infer<typeof formDataSchema>;
 
 export default function Signup() {
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [passwordConfirmation, setPasswordConfirmation] = useState('')
-  const [type, setType] = useState<'Freelancer' | 'Client'>('Freelancer')
-  const [error, setError] = useState<{message: string | null }>({ message: null })
+  const { register, handleSubmit } = useForm<FormData>({
+    resolver: async (values, context, options) => {
+      try {
+        const result = await formDataSchema.parseAsync(values);
+        return { values: result };
+      } catch (error) {
+        return { errors: error.flatten() };
+      }
+    },
+  });
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault()
-    if (password !== passwordConfirmation) {
-      setError({ message: 'Passwords do not match' })
-      return
-    }
-    try {
-      console.log(name, email, password, type)
-    } catch (error) {
-      console.log(error)
-    }
-  }
+  const onSubmit = async (data: FormData) => {
+    console.log(data);
+  };
 
   return (
     <motion.div
-      variants={variants}
-      initial="initial"
-      animate="animate"
-      className="h-screen flex flex-col items-center justify-center bg-gradient-to-r from-sky-500 to-sky-700"
+      className="h-screen overflow-scroll flex flex-col items-center justify-center bg-gradient-to-r from-sky-500 to-sky-700"
     >
       <div className="text-5xl font-bold text-white mb-6">
         <span className="text-teal-400">B</span>angla
@@ -45,20 +46,7 @@ export default function Signup() {
         <h2 className="text-3xl font-bold text-center mb-6 text-gray-700">
           Sign up
         </h2>
-        <div className="flex justify-center mb-4">
-          {['Freelancer', 'Client'].map((option) => (
-            <button
-              key={option}
-              onClick={() => setType(option as 'Freelancer' | 'Client')}
-              className={`px-4 py-2 mx-2 font-semibold rounded-md shadow-sm cursor-pointer ${
-                type === option ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'
-              }`}
-            >
-              {option}
-            </button>
-          ))}
-        </div>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
             <label
               className="block text-sm font-semibold text-gray-700"
@@ -69,10 +57,8 @@ export default function Signup() {
             <input
               type="text"
               id="name"
-              value={name}
-              onChange={(event) => setName(event.target.value)}
+              {...register("name")}
               className="block w-full px-4 py-2 text-gray-700 bg-white border rounded-md focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40"
-              required
             />
           </div>
           <div className="space-y-2">
@@ -85,10 +71,8 @@ export default function Signup() {
             <input
               type="email"
               id="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
+              {...register("email")}
               className="block w-full px-4 py-2 text-gray-700 bg-white border rounded-md focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40"
-              required
             />
           </div>
           <div className="space-y-2">
@@ -101,10 +85,8 @@ export default function Signup() {
             <input
               type="password"
               id="password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
+              {...register("password")}
               className="block w-full px-4 py-2 text-gray-700 bg-white border rounded-md focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40"
-              required
             />
           </div>
           <div className="space-y-2">
@@ -117,15 +99,10 @@ export default function Signup() {
             <input
               type="password"
               id="password-confirmation"
-              value={passwordConfirmation}
-              onChange={(event) => setPasswordConfirmation(event.target.value)}
+              {...register("passwordConfirmation")}
               className="block w-full px-4 py-2 text-gray-700 bg-white border rounded-md focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40"
-              required
             />
           </div>
-          {error && (
-            <p className="text-center text-sm text-red-600">{error.message}</p>
-          )}
           <button
             type="submit"
             className="w-full px-4 py-2 font-semibold text-white bg-blue-500 rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white"
@@ -141,6 +118,6 @@ export default function Signup() {
         </form>
       </div>
     </motion.div>
-  )
+  );
 }
 
