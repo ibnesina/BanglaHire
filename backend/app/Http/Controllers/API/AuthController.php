@@ -56,6 +56,7 @@ class AuthController extends Controller
                 break;
         }
 
+        logger($user);
         // Send the email verification notification
         $user->sendEmailVerificationNotification();
 
