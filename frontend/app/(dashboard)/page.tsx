@@ -1,6 +1,5 @@
-import Image from "next/image";
 import { Toaster } from "@/components/ui/sonner";
-
+import Image from "next/image";
 
 export default function Home() {
   return (
@@ -16,7 +15,7 @@ export default function Home() {
           </p>
         </div>
       </div>
-      <Toaster />
+      
     </div>
   );
 }
