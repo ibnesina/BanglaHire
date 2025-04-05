@@ -20,9 +20,15 @@ export interface User {
 export const userRegistrationSchema = z
   .object({
     name: z.string().nonempty("Name is required"),
-    email: z.string().email("Invalid email address"),
-    password: z.string().min(8, "Password must be at least 8 characters long"),
-    password_confirmation: z.string(),
+    email: z
+      .string()
+      .email("Invalid email address")
+      .nonempty("Email is required"),
+    password: z
+      .string()
+      .min(8, "Password must be at least 8 characters long")
+      .nonempty("Password is required"),
+    password_confirmation: z.string().nonempty("Confirm your password"),
     type: z.enum(["Freelancer", "Client"]),
   })
   .refine((data) => data.password === data.password_confirmation, {
@@ -31,3 +37,16 @@ export const userRegistrationSchema = z
   });
 
 export type TUserRegistrationSchema = z.infer<typeof userRegistrationSchema>;
+
+export const userSignInSchema = z.object({
+  email: z
+    .string()
+    .email("Invalid email address")
+    .nonempty("Email is required"),
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters long")
+    .nonempty("Password is required"),
+});
+
+export type TUserSignInSchema = z.infer<typeof userSignInSchema>;

@@ -53,14 +53,13 @@ export default async function apiRequest(meta: ApiFetchOptions) {
       localStorage.removeItem("token");
       window.location.href = "/login";
     }
-    
     const responseData = await response.json();
 
     // Return the JSON data along with the HTTP status code
     return { ...responseData, status: response.status };
   } catch (error) {
     console.error("API request failed:", error);
-    toast("Network error: Failed to reach the server");
+    toast.error("Network error: Failed to reach the server");
     throw error; // or return a consistent error object if you prefer
   }
 }
