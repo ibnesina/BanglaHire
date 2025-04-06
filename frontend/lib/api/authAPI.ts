@@ -10,7 +10,7 @@ export const signupAPI = async (data: TUserRegistrationSchema) => {
   if (response.status === 201) {
     userStore.setUser(response.user, response.token);
     toast.success(response.message);
-    redirect("/login");
+    redirect("/signin");
   } else if (response.status === 422) {
     toast.info(response.message);
   } else {

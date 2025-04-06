@@ -71,8 +71,7 @@ Route::get('/local-jobs/{id}', [LocalJobController::class, 'show']);
 
 
 // Protected Routes
-// Route::middleware(['auth:sanctum', 'verified'])->group(function () {
-Route::middleware(['auth:sanctum',])->group(function () {
+Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
     Route::post('/logout', [AuthController::class, 'logout']);
 
