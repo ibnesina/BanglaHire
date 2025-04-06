@@ -55,6 +55,7 @@ export default async function apiRequest(meta: ApiFetchOptions) {
     }
     const responseData = await response.json();
 
+    console.log(responseData);
     // Return the JSON data along with the HTTP status code
     return { ...responseData, status: response.status };
   } catch (error) {
