@@ -2,11 +2,11 @@
 
 import { User } from "@/contracts/users";
 import { makeAutoObservable } from "mobx";
-import { getMeAPI } from "./api/authAPI";
 import { toast } from "sonner";
+import { getMeAPI } from "./api/authAPI";
 
 class UserStore {
-  user: User | null = null;
+  user: User | null | undefined;
   token: string | null = null;
 
   constructor() {
