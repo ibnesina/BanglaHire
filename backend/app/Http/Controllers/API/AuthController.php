@@ -110,6 +110,13 @@ class AuthController extends Controller
         ]);
     }
 
+    
+    // Return the user data based on the token provided in the Authorization header
+    public function me(Request $request)
+    {
+        return $request->user();
+    }
+
     // Send a password reset link to the user's email
     public function forgotPassword(Request $request)
     {

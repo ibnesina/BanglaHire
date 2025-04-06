@@ -38,3 +38,11 @@ export const signInAPI = async (data: TUserSignInSchema) => {
     toast.error(response.message);
   }
 };
+
+export const getMeAPI = async () => {
+  const response = await apiRequest({ method: "GET", url: "/me" });
+  if (response.status === 200) {
+    return response;
+  }
+  toast.error(response.message);
+};
