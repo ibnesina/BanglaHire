@@ -46,3 +46,16 @@ export const getMeAPI = async () => {
   }
   toast.error(response.message);
 };
+
+
+export const logoutAPI = async () => {
+  const response = await apiRequest({ method: "POST", url: "/logout" });
+  if (response.status === 200) {
+    userStore.clearUser();
+    toast.success(response.message);
+    redirect("/signin");
+  } else {
+    toast.error(response.message);
+  }
+};
+

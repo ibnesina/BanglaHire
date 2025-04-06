@@ -17,7 +17,7 @@ class UserStore {
       this.getUserData();
     }
   }
-  
+
   async getUserData() {
     try {
       const response = await getMeAPI();
@@ -36,6 +36,7 @@ class UserStore {
   clearUser() {
     this.user = null;
     this.token = null;
+    localStorage.removeItem("token");
   }
 }
 

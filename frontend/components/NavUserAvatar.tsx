@@ -5,6 +5,7 @@ import { observer } from "mobx-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "./ui/button";
+import { logoutAPI } from "@/lib/api/authAPI";
 
 const AuthOptions = observer(() => {
   const { user } = userStore;
@@ -59,6 +60,9 @@ const AuthOptions = observer(() => {
             </Link>
             <button
               className="w-full text-left cursor-pointer"
+              onClick={async() => {
+                await logoutAPI();
+              }}
             >
               <li className="hover:bg-gray-100 px-4 py-2">Logout</li>
             </button>
