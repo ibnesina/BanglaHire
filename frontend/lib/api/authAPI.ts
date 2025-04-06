@@ -1,7 +1,7 @@
 import { toast } from "sonner";
 import userStore from "../store";
 import apiRequest from "./apiRequest";
-import { TUserRegistrationSchema, TUserSignInSchema } from "@/contracts/users";
+import { TResetPasswordSchema, TUserRegistrationSchema, TUserSignInSchema } from "@/contracts/users";
 import { redirect } from "next/navigation";
 
 export const signupAPI = async (data: TUserRegistrationSchema) => {
@@ -59,3 +59,12 @@ export const logoutAPI = async () => {
   }
 };
 
+export const resetPasswordAPI = async (data: TResetPasswordSchema) => {
+  const response = await apiRequest({ method: "POST", url: "/reset-password", data });
+  console.log(response);
+  if (response.status === 200) {
+    toast.success(response.message);
+  } else {
+    toast.error(response.error);
+  }
+};
