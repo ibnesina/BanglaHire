@@ -68,3 +68,15 @@ export const resetPasswordAPI = async (data: TResetPasswordSchema) => {
     toast.error(response.error);
   }
 };
+
+
+export const forgotPasswordAPI = async (email: string) => {
+  const response = await apiRequest({ method: "POST", url: "/forgot-password", data: { email } });
+
+  if (response.status === 200) {
+    toast.success(response.message);
+  } else {
+    toast.error(response.error || "Unable to send reset link");
+  }
+};
+

@@ -1,10 +1,11 @@
 "use client";
 import { TUserSignInSchema, userSignInSchema } from "@/contracts/users";
-import { signInAPI } from "@/lib/api/authAPI";
+import { forgotPasswordAPI, signInAPI } from "@/lib/api/authAPI";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 const variants = {
   initial: { scale: 0.9, opacity: 0 },
@@ -15,6 +16,8 @@ export default function Signin() {
   const {
     register,
     handleSubmit,
+    getValues,
+    setError,
     formState: { errors },
   } = useForm<TUserSignInSchema>({
     resolver: zodResolver(userSignInSchema),
@@ -30,6 +33,7 @@ export default function Signin() {
 
   const inputFieldDesign =
     "block w-full px-4 py-2 text-gray-700 bg-white border rounded-md focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40";
+
   return (
     <div>
       <motion.div
@@ -109,16 +113,27 @@ export default function Signin() {
                     Sign up
                   </Link>
                 </p>
-                {/* */}
               </div>
             </div>
             <div className="flex items-center justify-center">
-              <Link
-                className="text-sm text-blue-600 hover:text-blue-700"
-                href="/forgot-password"
+              <p
+                onClick={async (e) => {
+                  e.preventDefault();
+                  const email = getValues("email");
+                  try {
+                    z.string()
+                      .email()
+                      .nonempty("Must be a valid email")
+                      .parse(email);
+                  } catch (error) {
+                    setError("email", { message: error.message });
+                  }
+                  await forgotPasswordAPI(email);
+                }}
+                className="text-blue-600 hover:text-blue-700 cursor-pointer"
               >
                 Forgot password?
-              </Link>
+              </p>
             </div>
           </form>
         </div>
