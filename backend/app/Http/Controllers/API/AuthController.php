@@ -27,7 +27,6 @@ class AuthController extends Controller
             'password' => 'required|string|min:8|confirmed',
             'type'     => 'required|in:Admin,Freelancer,Client',
         ]);
-
         // Create the user record
         $user = User::create([
             'id'       => (string) Str::uuid(),
@@ -56,7 +55,6 @@ class AuthController extends Controller
                 break;
         }
 
-        logger($user);
         // Send the email verification notification
         $user->sendEmailVerificationNotification();
 

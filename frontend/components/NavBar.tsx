@@ -1,5 +1,4 @@
-import Link from "next/link";
-import { Button } from "./ui/button";
+import AuthOptions from "./NavUserAvatar";
 
 function NavBar() {
   return (
@@ -32,25 +31,7 @@ function NavBar() {
           🔍
         </button>
       </div>
-      <div className="flex gap-2">
-        <Link href="/signin">
-          <Button
-            variant="outline"
-            className="px-5 text-black cursor-pointer hover:bg-slate-300 hover:text-zinc-600 hover:font-semibold"
-          >
-            Sign In
-          </Button>
-        </Link>
-
-        <Link href="/signup">
-          <Button
-            variant="outline"
-            className="px-5 text-black cursor-pointer hover:bg-slate-300 hover:text-zinc-600 hover:font-semibold"
-          >
-            Sign Up
-          </Button>
-        </Link>
-      </div>
+      <AuthOptions />
     </div>
   );
 }
