@@ -23,34 +23,26 @@ Route::post('/login', [AuthController::class, 'login'])->name('login');
 
 // Forgot & Reset Password
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('/password/change', [AuthController::class, 'passwordChange']);
+
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
 // Email Verification Route
 Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'emailVerification'])->middleware('signed')->name('verification.verify');
-Route::get('/reset-password/{token}', function (Request $request, $token) {
-    return response()->json([
-        'message' => 'Password reset link is valid. Use the token to reset your password via your client application.',
-        'token'   => $token,
-        'email'   => $request->query('email')
-    ]);
-})->name('password.reset');
-
-// // Redirect to Google for authentication
-// Route::get('login/google', [AuthController::class, 'redirectToGoogle']);
-
-// // Callback route to handle Google response
-// Route::get('login/google/callback', [AuthController::class, 'handleGoogleCallback']);
 
 Route::middleware(['web'])->group(function () {
+    // Initiate Google login.
     Route::get('login/google', [AuthController::class, 'redirectToGoogle']);
+
+    // Google OAuth callback route.
     Route::get('login/google/callback', [AuthController::class, 'handleGoogleCallback']);
+
+    // Role selection route (redirect target).
+    Route::get('select-role', [AuthController::class, 'showRoleSelection'])->name('role.selection');
+
+    // Complete registration route.
+    Route::post('complete-registration', [AuthController::class, 'completeRegistration']);
 });
-
-// // Route to redirect to Google
-// Route::get('login/google', [AuthController::class, 'redirectToGoogle'])->name('login.google');
-
-// // Route to handle the Google OAuth callback
-// Route::get('login/google/callback', [AuthController::class, 'handleGoogleCallback']);
 
 
 // Freelancer section
@@ -72,6 +64,7 @@ Route::get('/local-jobs/{id}', [LocalJobController::class, 'show']);
 
 // Protected Routes
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
+    Route::get('/me', [AuthController::class, 'me']);
     Route::post('/logout', [AuthController::class, 'logout']);
 
     // Assigned Projects routes (visible to all authenticated users)
