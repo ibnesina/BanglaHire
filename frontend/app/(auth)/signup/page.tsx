@@ -1,4 +1,5 @@
 "use client";
+import { Button } from "@/components/ui/button";
 import {
   TUserRegistrationSchema,
   userRegistrationSchema,
@@ -7,11 +8,14 @@ import { signupAPI } from "@/lib/api/authAPI";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 
 export default function Signup() {
-
-  const inputFieldDesign="block w-full px-4 py-2 text-gray-700 bg-white border rounded-md focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40 focus:outline-none focus:ring";
+  const [type, setType] = useState<"Freelancer" | "Client">("Freelancer");
+  const [loading, setLoading] = useState(false);
+  const inputFieldDesign =
+    "block w-full px-4 py-2 text-gray-700 bg-white border rounded-md focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40 focus:outline-none focus:ring";
 
   const {
     register,
@@ -20,7 +24,7 @@ export default function Signup() {
   } = useForm<TUserRegistrationSchema>({
     resolver: zodResolver(userRegistrationSchema),
     defaultValues: {
-      type: "Freelancer",
+      type,
       name: "",
       email: "",
       password: "",
@@ -29,8 +33,12 @@ export default function Signup() {
   });
 
   const onSubmit = async (data: TUserRegistrationSchema) => {
-    // console.log(data);
-    await signupAPI(data);
+    setLoading(true);
+    try {
+      await signupAPI({ ...data, type });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -47,6 +55,21 @@ export default function Signup() {
         <h2 className="text-3xl font-bold text-center mb-6 text-gray-700">
           Sign up
         </h2>
+        <div className="flex justify-center mb-4">
+          {["Freelancer", "Client"].map((option) => (
+            <button
+              key={option}
+              onClick={() => setType(option as "Freelancer" | "Client")}
+              className={`px-4 py-2 mx-2 font-semibold rounded-md shadow-sm cursor-pointer ${
+                type === option
+                  ? "bg-blue-500 text-white"
+                  : "bg-gray-200 text-gray-700"
+              }`}
+            >
+              {option}
+            </button>
+          ))}
+        </div>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
             <label
@@ -64,9 +87,7 @@ export default function Signup() {
               }`}
             />
             {errors.name && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.name.message}
-              </p>
+              <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
             )}
           </div>
           <div className="space-y-2">
@@ -134,9 +155,11 @@ export default function Signup() {
           </div>
           <button
             type="submit"
-            className="w-full px-4 py-2 font-semibold text-white bg-blue-500 rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white"
+            className={`${loading ? "opacity-50 cursor-not-allowed" : ""} w-full px-4 py-2 font-semibold text-white bg-blue-500 rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white cursor-pointer`}
+            
+            disabled={loading}
           >
-            Sign up
+            {loading ? "Loading..." : "Sign up"}
           </button>
           <div className="text-center text-sm text-gray-600">
             Already have an account?
