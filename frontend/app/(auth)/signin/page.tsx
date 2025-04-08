@@ -4,6 +4,7 @@ import { forgotPasswordAPI, signInAPI } from "@/lib/api/authAPI";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -13,6 +14,7 @@ const variants = {
 };
 
 export default function Signin() {
+  const [loading, setLoading] = useState(false);
   const {
     register,
     handleSubmit,
@@ -28,7 +30,12 @@ export default function Signin() {
   });
 
   const onSubmit = async (data: TUserSignInSchema) => {
-    await signInAPI(data);
+    setLoading(true);
+    try {
+      await signInAPI(data);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const inputFieldDesign =
@@ -99,9 +106,12 @@ export default function Signin() {
             <div className="flex items-center justify-between">
               <button
                 type="submit"
-                className="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-500 focus:outline-none focus:border-blue-700 focus:ring ring-offset-2 ring-blue-500 active:bg-blue-600 transition ease-in-out duration-150"
+                className={`${
+                  loading ? "opacity-50 cursor-not-allowed" : ""
+                } inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-500 focus:outline-none focus:border-blue-700 focus:ring ring-offset-2 ring-blue-500 active:bg-blue-600 transition ease-in-out duration-150`}
+                disabled={loading}
               >
-                Sign in
+                {loading ? "Signing in..." : "Sign in"}
               </button>
               <div className="flex items-center space-x-2">
                 <p className="text-sm text-gray-600">
@@ -125,7 +135,7 @@ export default function Signin() {
                       .email()
                       .nonempty("Must be a valid email")
                       .parse(email);
-                  } catch (error) {
+                  } catch (error: unknown) {
                     setError("email", { message: error.message });
                   }
                   await forgotPasswordAPI(email);
