@@ -22,13 +22,16 @@ export default async function apiRequest(meta: ApiFetchOptions) {
 
   // Add auth token to headers
   const token = localStorage.getItem("token");
-  let requestHeaders = headers || {};
+  let requestHeaders = {
+    ...headers,
+    "Content-Type": "application/json",
+    Accept: "application/json",
+    Authorization: "",
+  };
   if (token) {
     requestHeaders = {
-      ...headers,
+      ...requestHeaders,
       Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-      Accept: "application/json",
     };
   }
 
@@ -37,11 +40,11 @@ export default async function apiRequest(meta: ApiFetchOptions) {
   const body = shouldHaveBody && data ? JSON.stringify(data) : undefined;
 
   try {
-    console.log(urlWithParams)
     const response = await fetch(urlWithParams, {
       method: method.toUpperCase(),
       headers: requestHeaders,
       body,
+      credentials: token ? "include" : "omit",
       ...rest,
     });
 
@@ -49,12 +52,13 @@ export default async function apiRequest(meta: ApiFetchOptions) {
       localStorage.removeItem("token");
       window.location.href = "/login";
     }
+    const responseData = await response.json();
 
-    console.log(response   )
-    return response.json();
+    // Return the JSON data along with the HTTP status code
+    return { ...responseData, status: response.status };
   } catch (error) {
     console.error("API request failed:", error);
-    toast("Network error: Failed to reach the server");
+    toast.error("Network error: Failed to reach the server");
     throw error; // or return a consistent error object if you prefer
   }
 }

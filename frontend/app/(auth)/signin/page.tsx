@@ -1,27 +1,38 @@
 "use client";
+import { TUserSignInSchema, userSignInSchema } from "@/contracts/users";
+import { forgotPasswordAPI, signInAPI } from "@/lib/api/authAPI";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 const variants = {
-  initial: { scale: 0.9, opacity: 0  },
+  initial: { scale: 0.9, opacity: 0 },
   animate: { scale: 1, opacity: 1, transition: { duration: 0.5 } },
 };
 
 export default function Signin() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState<{ message: string|null }>({ message: "" });
+  const {
+    register,
+    handleSubmit,
+    getValues,
+    setError,
+    formState: { errors },
+  } = useForm<TUserSignInSchema>({
+    resolver: zodResolver(userSignInSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    try {
-      console.log(email, password);
-    } catch (error) {
-      setError({ message: "Invalid email or password" });
-      console.log(error);
-    }
+  const onSubmit = async (data: TUserSignInSchema) => {
+    await signInAPI(data);
   };
+
+  const inputFieldDesign =
+    "block w-full px-4 py-2 text-gray-700 bg-white border rounded-md focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40";
 
   return (
     <div>
@@ -40,7 +51,7 @@ export default function Signin() {
           <h2 className="text-3xl font-bold text-center mb-6 text-gray-700">
             Sign in
           </h2>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
               <label
                 className="block text-sm font-semibold text-gray-700"
@@ -51,12 +62,18 @@ export default function Signin() {
               <input
                 type="email"
                 id="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                className="block w-full px-4 py-2 text-gray-700 bg-white border rounded-md focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40"
-                required
+                {...register("email")}
+                className={`${inputFieldDesign} ${
+                  errors.email ? "border-red-500" : ""
+                }`}
                 autoFocus
+                autoComplete=""
               />
+              {errors.email && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.email.message}
+                </p>
+              )}
             </div>
             <div className="space-y-2">
               <label
@@ -68,13 +85,17 @@ export default function Signin() {
               <input
                 type="password"
                 id="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                className="block w-full px-4 py-2 text-gray-700 bg-white border rounded-md focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40"
-                required
+                {...register("password")}
+                className={`${inputFieldDesign} ${
+                  errors.password ? "border-red-500" : ""
+                }`}
               />
+              {errors.password && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.password.message}
+                </p>
+              )}
             </div>
-            {error && <p className="text-red-600 text-sm">{error.message}</p>}
             <div className="flex items-center justify-between">
               <button
                 type="submit"
@@ -92,16 +113,27 @@ export default function Signin() {
                     Sign up
                   </Link>
                 </p>
-                {/* */}
               </div>
             </div>
             <div className="flex items-center justify-center">
-              <Link
-                className="text-sm text-blue-600 hover:text-blue-700"
-                href="/forgot-password"
+              <p
+                onClick={async (e) => {
+                  e.preventDefault();
+                  const email = getValues("email");
+                  try {
+                    z.string()
+                      .email()
+                      .nonempty("Must be a valid email")
+                      .parse(email);
+                  } catch (error) {
+                    setError("email", { message: error.message });
+                  }
+                  await forgotPasswordAPI(email);
+                }}
+                className="text-blue-600 hover:text-blue-700 cursor-pointer"
               >
                 Forgot password?
-              </Link>
+              </p>
             </div>
           </form>
         </div>
