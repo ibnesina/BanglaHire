@@ -4,7 +4,7 @@ import { signInAPI } from "@/lib/api/authAPI";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -15,6 +15,7 @@ const variants = {
 
 export default function Signin() {
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const {
     register,
@@ -125,19 +126,17 @@ export default function Signin() {
                 </p>
               </div>
             </div>
-            <div className="flex items-center justify-center">
-              <button
-                onClick={() => {
-                  redirect("/forget-password");
-                }}
-                // disabled={forgetPassLoading}
-                className="text-blue-600 hover:text-blue-800 hover:border-blue-100 rounded-lg px-3 cursor-pointer border-2 border-transparent"
-              >
-                {/* {forgetPassLoading ? "Sending..." : "Forgot password?"} */}
-                Forgot password?
-              </button>
-            </div>
           </form>
+          <div className="flex items-center justify-center">
+            <button
+              onClick={() => {
+                router.push("/forget-password");
+              }}
+              className="text-blue-600 hover:text-blue-800 hover:border-blue-100 rounded-lg px-3 cursor-pointer border-2 border-transparent"
+            >
+              Forgot password?
+            </button>
+          </div>
         </div>
       </motion.div>
     </div>
