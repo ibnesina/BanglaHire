@@ -23,6 +23,7 @@ export default async function apiRequest(meta: ApiFetchOptions) {
 
   // Add auth token to headers
   const token = userStore.token;
+  userStore.setToken(token);
   let requestHeaders = {
     ...headers,
     "Content-Type": "application/json",
@@ -51,7 +52,6 @@ export default async function apiRequest(meta: ApiFetchOptions) {
 
     if (response.status === 401) {
       localStorage.removeItem("token");
-      window.location.href = "/login";
     }
     const responseData = await response.json();
 

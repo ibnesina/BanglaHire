@@ -13,7 +13,8 @@ export const signupAPI = async (data: TUserRegistrationSchema) => {
   const response = await apiRequest({ method: "POST", url: `/register`, data });
 
   if (response.status === 201) {
-    userStore.setUser(response.user, response.token);
+    userStore.setUser(response.user);
+    userStore.setToken(response.token);
     toast.success(response.message);
     redirect("/signin");
   } else if (response.status === 422) {
@@ -34,7 +35,8 @@ export const signInAPI = async (data: TUserSignInSchema) => {
     // forbidden error
     toast.info(response.message);
   } else if (response.status == 200) {
-    userStore.setUser(response.user, response.token);
+    userStore.setUser(response.user);
+    userStore.setToken(response.token);
     toast.success(response.message);
     setTimeout(() => {
       redirect("/");

@@ -1,4 +1,4 @@
-import AuthOptions from "./NavUserAvatar";
+import AuthOptions from "./AuthOptions";
 
 function NavBar() {
   return (

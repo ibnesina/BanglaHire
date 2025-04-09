@@ -22,7 +22,9 @@ const AuthOptions = observer(() => {
         setOpen(false);
       }
     };
+
     document.addEventListener("mousedown", handleClickOutside);
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
@@ -31,7 +33,7 @@ const AuthOptions = observer(() => {
   return user ? (
     <div className="relative" ref={dropdownRef}>
       <div
-        className="flex items-center gap-2 cursor-pointer border-2 p-3 rounded-md hover:bg-slate-300 hover:text-zinc-600 hover:font-semibold"
+        className="flex items-center gap-2 cursor-pointer"
         onClick={() => setOpen(!open)}
       >
         <Avatar>
@@ -54,7 +56,7 @@ const AuthOptions = observer(() => {
               <li className="hover:bg-gray-100 px-4 py-2">My Profile</li>
             </Link>
             <Link href="/settings">
-              <li className="hover:bg-gray-100 px-4 py-2">My Profile</li>
+              <li className="hover:bg-gray-100 px-4 py-2">Settings</li>
             </Link>
             <button
               className="w-full text-left cursor-pointer"
