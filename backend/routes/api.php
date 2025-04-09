@@ -17,18 +17,19 @@ use App\Http\Controllers\API\ReviewController;
 
 // Public Routes
 
-// Registration & Login
+// Registration
 Route::post('/register', [AuthController::class, 'register']);
+Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'emailVerification'])->middleware('signed')->name('verification.verify');
+
+// Login
 Route::post('/login', [AuthController::class, 'login'])->name('login');
 
-// Forgot & Reset Password
+// Forgot Password
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('/password/change', [AuthController::class, 'passwordChange']);
 
+// Reset Password
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
-
-// Email Verification Route
-Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'emailVerification'])->middleware('signed')->name('verification.verify');
 
 Route::middleware(['web'])->group(function () {
     // Initiate Google login.
@@ -167,10 +168,5 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         // Project Request creation
         Route::post('project-requests', [AssignedProjectRequestController::class, 'store']);
     });
-
-
-
-
-
 
 });
