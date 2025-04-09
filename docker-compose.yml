@@ -40,7 +40,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    working_dir: /frontend 
+    working_dir: /frontend
     command: npm run dev
     volumes:
       - source: ./frontend
@@ -52,7 +52,11 @@ services:
         type: volume
     ports:
       - target: 3000
-        published: 3000 
+        published: 3000
+        protocol: tcp
+
+      - target: 9229
+        published: 9229
         protocol: tcp
 
   db:
@@ -67,6 +71,18 @@ services:
       - "3306:3306"
     volumes:
       - db_data:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: rootpassword
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
 
 volumes:
   db_data:

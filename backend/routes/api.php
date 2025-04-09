@@ -1,38 +1,49 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
+
 use App\Http\Controllers\API\AdminController;
 use App\Http\Controllers\API\AssignedProjectController;
+use App\Http\Controllers\API\AssignedProjectRequestController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\BiddingController;
 use App\Http\Controllers\API\ClientController;
 use App\Http\Controllers\API\FreelancerController;
+use App\Http\Controllers\API\LocalJobController;
 use App\Http\Controllers\API\PaymentHistoryController;
 use App\Http\Controllers\API\ProjectController;
 use App\Http\Controllers\API\ReviewController;
-use Illuminate\Support\Facades\Route;
 
 // Public Routes
 
-// Authentication
+// Registration
 Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
+Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'emailVerification'])->middleware('signed')->name('verification.verify');
 
-// // Redirect to Google for authentication
-// Route::get('login/google', [AuthController::class, 'redirectToGoogle']);
+// Login
+Route::post('/login', [AuthController::class, 'login'])->name('login');
 
-// // Callback route to handle Google response
-// Route::get('login/google/callback', [AuthController::class, 'handleGoogleCallback']);
+// Forgot Password
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('/password/change', [AuthController::class, 'passwordChange']);
+
+// Reset Password
+Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
 Route::middleware(['web'])->group(function () {
+    // Initiate Google login.
     Route::get('login/google', [AuthController::class, 'redirectToGoogle']);
+
+    // Google OAuth callback route.
     Route::get('login/google/callback', [AuthController::class, 'handleGoogleCallback']);
+
+    // Role selection route (redirect target).
+    Route::get('select-role', [AuthController::class, 'showRoleSelection'])->name('role.selection');
+
+    // Complete registration route.
+    Route::post('complete-registration', [AuthController::class, 'completeRegistration']);
 });
-
-// // Route to redirect to Google
-// Route::get('login/google', [AuthController::class, 'redirectToGoogle'])->name('login.google');
-
-// // Route to handle the Google OAuth callback
-// Route::get('login/google/callback', [AuthController::class, 'handleGoogleCallback']);
 
 
 // Freelancer section
@@ -44,12 +55,17 @@ Route::get('/clients', [ClientController::class, 'index']);
 Route::get('/clients/{id}', [ClientController::class, 'show']);
 
 // Projects section
-Route::get('/projects', [ProjectController::class, 'index']);         // public
-Route::get('/projects/{id}', [ProjectController::class, 'show']);     // public
+Route::get('/projects', [ProjectController::class, 'index']);         
+Route::get('/projects/{id}', [ProjectController::class, 'show']);
+
+// Local Jobs section
+Route::get('/local-jobs', [LocalJobController::class, 'index']);
+Route::get('/local-jobs/{id}', [LocalJobController::class, 'show']);
 
 
 // Protected Routes
-Route::middleware(['auth:sanctum'])->group(function () {
+Route::middleware(['auth:sanctum', 'verified'])->group(function () {
+    Route::get('/me', [AuthController::class, 'me']);
     Route::post('/logout', [AuthController::class, 'logout']);
 
     // Assigned Projects routes (visible to all authenticated users)
@@ -107,6 +123,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         // Endpoints to get payments for authenticated freelancers
         Route::get('/freelancer-payments', [PaymentHistoryController::class, 'getFreelancerPayments'])->middleware('role:Freelancer');
+
+        // Project Request creation
+        Route::get('project-requests', [AssignedProjectRequestController::class, 'index']);
+        Route::patch('project-requests/{id}', [AssignedProjectRequestController::class, 'update']);
+        Route::get('project-requests/{id}', [AssignedProjectRequestController::class, 'show']);
     });
 
     // Client-only routes
@@ -138,11 +159,14 @@ Route::middleware(['auth:sanctum'])->group(function () {
     
         // Endpoints to get payments for authenticated clients
         Route::get('/client-payments', [PaymentHistoryController::class, 'getClientPayments'])->middleware('role:Client');
+
+        // Local Jobs section
+        Route::post('/local-jobs', [LocalJobController::class, 'store']);
+        Route::put('/local-jobs/{id}', [LocalJobController::class, 'update']);
+        Route::delete('/local-jobs/{id}', [LocalJobController::class, 'destroy']);
+
+        // Project Request creation
+        Route::post('project-requests', [AssignedProjectRequestController::class, 'store']);
     });
-
-
-
-
-
 
 });
