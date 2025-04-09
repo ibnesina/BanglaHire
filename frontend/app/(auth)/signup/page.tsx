@@ -43,7 +43,7 @@ export default function Signup() {
   return (
     <motion.div
       key="signup"
-      className="h-screen overflow-scroll flex flex-col items-center justify-center bg-gradient-to-r from-sky-500 to-sky-700"
+      className="min-h-screen overflow-auto flex flex-col items-center justify-center bg-gradient-to-r from-sky-500 to-sky-700 p-4 sm:p-6 md:p-8 text-xs sm:text-sm md:text-base lg:text-lg"
     >
       <div className="text-5xl font-bold text-white mb-6">
         <span className="text-teal-400">B</span>angla
