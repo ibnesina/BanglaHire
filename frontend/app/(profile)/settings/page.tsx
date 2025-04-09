@@ -5,9 +5,11 @@ import { resetPasswordAPI } from "@/lib/api/authAPI";
 import userStore from "@/lib/store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { observer } from "mobx-react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 
 const Settings = observer(() => {
+  const [loading, setLoading] = useState(false);
   const user = userStore.user;
 
   const {
@@ -25,7 +27,12 @@ const Settings = observer(() => {
   });
 
   const onSubmit = async (data: TResetPasswordSchema) => {
-    await resetPasswordAPI(data);
+    setLoading(true);
+    try {
+      await resetPasswordAPI(data);
+    } finally {
+      setLoading(false);
+    }
   };
   const inputFieldDesign =
     "block w-full px-4 py-2 text-gray-700 bg-white border rounded-md focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40 focus:outline-none focus:ring";
@@ -116,9 +123,12 @@ const Settings = observer(() => {
           </div>
           <button
             type="submit"
-            className="px-4 py-2 bg-blue-500 text-white rounded-md"
+            disabled={loading}
+            className={`${
+              loading ? "cursor-not-allowed" : ""
+            } px-4 py-2 bg-blue-500 text-white rounded-md`}
           >
-            Change Password
+            {loading ? "Wait..." : "Change Password"}
           </button>
         </form>
       </main>
