@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
+use App\Notifications\CustomVerifyEmail;
 use App\Notifications\ResetPasswordNotification;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
@@ -78,6 +79,11 @@ class User extends Authenticatable implements MustVerifyEmail
         $resetUrl = $frontendUrl . '/forgot-password?token=' . $token . '&email=' . urlencode($this->email);
 
         $this->notify(new ResetPasswordNotification($resetUrl));
+    }
+
+    public function sendEmailVerificationNotification()
+    {
+        $this->notify(new CustomVerifyEmail);
     }
 
 }
