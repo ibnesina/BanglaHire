@@ -12,6 +12,10 @@ class Kernel extends HttpKernel
      * These middleware are run during every request to your application.
      */
     protected $middleware = [
+        \App\Http\Middleware\Cors::class,
+        \Illuminate\Http\Middleware\HandleCors::class,
+
+
         // \App\Http\Middleware\PreventRequestsDuringMaintenance::class,
         \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
         // \App\Http\Middleware\TrimStrings::class,
@@ -23,6 +27,9 @@ class Kernel extends HttpKernel
      */
     protected $middlewareGroups = [
         'web' => [
+            \App\Http\Middleware\Cors::class,
+
+
             \App\Http\Middleware\EncryptCookies::class,
             \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
             \Illuminate\Session\Middleware\StartSession::class,
@@ -33,6 +40,9 @@ class Kernel extends HttpKernel
         ],
 
         'api' => [
+            \App\Http\Middleware\Cors::class,
+           
+           
             // Sanctum Middleware to handle token-based or session-based auth
             \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
             'throttle:api',
@@ -46,6 +56,7 @@ class Kernel extends HttpKernel
      * These middleware may be assigned to groups or used individually.
      */
     protected $routeMiddleware = [
+        'cors' => \App\Http\Middleware\Cors::class,
         // 'auth' => \App\Http\Middleware\Authenticate::class,
         'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
         'auth.session' => \Illuminate\Session\Middleware\AuthenticateSession::class,
