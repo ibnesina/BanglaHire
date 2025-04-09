@@ -4,6 +4,8 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
+use App\Notifications\CustomVerifyEmail;
+use App\Notifications\ResetPasswordNotification;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -61,6 +63,27 @@ class User extends Authenticatable implements MustVerifyEmail
     public function admin()
     {
         return $this->hasOne(\App\Models\Admin::class, 'admin_id', 'id');
+    }
+
+    /**
+     * Send the password reset notification with a custom URL.
+     *
+     * @param  string  $token
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        // Retrieve the frontend URL from configuration (set this in your .env and config/app.php)
+        $frontendUrl = config('app.frontend_url', 'http://localhost:3000');
+
+        // Build the URL expected by your React app.
+        $resetUrl = $frontendUrl . '/forgot-password?token=' . $token . '&email=' . urlencode($this->email);
+
+        $this->notify(new ResetPasswordNotification($resetUrl));
+    }
+
+    public function sendEmailVerificationNotification()
+    {
+        $this->notify(new CustomVerifyEmail);
     }
 
 }
