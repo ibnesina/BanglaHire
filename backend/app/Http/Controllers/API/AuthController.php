@@ -68,6 +68,28 @@ class AuthController extends Controller
         ], 201);
     }
 
+    // Email Verification
+    public function emailVerification(Request $request, $id, $hash) {
+        $user = User::findOrFail($id);
+        
+        // Check if the hash is valid for the given user's email
+        if (! hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
+            // Redirect to frontend with error message
+            return redirect()->away(config('app.frontend_url') . '/email-verification?error=Invalid verification link.');
+        }
+        
+        // If already verified, just redirect with a message
+        if ($user->hasVerifiedEmail()) {
+            return redirect()->away(config('app.frontend_url') . '/email-verification?message=Email already verified.');
+        }
+        
+        // Mark the user's email as verified
+        $user->markEmailAsVerified();
+        
+        // Redirect to the frontend route with a success message
+        return redirect()->away(config('app.frontend_url') . '/email-verification?message=Email verified successfully.');
+    }
+
     // Login the user and return their info along with associated role data
     public function login(Request $request) {
         $request->validate([
@@ -191,27 +213,6 @@ class AuthController extends Controller
     
         return response()->json(['message' => 'Password updated successfully'], 200);
         
-    }
-
-
-    // Email Verification
-    public function emailVerification(Request $request, $id, $hash) {
-        $user = User::findOrFail($id);
-    
-        // Check if the hash is valid for the given user's email
-        if (! hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
-            return response()->json(['message' => 'Invalid verification link.'], 403);
-        }
-    
-        // If already verified, you can simply return a message
-        if ($user->hasVerifiedEmail()) {
-            return response()->json(['message' => 'Email already verified.'], 200);
-        }
-    
-        // Mark the user's email as verified
-        $user->markEmailAsVerified();
-    
-        return response()->json(['message' => 'Email verified successfully.'], 200);
     }
 
     // Logout user by revoking Sanctum tokens
