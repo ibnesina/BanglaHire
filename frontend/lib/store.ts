@@ -2,18 +2,17 @@
 
 import { User } from "@/contracts/users";
 import { makeAutoObservable } from "mobx";
-import { toast } from "sonner";
 import { getMeAPI } from "./api/authAPI";
 
 class UserStore {
-  user: User | null | undefined=undefined;
+  user: User | null | undefined = undefined;
   token: string | null = null;
 
   constructor() {
     makeAutoObservable(this);
     this.token = localStorage.getItem("token");
     console.log(this.user);
-    this.user = this.token ? this.getUserData() as unknown as User : null;
+    this.user = this.token ? (this.getUserData() as unknown as User) : null;
     console.log(this.user);
   }
 
@@ -21,9 +20,10 @@ class UserStore {
     try {
       const response = await getMeAPI();
       console.log(response);
-      return await response as User;
-    } catch (error) { 
-      toast.error("Failed to get user data:", error || "");
+      return (await response) as User;
+    } catch (error) {
+      // toast.error("Failed to get user data:", error || "");
+      console.log("Failed to get user data:", error || "");
       return null;
     }
   }

@@ -1,6 +1,3 @@
-import { toast } from "sonner";
-import userStore from "../store";
-import apiRequest from "./apiRequest";
 import {
   TPasswordChangeSchema,
   TResetPasswordSchema,
@@ -8,6 +5,9 @@ import {
   TUserSignInSchema,
 } from "@/contracts/users";
 import { redirect } from "next/navigation";
+import { toast } from "sonner";
+import userStore from "../store";
+import apiRequest from "./apiRequest";
 
 export const signupAPI = async (data: TUserRegistrationSchema) => {
   const response = await apiRequest({ method: "POST", url: `/register`, data });
@@ -52,7 +52,6 @@ export const getMeAPI = async () => {
   toast.error(response.message);
 };
 
-
 export const logoutAPI = async () => {
   const response = await apiRequest({ method: "POST", url: "/logout" });
   if (response.status === 200) {
@@ -90,8 +89,6 @@ export const forgotPasswordAPI = async (email: string) => {
     toast.error(response.error || "Unable to send reset password link");
   }
 };
-
-
 
 export const passwordChangeAPI = async (data: TPasswordChangeSchema) => {
   const response = await apiRequest({
