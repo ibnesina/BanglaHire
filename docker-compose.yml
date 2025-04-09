@@ -55,6 +55,10 @@ services:
         published: 3000
         protocol: tcp
 
+      - target: 9229
+        published: 9229
+        protocol: tcp
+
   db:
     image: mysql:8.0
     container_name: mysql_db

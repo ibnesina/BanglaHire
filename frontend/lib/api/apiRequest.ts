@@ -1,4 +1,5 @@
 import { toast } from "sonner";
+import userStore from "../store";
 
 interface ApiFetchOptions extends RequestInit {
   url: string;
@@ -21,7 +22,7 @@ export default async function apiRequest(meta: ApiFetchOptions) {
   }
 
   // Add auth token to headers
-  const token = localStorage.getItem("token");
+  const token = userStore.token;
   let requestHeaders = {
     ...headers,
     "Content-Type": "application/json",

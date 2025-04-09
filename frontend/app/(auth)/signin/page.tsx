@@ -3,9 +3,11 @@ import { TUserSignInSchema, userSignInSchema } from "@/contracts/users";
 import { forgotPasswordAPI, signInAPI } from "@/lib/api/authAPI";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
+import Error from "next/error";
 import Link from "next/link";
-import { useState } from "react";
+import { MouseEvent, useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 const variants = {
@@ -15,6 +17,7 @@ const variants = {
 
 export default function Signin() {
   const [loading, setLoading] = useState(false);
+  const [forgetPassLoading, setForgetPassLoading] = useState(false);
   const {
     register,
     handleSubmit,
@@ -35,6 +38,26 @@ export default function Signin() {
       await signInAPI(data);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const onForgotPassword = async (e: MouseEvent<HTMLButtonElement>) => {
+    setForgetPassLoading(true);
+    e.preventDefault();
+    const email = getValues("email");
+
+    try {
+      z.string().email().nonempty("Must be a valid email").parse(email);
+      await forgotPasswordAPI(email);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        setError("email", { message: "Please enter a valid email" });
+      } else if (error instanceof Error) {
+        // Handle API errors
+        toast.error("Failed to send reset link");
+      }
+    } finally {
+      setForgetPassLoading(false);
     }
   };
 
@@ -103,6 +126,7 @@ export default function Signin() {
                 </p>
               )}
             </div>
+            
             <div className="flex items-center justify-between">
               <button
                 type="submit"
@@ -126,24 +150,13 @@ export default function Signin() {
               </div>
             </div>
             <div className="flex items-center justify-center">
-              <p
-                onClick={async (e) => {
-                  e.preventDefault();
-                  const email = getValues("email");
-                  try {
-                    z.string()
-                      .email()
-                      .nonempty("Must be a valid email")
-                      .parse(email);
-                  } catch (error: unknown) {
-                    setError("email", { message: error.message });
-                  }
-                  await forgotPasswordAPI(email);
-                }}
-                className="text-blue-600 hover:text-blue-700 cursor-pointer"
+              <button
+                onClick={onForgotPassword}
+                disabled={forgetPassLoading}
+                className="text-blue-600 hover:text-blue-800 hover:border-blue-100 rounded-lg px-3 cursor-pointer border-2 border-transparent"
               >
-                Forgot password?
-              </p>
+                {forgetPassLoading ? "Sending..." : "Forgot password?"}
+              </button>
             </div>
           </form>
         </div>
