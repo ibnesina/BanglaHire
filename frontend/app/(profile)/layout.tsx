@@ -8,6 +8,6 @@ export default function Layout({
   children: React.ReactNode;
 }>) {
   const user = userStore.user;
-  if (!user === null) redirect("/signin");
+  if (user == null) redirect("/signin");
   return <div>{children}</div>;
 }

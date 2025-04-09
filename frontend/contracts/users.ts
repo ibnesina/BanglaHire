@@ -51,22 +51,42 @@ export const userSignInSchema = z.object({
 
 export type TUserSignInSchema = z.infer<typeof userSignInSchema>;
 
-
-export const resetPasswordSchema = z.object({
-  email: z
-    .string()
-    .email("Invalid email address")
-    .nonempty("Email is required"),
-  old_password: z.string().nonempty("Old password is required"),
-  password: z
-    .string()
-    .min(8, "Password must be at least 8 characters long")
-    .nonempty("New password is required"),
-  password_confirmation: z.string().nonempty("Confirm your new password"),
-}).refine((data) => data.password === data.password_confirmation, {
-  message: "Passwords do not match",
-  path: ["password_confirmation"],
-});
+export const resetPasswordSchema = z
+  .object({
+    email: z
+      .string()
+      .email("Invalid email address")
+      .nonempty("Email is required"),
+    old_password: z.string().nonempty("Old password is required"),
+    password: z
+      .string()
+      .min(8, "Password must be at least 8 characters long")
+      .nonempty("New password is required"),
+    password_confirmation: z.string().nonempty("Confirm your new password"),
+  })
+  .refine((data) => data.password === data.password_confirmation, {
+    message: "Passwords do not match",
+    path: ["password_confirmation"],
+  });
 
 export type TResetPasswordSchema = z.infer<typeof resetPasswordSchema>;
 
+export const passwordChangeSchema = z
+  .object({
+    token: z.string().nonempty("Token is required"),
+    email: z
+      .string()
+      .email("Invalid email address")
+      .nonempty("Email is required"),
+    password: z
+      .string()
+      .min(8, "Password must be at least 8 characters long")
+      .nonempty("Password is required"),
+    password_confirmation: z.string().nonempty("Confirm your password"),
+  })
+  .refine((data) => data.password === data.password_confirmation, {
+    message: "Passwords do not match",
+    path: ["password_confirmation"],
+  });
+
+export type TPasswordChangeSchema = z.infer<typeof passwordChangeSchema>;

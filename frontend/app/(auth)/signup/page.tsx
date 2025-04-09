@@ -1,5 +1,4 @@
 "use client";
-import { Button } from "@/components/ui/button";
 import {
   TUserRegistrationSchema,
   userRegistrationSchema,
@@ -155,8 +154,9 @@ export default function Signup() {
           </div>
           <button
             type="submit"
-            className={`${loading ? "opacity-50 cursor-not-allowed" : ""} w-full px-4 py-2 font-semibold text-white bg-blue-500 rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white cursor-pointer`}
-            
+            className={`${
+              loading ? "opacity-50 cursor-not-allowed" : ""
+            } w-full px-4 py-2 font-semibold text-white bg-blue-500 rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white cursor-pointer`}
             disabled={loading}
           >
             {loading ? "Loading..." : "Sign up"}
@@ -172,4 +172,3 @@ export default function Signup() {
     </motion.div>
   );
 }
-
