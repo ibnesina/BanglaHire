@@ -1,0 +1,119 @@
+{
+  "getCategories": {
+    "method": "GET",
+    "url": "/categories",
+    "response": {
+      "categories": [
+        {
+          "id": "number",
+          "name": "string (unique, max:255)",
+          "skills": ["string"],
+          "created_at": "string (datetime)",
+          "updated_at": "string (datetime)"
+        }
+      ]
+    }
+  },
+  "getCategoryById": {
+    "method": "GET",
+    "url": "/categories/{id}",
+    "url_params": {
+      "id": "number"
+    },
+    "response": {
+      "id": "number",
+      "name": "string (unique, max:255)",
+      "skills": ["string"],
+      "created_at": "string (datetime)",
+      "updated_at": "string (datetime)"
+    },
+    "error": {
+      "not_found": {
+        "message": "Category not found"
+      }
+    }
+  },
+  "createCategory": {
+    "method": "POST",
+    "url": "/categories",
+    "headers": {
+      "Authorization": "string (Bearer token - Admin only)"
+    },
+    "request": {
+      "name": "string (required, unique, max:255)",
+      "skills": ["string (optional)"]
+    },
+    "response": {
+      "id": "number",
+      "name": "string",
+      "skills": ["string"],
+      "created_at": "string (datetime)",
+      "updated_at": "string (datetime)"
+    },
+    "error": {
+      "validation_error": {
+        "errors": {
+          "name": ["string"]
+        }
+      },
+      "unauthorized": {
+        "message": "Unauthorized"
+      }
+    }
+  },
+  "updateCategory": {
+    "method": "PUT",
+    "url": "/categories/{id}",
+    "headers": {
+      "Authorization": "string (Bearer token - Admin only)"
+    },
+    "url_params": {
+      "id": "number"
+    },
+    "request": {
+      "name": "string (required, unique, max:255)",
+      "skills": ["string (optional)"]
+    },
+    "response": {
+      "id": "number",
+      "name": "string",
+      "skills": ["string"],
+      "created_at": "string (datetime)",
+      "updated_at": "string (datetime)"
+    },
+    "error": {
+      "validation_error": {
+        "errors": {
+          "name": ["string"]
+        }
+      },
+      "unauthorized": {
+        "message": "Unauthorized"
+      },
+      "not_found": {
+        "message": "Category not found"
+      }
+    }
+  },
+  "deleteCategory": {
+    "method": "DELETE",
+    "url": "/categories/{id}",
+    "headers": {
+      "Authorization": "string (Bearer token - Admin only)"
+    },
+    "url_params": {
+      "id": "number"
+    },
+    "response": {
+      "message": "Category deleted successfully"
+    },
+    "error": {
+      "unauthorized": {
+        "message": "Unauthorized"
+      },
+      "not_found": {
+        "message": "Category not found"
+      }
+    }
+  }
+}
