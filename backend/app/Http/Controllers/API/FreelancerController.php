@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use App\Models\Freelancer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,13 +16,15 @@ class FreelancerController extends Controller
      */
     public function store(Request $request)
     {
+        // Validate the incoming request with the new category_id field.
         $request->validate([
-            'bio' => 'nullable|string',
-            'skills' => 'nullable|array',
-            'experiences' => 'nullable|string',
-            'hourly_rate' => 'nullable|numeric|min:0',
-            'certifications' => 'nullable|array',
-            'portfolio_link' => 'nullable|string',
+            'bio'             => 'nullable|string',
+            'category_id'     => 'required|exists:categories,id',
+            'skills'          => 'nullable|array',
+            'experiences'     => 'nullable|string',
+            'hourly_rate'     => 'nullable|numeric|min:0',
+            'certifications'  => 'nullable|array',
+            'portfolio_link'  => 'nullable|string',
         ]);
 
         $user = Auth::user();
@@ -35,27 +38,56 @@ class FreelancerController extends Controller
             return response()->json(['message' => 'Unauthorized. Only freelancers can create profiles.'], 403);
         }
 
+        // Retrieve the category selected by the freelancer.
+        $category = Category::find($request->category_id);
+        if (!$category) {
+            return response()->json(['message' => 'Category not found.'], 404);
+        }
+
+        // If skills are provided, verify that each selected skill exists in the chosen category.
+        if ($request->has('skills') && is_array($request->skills)) {
+            foreach ($request->skills as $skill) {
+                if (!in_array($skill, $category->skills)) {
+                    return response()->json([
+                        'message' => 'Invalid skill selection: ' . $skill . '. Please choose from the available skills for the selected category.'
+                    ], 422);
+                }
+            }
+        }
+
+        // Retrieve existing freelancer profile (assumes that a freelancer profile exists, otherwise, create one as needed)
         $freelancer = Freelancer::where('freelancer_id', $user->id)->first();
 
         if ($freelancer) {
             $freelancer->update([
-                'bio'            => $request->bio,
-                'skills'         => $request->skills,          // Just pass the array
-                'experiences'    => $request->experiences,
-                'hourly_rate'    => $request->hourly_rate,
-                'certifications' => $request->certifications,  // Just pass the array
-                'portfolio_link' => $request->portfolio_link,
+                'bio'             => $request->bio,
+                'category_id'     => $request->category_id,
+                'skills'          => $request->skills,  // Storing the validated array of skills
+                'experiences'     => $request->experiences,
+                'hourly_rate'     => $request->hourly_rate,
+                'certifications'  => $request->certifications,
+                'portfolio_link'  => $request->portfolio_link,
             ]);            
         } else {
-            return response()->json(['message' => 'Freelancer profile not found.'], 404);
+            // In case you want to allow creation here when a profile does not exist:
+            $freelancer = Freelancer::create([
+                'freelancer_id'   => $user->id,
+                'bio'             => $request->bio,
+                'category_id'     => $request->category_id,
+                'skills'          => $request->skills,
+                'experiences'     => $request->experiences,
+                'hourly_rate'     => $request->hourly_rate,
+                'certifications'  => $request->certifications,
+                'portfolio_link'  => $request->portfolio_link,
+            ]);
         }
 
-
         return response()->json([
-            'message' => 'Freelancer profile updated successfully.',
+            'message'    => 'Freelancer profile updated successfully.',
             'freelancer' => $freelancer
         ]);
     }
+
 
     /**
      * Retrieve a freelancer profile by id.
