@@ -1,0 +1,55 @@
+{
+  "getTalent": {
+    "method": "GET",
+    "url": "/talent",
+    "query_params": {
+      "category_id": "number (optional, filters freelancers by the chosen category)",
+      "skills": "string (optional, comma-separated list e.g., 'Laravel,Vue.js')",
+      "sort": "string (optional, 'highest_rating' to sort by top average rating)"
+    },
+    "response": {
+      "freelancers": [
+        {
+          "freelancer_id": "string (UUID)",
+          "bio": "string | null",
+          "category_id": "number",
+          "skills": ["string"],
+          "experiences": "string | null",
+          "hourly_rate": "number | null (decimal)",
+          "certifications": ["string"],
+          "portfolio_link": "string | null",
+          "created_at": "string (datetime)",
+          "updated_at": "string (datetime)",
+          "reviews_avg_rating": "number | null (computed from reviews)",
+          "user": {
+            "id": "string (UUID)",
+            "type": "'Admin' | 'Freelancer' | 'Client'",
+            "email": "string",
+            "name": "string",
+            "profile_picture": "string | null",
+            "payment_phone": "string | null",
+            "balance": "string (decimal, e.g., '0.00')",
+            "google_id": "string | null",
+            "avatar": "string | null",
+            "payment_history_id": "number | null",
+            "nationality": "string | null",
+            "email_verified_at": "string (datetime) | null",
+            "created_at": "string (datetime)",
+            "updated_at": "string (datetime)"
+          }
+        }
+      ]
+    },
+    "error": {
+      "category_not_found": {
+        "message": "Category not found"
+      }
+    },
+    "additional_comments": [
+      "When no query parameters are provided, the endpoint returns a random set of freelancers.",
+      "If category_id is provided, only freelancers belonging to that category are returned.",
+      "When skills are supplied (as a comma-separated list) along with category_id, freelancers are sorted by the number of overlapping skills – the more matching skills, the better the match.",
+      "If the query parameter sort is set to 'highest_rating', the results are ordered by the freelancers’ average rating (calculated from reviews) in descending order."
+    ]
+  }
+}
