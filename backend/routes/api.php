@@ -8,6 +8,7 @@ use App\Http\Controllers\API\AssignedProjectController;
 use App\Http\Controllers\API\AssignedProjectRequestController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\BiddingController;
+use App\Http\Controllers\API\CategoryController;
 use App\Http\Controllers\API\ClientController;
 use App\Http\Controllers\API\FreelancerController;
 use App\Http\Controllers\API\LocalJobController;
@@ -62,6 +63,10 @@ Route::get('/projects/{id}', [ProjectController::class, 'show']);
 Route::get('/local-jobs', [LocalJobController::class, 'index']);
 Route::get('/local-jobs/{id}', [LocalJobController::class, 'show']);
 
+// Categorirs & Skills 
+Route::get('/categories', [CategoryController::class, 'index']);
+Route::get('/categories/{id}', [CategoryController::class, 'show']);
+
 
 // Protected Routes
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
@@ -85,15 +90,17 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::get('/admins', [AdminController::class, 'index']);
         Route::get('/admins/{id}', [AdminController::class, 'show']);
 
-        // update the admin record
+        // Update and Delete admin record
         Route::put('/admins', [AdminController::class, 'storeOrUpdate']);
-
-        // Delete an admin record
         Route::delete('/admins/{id}', [AdminController::class, 'destroy']);
-
         // Update stats for a specific admin
         Route::put('/admins/{id}/update-stats', [AdminController::class, 'updateStats']);
 
+        // Categorirs & Skills 
+        Route::post('/categories', [CategoryController::class, 'store']);
+        Route::put('/categories/{id}', [CategoryController::class, 'update']);
+        Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
+        
         // Freelancer and Client Control
         Route::put('/freelancers/{id}/update-stats', [FreelancerController::class, 'updateStats']);
         Route::put('/clients/{id}/update-stats', [ClientController::class, 'updateStats']);
