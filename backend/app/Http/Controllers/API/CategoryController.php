@@ -39,7 +39,7 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         // Ensure that only admin users are authorized.
-        if (Auth::user()->role !== 'admin') {
+        if (Auth::user()->type !== 'Admin') {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -69,7 +69,7 @@ class CategoryController extends Controller
     public function update(Request $request, $id)
     {
         // Check admin access.
-        if (Auth::user()->role !== 'admin') {
+        if (Auth::user()->type !== 'Admin') {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -103,7 +103,7 @@ class CategoryController extends Controller
      */
     public function destroy($id)
     {
-        if (Auth::user()->role !== 'admin') {
+        if (Auth::user()->type !== 'Admin') {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
