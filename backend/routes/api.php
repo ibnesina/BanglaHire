@@ -15,6 +15,7 @@ use App\Http\Controllers\API\LocalJobController;
 use App\Http\Controllers\API\PaymentHistoryController;
 use App\Http\Controllers\API\ProjectController;
 use App\Http\Controllers\API\ReviewController;
+use App\Http\Controllers\API\TalentController;
 
 // Public Routes
 
@@ -80,6 +81,9 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     // Reviews routes
     Route::get('/reviews', [ReviewController::class, 'index']);
     Route::get('/reviews/{id}', [ReviewController::class, 'show']);
+
+    // GET /talent?category_id=1&skills=Laravel,Vue.js
+    Route::get('/talent', [TalentController::class, 'index']);
 
     // Admin-only routes
     Route::middleware('role:Admin')->group(function () {
