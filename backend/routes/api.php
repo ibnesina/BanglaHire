@@ -82,6 +82,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::get('/reviews', [ReviewController::class, 'index']);
     Route::get('/reviews/{id}', [ReviewController::class, 'show']);
 
+    // Hire Talent
     // GET /talent?category_id=1&skills=Laravel,Vue.js
     Route::get('/talent', [TalentController::class, 'index']);
 
