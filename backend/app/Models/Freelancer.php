@@ -49,4 +49,9 @@ class Freelancer extends Model
     {
         return $this->belongsTo(Category::class, 'category_id');
     }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class, 'freelancer_id', 'freelancer_id');
+    }
 }
