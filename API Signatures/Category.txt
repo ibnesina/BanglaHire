@@ -14,6 +14,22 @@
       ]
     }
   },
+  "getCategorySkills": {
+    "method": "GET",
+    "url": "/categories/{id}/skills",
+    "url_params": {
+      "id": "number (ID of the category)"
+    },
+    "description": "Retrieves the skills array for a specified category. This endpoint is used to display available skills when a category is selected.",
+    "response": {
+      "skills": ["string"]
+    },
+    "error": {
+      "not_found": {
+        "message": "Category not found"
+      }
+    }
+  },
   "getCategoryById": {
     "method": "GET",
     "url": "/categories/{id}",

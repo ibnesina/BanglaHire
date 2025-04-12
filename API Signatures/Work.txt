@@ -1,0 +1,44 @@
+{
+  "getWorkProjects": {
+    "method": "GET",
+    "url": "/work",
+    "description": "Retrieves projects for the 'Find Work' page. Returns a list of projects sorted and filtered in real time depending on query parameters.",
+    "query_params": {
+      "category_id": "number (optional, filters projects by the selected category)",
+      "skills": "string (optional, comma-separated list of skills, e.g., 'Laravel,Vue.js')"
+    },
+    "response": {
+      "projects": [
+        {
+          "id": "number",
+          "client_id": "string (UUID)",
+          "category_id": "number",
+          "title": "string",
+          "description": "string | null",
+          "required_skills": ["string"],
+          "budget": "number (decimal, e.g., 1000.00)",
+          "status": "'Open' | 'In Progress' | 'Closed'",
+          "assigned_freelancer_id": "string (UUID) | null",
+          "file": "string | null",
+          "created_at": "string (datetime)",
+          "updated_at": "string (datetime)",
+          "category": {
+            "id": "number",
+            "name": "string",
+            "skills": ["string"]
+          }
+        }
+      ]
+    },
+    "additional_comments": [
+      "If no query parameters are provided, the endpoint returns the 20 most recent projects.",
+      "If a category_id is provided, only projects from that category are returned, sorted by recency.",
+      "If both category_id and skills are provided, the projects are sorted by the number of matching skills (best match), with ties broken by recency."
+    ],
+    "error": {
+      "category_not_found": {
+        "message": "Category not found"
+      }
+    }
+  }
+}
