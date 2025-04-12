@@ -1,0 +1,184 @@
+{
+  "getProjects": {
+    "method": "GET",
+    "url": "/projects",
+    "description": "Retrieves all projects with associated category and assigned freelancer information.",
+    "response": {
+      "projects": [
+        {
+          "id": "number",
+          "client_id": "string (UUID)",
+          "category_id": "number",
+          "title": "string",
+          "description": "string | null",
+          "required_skills": ["string"],
+          "budget": "number (decimal, e.g., 1000.00)",
+          "status": "'Open' | 'In Progress' | 'Closed'",
+          "assigned_freelancer_id": "string (UUID) | null",
+          "file": "string | null",
+          "created_at": "string (datetime)",
+          "updated_at": "string (datetime)"
+        }
+      ]
+    }
+  },
+  "getProjectById": {
+    "method": "GET",
+    "url": "/projects/{id}",
+    "url_params": {
+      "id": "number"
+    },
+    "response": {
+      "id": "number",
+      "client_id": "string (UUID)",
+      "category_id": "number",
+      "title": "string",
+      "description": "string | null",
+      "required_skills": ["string"],
+      "budget": "number (decimal)",
+      "status": "'Open' | 'In Progress' | 'Closed'",
+      "assigned_freelancer_id": "string (UUID) | null",
+      "file": "string | null",
+      "created_at": "string (datetime)",
+      "updated_at": "string (datetime)",
+      "category": {
+        "id": "number",
+        "name": "string",
+        "skills": ["string"]
+      }
+    },
+    "error": {
+      "not_found": {
+        "message": "Project not found"
+      }
+    }
+  },
+  "createProject": {
+    "method": "POST",
+    "url": "/projects",
+    "headers": {
+      "Authorization": "string (Bearer token - Client only)"
+    },
+    "request": {
+      "title": "string (required, max:255)",
+      "description": "string | optional",
+      "category_id": "number (required, must exist in categories table)",
+      "required_skills": "array of strings (required, must be in the selected category's skills)",
+      "budget": "number (required, e.g., 1000.00)",
+      "file": "file (optional)"
+    },
+    "response": {
+      "id": "number",
+      "client_id": "string (UUID)",
+      "category_id": "number",
+      "title": "string",
+      "description": "string | null",
+      "required_skills": ["string"],
+      "budget": "number",
+      "status": "string (default 'Open')",
+      "assigned_freelancer_id": "string (UUID) | null",
+      "file": "string | null",
+      "created_at": "string (datetime)",
+      "updated_at": "string (datetime)"
+    },
+    "error": {
+      "invalid_skill": {
+        "message": "Invalid skill selection: <skill>. Please choose only from the available skills for the selected category."
+      },
+      "validation_error": {
+        "errors": {
+          "title": ["string"],
+          "category_id": ["string"],
+          "required_skills": ["string"],
+          "budget": ["string"]
+        }
+      },
+      "unauthorized": {
+        "message": "Unauthorized"
+      }
+    },
+    "additional_comments": [
+      "The 'category_id' must match an existing category in the categories table.",
+      "The 'required_skills' must be a list of skills chosen from the skills array defined in the selected category.",
+      "If a file is uploaded, the API returns the stored file path."
+    ]
+  },
+  "updateProject": {
+    "method": "PUT",
+    "url": "/projects/{id}",
+    "headers": {
+      "Authorization": "string (Bearer token - Client who owns the project)"
+    },
+    "url_params": {
+      "id": "number"
+    },
+    "request": {
+      "title": "string (optional, max:255)",
+      "description": "string | optional",
+      "category_id": "number (optional, if provided must exist in categories table)",
+      "required_skills": "array of strings (optional, validated against the selected or existing category's skills)",
+      "budget": "number (optional)",
+      "status": "string (optional, one of 'Open', 'In Progress', 'Closed')",
+      "file": "file (optional)"
+    },
+    "response": {
+      "id": "number",
+      "client_id": "string (UUID)",
+      "category_id": "number",
+      "title": "string",
+      "description": "string | null",
+      "required_skills": ["string"],
+      "budget": "number",
+      "status": "string",
+      "assigned_freelancer_id": "string (UUID) | null",
+      "file": "string | null",
+      "created_at": "string (datetime)",
+      "updated_at": "string (datetime)"
+    },
+    "error": {
+      "invalid_skill": {
+        "message": "Invalid skill selection: <skill>. Please choose only from the available skills for the selected or existing category."
+      },
+      "validation_error": {
+        "errors": {
+          "title": ["string"],
+          "category_id": ["string"],
+          "required_skills": ["string"],
+          "budget": ["string"],
+          "status": ["string"]
+        }
+      },
+      "unauthorized": {
+        "message": "Unauthorized"
+      },
+      "not_found": {
+        "message": "Project not found"
+      }
+    },
+    "additional_comments": [
+      "If 'category_id' is provided, the selected category's skills are used to validate the 'required_skills' array.",
+      "If 'category_id' is not updated, the project's current category skills are used for validation (if 'required_skills' is provided)."
+    ]
+  },
+  "deleteProject": {
+    "method": "DELETE",
+    "url": "/projects/{id}",
+    "headers": {
+      "Authorization": "string (Bearer token - Client who owns the project)"
+    },
+    "url_params": {
+      "id": "number"
+    },
+    "response": {
+      "message": "Project deleted"
+    },
+    "error": {
+      "not_found": {
+        "message": "Project not found"
+      },
+      "unauthorized": {
+        "message": "Unauthorized"
+      }
+    }
+  }
+}

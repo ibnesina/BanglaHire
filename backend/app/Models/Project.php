@@ -39,7 +39,7 @@ class Project extends Model
     
     public function category()
     {
-        return $this->belongsTo(\App\Models\Category::class, 'category_id');
+        return $this->belongsTo(Category::class, 'category_id');
     }
 
     public function biddings()
