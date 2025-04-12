@@ -9,34 +9,36 @@ return new class extends Migration
     public function up()
     {
         Schema::create('projects', function (Blueprint $table) {
-            // Project ID (Primary Key) -> not UUID
+            // Project ID (Primary Key) – auto-increment (not UUID)
             $table->bigIncrements('id');
-
-            // UUID for client (references Clients table which has 'client_id')
+            
+            // Foreign key for client (UUID)
             $table->uuid('client_id');
+
+            // New: Foreign key for selected category
+            $table->unsignedBigInteger('category_id');
+
             $table->string('title');
             $table->text('description')->nullable();
 
-            // You can store skills either as text or JSON. If JSON:
-            // $table->json('required_skills')->nullable();
-            // If text-based (like comma-separated):
-            $table->text('required_skills')->nullable();
+            // Store required skills as JSON (instead of a comma-separated text string)
+            $table->json('required_skills')->nullable();
 
             $table->decimal('budget', 10, 2)->default(0.00);
 
-            // status enum: Open, In Progress, Closed
+            // Status: Open, In Progress, Closed
             $table->enum('status', ['Open', 'In Progress', 'Closed'])->default('Open');
 
-            // Nullable assigned freelancer ID (UUID, references freelancers table which has 'freelancer_id')
+            // Nullable assigned freelancer ID (UUID)
             $table->uuid('assigned_freelancer_id')->nullable();
 
-            // Store file path or filename if it exists
+            // Store file path or filename
             $table->string('file')->nullable();
 
             $table->timestamps();
         });
 
-        // Add any foreign key constraints after the table is created
+        // Define foreign key constraints
         Schema::table('projects', function (Blueprint $table) {
             $table->foreign('client_id')
                   ->references('client_id')
@@ -49,6 +51,12 @@ return new class extends Migration
                   ->on('freelancers')
                   ->cascadeOnUpdate()
                   ->nullOnDelete();
+
+            $table->foreign('category_id')
+                  ->references('id')
+                  ->on('categories')
+                  ->cascadeOnUpdate()
+                  ->cascadeOnDelete();
         });
     }
 
@@ -57,6 +65,7 @@ return new class extends Migration
         Schema::table('projects', function (Blueprint $table) {
             $table->dropForeign(['client_id']);
             $table->dropForeign(['assigned_freelancer_id']);
+            $table->dropForeign(['category_id']);
         });
 
         Schema::dropIfExists('projects');
