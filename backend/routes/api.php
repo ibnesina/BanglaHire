@@ -16,6 +16,7 @@ use App\Http\Controllers\API\PaymentHistoryController;
 use App\Http\Controllers\API\ProjectController;
 use App\Http\Controllers\API\ReviewController;
 use App\Http\Controllers\API\TalentController;
+use App\Http\Controllers\API\WorkController;
 
 // Public Routes
 
@@ -86,6 +87,10 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     // GET /talent?category_id=1&skills=Laravel,Vue.js
     Route::get('/talent', [TalentController::class, 'index']);
 
+    // Find Work
+    Route::get('/work', [WorkController::class, 'index']);
+
+
     // Admin-only routes
     Route::middleware('role:Admin')->group(function () {
         // Profile
@@ -105,7 +110,8 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::post('/categories', [CategoryController::class, 'store']);
         Route::put('/categories/{id}', [CategoryController::class, 'update']);
         Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
-        
+        Route::get('/categories/{id}/skills', [CategoryController::class, 'getCategorySkills']);
+
         // Freelancer and Client Control
         Route::put('/freelancers/{id}/update-stats', [FreelancerController::class, 'updateStats']);
         Route::put('/clients/{id}/update-stats', [ClientController::class, 'updateStats']);
