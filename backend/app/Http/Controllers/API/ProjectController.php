@@ -38,7 +38,7 @@ class ProjectController extends Controller
             // required_skills should be submitted as an array
             'required_skills' => 'required|array',
             'budget'          => 'required|numeric',
-            'file'            => 'nullable|file',
+            'file'            => 'nullable|file|size:5120',
         ]);
 
         // Validate file upload if exists
@@ -86,7 +86,7 @@ class ProjectController extends Controller
             'required_skills' => 'sometimes|nullable|array',
             'budget'          => 'sometimes|numeric',
             'status'          => 'sometimes|in:Open,In Progress,Closed',
-            'file'            => 'sometimes|nullable|file',
+            'file'            => 'sometimes|nullable|file|size:5120',
         ]);
 
         if ($request->has('category_id')) {
