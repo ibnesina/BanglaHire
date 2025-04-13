@@ -68,7 +68,8 @@ Route::get('/local-jobs/{id}', [LocalJobController::class, 'show']);
 // Categorirs & Skills 
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/categories/{id}', [CategoryController::class, 'show']);
-
+Route::get('/categories/{id}/skills', [CategoryController::class, 'getCategorySkills']);
+Route::get('/categoriesWithMetrics', [CategoryController::class, 'categoriesWithMetrics']);
 
 // Protected Routes
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
@@ -110,7 +111,6 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::post('/categories', [CategoryController::class, 'store']);
         Route::put('/categories/{id}', [CategoryController::class, 'update']);
         Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
-        Route::get('/categories/{id}/skills', [CategoryController::class, 'getCategorySkills']);
 
         // Freelancer and Client Control
         Route::put('/freelancers/{id}/update-stats', [FreelancerController::class, 'updateStats']);
