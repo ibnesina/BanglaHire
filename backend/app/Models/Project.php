@@ -12,6 +12,7 @@ class Project extends Model
 
     protected $fillable = [
         'client_id',
+        'category_id',
         'title',
         'description',
         'required_skills',
@@ -21,11 +22,10 @@ class Project extends Model
         'file',
     ];
 
-    // If 'required_skills' is stored as JSON in the DB, 
-    // you can cast it automatically:
-    // protected $casts = [
-    //     'required_skills' => 'array',
-    // ];
+    // Cast required_skills as an array for automatic JSON (de)serialization.
+    protected $casts = [
+        'required_skills' => 'array',
+    ];
 
     public function client()
     {
@@ -35,6 +35,11 @@ class Project extends Model
     public function assignedFreelancer()
     {
         return $this->belongsTo(Freelancer::class, 'assigned_freelancer_id', 'freelancer_id');
+    }
+    
+    public function category()
+    {
+        return $this->belongsTo(Category::class, 'category_id');
     }
 
     public function biddings()

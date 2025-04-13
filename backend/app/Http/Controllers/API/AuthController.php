@@ -73,7 +73,8 @@ class AuthController extends Controller
         $user = User::findOrFail($id);
         
         // Check if the hash is valid for the given user's email
-        if (! hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
+        // if (! hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
+        if (! hash_equals((string) $hash, hash('sha256', $user->getEmailForVerification()))) {
             // Redirect to frontend with error message
             return redirect()->away(config('app.frontend_url') . '/email-verification?error=Invalid verification link.');
         }

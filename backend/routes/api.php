@@ -8,12 +8,15 @@ use App\Http\Controllers\API\AssignedProjectController;
 use App\Http\Controllers\API\AssignedProjectRequestController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\BiddingController;
+use App\Http\Controllers\API\CategoryController;
 use App\Http\Controllers\API\ClientController;
 use App\Http\Controllers\API\FreelancerController;
 use App\Http\Controllers\API\LocalJobController;
 use App\Http\Controllers\API\PaymentHistoryController;
 use App\Http\Controllers\API\ProjectController;
 use App\Http\Controllers\API\ReviewController;
+use App\Http\Controllers\API\TalentController;
+use App\Http\Controllers\API\WorkController;
 
 // Public Routes
 
@@ -62,6 +65,11 @@ Route::get('/projects/{id}', [ProjectController::class, 'show']);
 Route::get('/local-jobs', [LocalJobController::class, 'index']);
 Route::get('/local-jobs/{id}', [LocalJobController::class, 'show']);
 
+// Categorirs & Skills 
+Route::get('/categories', [CategoryController::class, 'index']);
+Route::get('/categories/{id}', [CategoryController::class, 'show']);
+Route::get('/categories/{id}/skills', [CategoryController::class, 'getCategorySkills']);
+Route::get('/categoriesWithMetrics', [CategoryController::class, 'categoriesWithMetrics']);
 
 // Protected Routes
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
@@ -76,6 +84,14 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::get('/reviews', [ReviewController::class, 'index']);
     Route::get('/reviews/{id}', [ReviewController::class, 'show']);
 
+    // Hire Talent
+    // GET /talent?category_id=1&skills=Laravel,Vue.js
+    Route::get('/talent', [TalentController::class, 'index']);
+
+    // Find Work
+    Route::get('/work', [WorkController::class, 'index']);
+
+
     // Admin-only routes
     Route::middleware('role:Admin')->group(function () {
         // Profile
@@ -85,14 +101,16 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::get('/admins', [AdminController::class, 'index']);
         Route::get('/admins/{id}', [AdminController::class, 'show']);
 
-        // update the admin record
+        // Update and Delete admin record
         Route::put('/admins', [AdminController::class, 'storeOrUpdate']);
-
-        // Delete an admin record
         Route::delete('/admins/{id}', [AdminController::class, 'destroy']);
-
         // Update stats for a specific admin
         Route::put('/admins/{id}/update-stats', [AdminController::class, 'updateStats']);
+
+        // Categorirs & Skills 
+        Route::post('/categories', [CategoryController::class, 'store']);
+        Route::put('/categories/{id}', [CategoryController::class, 'update']);
+        Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
 
         // Freelancer and Client Control
         Route::put('/freelancers/{id}/update-stats', [FreelancerController::class, 'updateStats']);

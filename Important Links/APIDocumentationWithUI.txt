@@ -1,0 +1,9 @@
+API Documentation:
+https://docs.google.com/document/d/1HbKq0-vBDNZlFe1X2MPMR9Tr7Vr5X79BtaMRXOvsPhk/edit?tab=t.0
+
+UI:
+https://docs.google.com/document/d/1aH2fvafHw3lyxXbLDzMPg4RDfp5Ys2e-/edit
+
+
+Database:
+https://excalidraw.com/#json=uTHSm8K4ffbFiPUMf4r4g,n2hq22u7e_Z3_Q7RGFiKRw
