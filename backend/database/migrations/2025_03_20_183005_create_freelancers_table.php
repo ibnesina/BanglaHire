@@ -15,6 +15,11 @@ return new class extends Migration
             // Primary Key that is also a foreign key to users.id (assumes UUIDs)
             $table->uuid('freelancer_id')->primary();
             $table->text('bio')->nullable();
+
+            $table->unsignedBigInteger('category_id')->nullable();
+            // You can set a foreign key constraint if you wish:
+            $table->foreign('category_id')->references('id')->on('categories')->nullOnDelete();
+            
             $table->json('skills')->nullable(); // Store skills as JSON array
             $table->text('experiences')->nullable();
             $table->decimal('hourly_rate', 8, 2)->nullable();

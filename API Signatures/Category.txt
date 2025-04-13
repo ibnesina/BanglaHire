@@ -1,0 +1,157 @@
+{
+  "getCategories": {
+    "method": "GET",
+    "url": "/categories",
+    "response": {
+      "categories": [
+        {
+          "id": "number",
+          "name": "string (unique, max:255)",
+          "skills": ["string"],
+          "created_at": "string (datetime)",
+          "updated_at": "string (datetime)"
+        }
+      ]
+    }
+  },
+  "getCategorySkills": {
+    "method": "GET",
+    "url": "/categories/{id}/skills",
+    "url_params": {
+      "id": "number (ID of the category)"
+    },
+    "description": "Retrieves the skills array for a specified category. This endpoint is used to display available skills when a category is selected.",
+    "response": {
+      "skills": ["string"]
+    },
+    "error": {
+      "not_found": {
+        "message": "Category not found"
+      }
+    }
+  },
+  "getCategoriesWithMetrics": {
+    "method": "GET",
+    "url": "/categoriesWithMetrics",
+    "description": "Retrieves a list of all categories along with extra metrics including the total number of skills (skill_count) and the average rating (avg_rating) computed from all freelancers that belong to that category.",
+    "response": {
+      "categories": [
+        {
+          "id": "number",
+          "name": "string",
+          "skills": ["string"],
+          "created_at": "string (datetime)",
+          "updated_at": "string (datetime)",
+          "skill_count": "number",
+          "avg_rating": "number (decimal, e.g., 4.5)"
+        }
+      ]
+    },
+    "additional_comments": [
+      "The 'skill_count' value is calculated as the count of items in the category's 'skills' JSON array.",
+      "The 'avg_rating' represents the average of all freelancer ratings associated with the category (via the freelancers' reviews). If no freelancers exist for the category, the average rating is 0."
+    ]
+  },
+  "getCategoryById": {
+    "method": "GET",
+    "url": "/categories/{id}",
+    "url_params": {
+      "id": "number"
+    },
+    "response": {
+      "id": "number",
+      "name": "string (unique, max:255)",
+      "skills": ["string"],
+      "created_at": "string (datetime)",
+      "updated_at": "string (datetime)"
+    },
+    "error": {
+      "not_found": {
+        "message": "Category not found"
+      }
+    }
+  },
+  "createCategory": {
+    "method": "POST",
+    "url": "/categories",
+    "headers": {
+      "Authorization": "string (Bearer token - Admin only)"
+    },
+    "request": {
+      "name": "string (required, unique, max:255)",
+      "skills": ["string (optional)"]
+    },
+    "response": {
+      "id": "number",
+      "name": "string",
+      "skills": ["string"],
+      "created_at": "string (datetime)",
+      "updated_at": "string (datetime)"
+    },
+    "error": {
+      "validation_error": {
+        "errors": {
+          "name": ["string"]
+        }
+      },
+      "unauthorized": {
+        "message": "Unauthorized"
+      }
+    }
+  },
+  "updateCategory": {
+    "method": "PUT",
+    "url": "/categories/{id}",
+    "headers": {
+      "Authorization": "string (Bearer token - Admin only)"
+    },
+    "url_params": {
+      "id": "number"
+    },
+    "request": {
+      "name": "string (required, unique, max:255)",
+      "skills": ["string (optional)"]
+    },
+    "response": {
+      "id": "number",
+      "name": "string",
+      "skills": ["string"],
+      "created_at": "string (datetime)",
+      "updated_at": "string (datetime)"
+    },
+    "error": {
+      "validation_error": {
+        "errors": {
+          "name": ["string"]
+        }
+      },
+      "unauthorized": {
+        "message": "Unauthorized"
+      },
+      "not_found": {
+        "message": "Category not found"
+      }
+    }
+  },
+  "deleteCategory": {
+    "method": "DELETE",
+    "url": "/categories/{id}",
+    "headers": {
+      "Authorization": "string (Bearer token - Admin only)"
+    },
+    "url_params": {
+      "id": "number"
+    },
+    "response": {
+      "message": "Category deleted successfully"
+    },
+    "error": {
+      "unauthorized": {
+        "message": "Unauthorized"
+      },
+      "not_found": {
+        "message": "Category not found"
+      }
+    }
+  }
+}

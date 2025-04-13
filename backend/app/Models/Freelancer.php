@@ -18,6 +18,7 @@ class Freelancer extends Model
     protected $fillable = [
         'freelancer_id',
         'bio',
+        'category_id',
         'skills',
         'experiences',
         'hourly_rate',
@@ -38,5 +39,19 @@ class Freelancer extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'freelancer_id', 'id');
+    }
+
+    /**
+     * Relationship: a freelancer belongs to a category.
+     * This allows you to retrieve the category details and its available skills.
+     */
+    public function category()
+    {
+        return $this->belongsTo(Category::class, 'category_id');
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class, 'freelancer_id', 'freelancer_id');
     }
 }
