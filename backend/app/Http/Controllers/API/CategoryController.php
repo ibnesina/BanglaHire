@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Category;
+use App\Models\Freelancer;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
@@ -17,6 +18,64 @@ class CategoryController extends Controller
     {
         // Return all categories. Skills will be returned as a JSON array.
         $categories = Category::all();
+        return response()->json($categories, 200);
+    }
+
+     /**
+     * GET /categories/{id}/skills
+     * Returns the skills array for the specified category.
+     */
+    public function getCategorySkills($id)
+    {
+        $category = Category::find($id);
+
+        if (!$category) {
+            return response()->json(['message' => 'Category not found'], 404);
+        }
+
+        // Assuming Category model casts 'skills' as an array, otherwise decode manually.
+        return response()->json($category->skills ?? []);
+    }
+
+    /**
+     * Returns a list of categories with:
+     *  - name
+     *  - skill_count (how many skills are in this category)
+     *  - avg_rating (average rating across all freelancers who belong to this category)
+     */
+    public function categoriesWithMetrics()
+    {
+        // 1. Fetch all categories
+        $categories = Category::all();
+
+        // 2. Transform each category to include additional info: skill_count & avg_rating
+        $categories->transform(function ($category) {
+            // (A) Count how many skills exist in the JSON array
+            $skillCount = is_array($category->skills) ? count($category->skills) : 0;
+
+            // (B) Find all freelancers for this category,
+            //     each with an average rating from their reviews.
+            $freelancers = Freelancer::where('category_id', $category->id)
+                ->withAvg('reviews', 'rating')
+                ->get();
+
+            // (C) Calculate the overall average rating for the category
+            //     i.e., the average of each freelancer’s reviews_avg_rating.
+            $avgRating = 0;
+            if ($freelancers->count() > 0) {
+                // Eloquent’s ->withAvg() populates a 'reviews_avg_rating' attribute on each Freelancer model
+                // We simply average those
+                $avgRating = $freelancers->average('reviews_avg_rating') ?? 0;
+            }
+
+            // (D) Attach custom fields to the category object
+            $category->skill_count = $skillCount;
+            $category->avg_rating  = round($avgRating, 1); // optional rounding
+
+            return $category;
+        });
+
+        // Return the enriched categories
         return response()->json($categories, 200);
     }
 
