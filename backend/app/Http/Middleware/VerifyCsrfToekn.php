@@ -12,6 +12,7 @@ class VerifyCsrfToken extends BaseVerifier
      * @var array
      */
     protected $except = [
-        'login/google/callback', // Add the Google callback URL to the CSRF exceptions
+        // 'login/google/callback', // Add the Google callback URL to the CSRF exceptions
+        'api/*'
     ];
 }
