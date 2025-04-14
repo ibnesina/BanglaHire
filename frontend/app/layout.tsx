@@ -15,18 +15,22 @@ export default observer(function RootLayout({
   useEffect(() => {
     const token = localStorage.getItem("token");
     userStore.setToken(token);
-    if (token) {
-      try {
-        getMeAPI().then((user) => {
+
+    const fetchUser = async () => {
+      if (token) {
+        try {
+          const user = await getMeAPI();
           userStore.setUser(user);
-        });
-      } catch (error) {
-        console.error("Failed to fetch user data:", error);
+        } catch (error) {
+          console.error("Failed to fetch user data:", error);
+          userStore.setUser(null);
+        }
+      } else {
         userStore.setUser(null);
       }
-    }else{
-      userStore.setUser(null);
-    }
+    };
+
+    fetchUser();
   }, [userStore]);
 
   return (
@@ -38,4 +42,3 @@ export default observer(function RootLayout({
     </html>
   );
 });
-

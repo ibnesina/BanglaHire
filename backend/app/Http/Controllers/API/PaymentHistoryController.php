@@ -42,7 +42,7 @@ class PaymentHistoryController extends Controller
                 $query->select('admin_id')
                       ->from('admins')
                       ->where('is_super_admin', 1);
-            })->first();    
+            })->first();
 
             $freelancer = User::find($payment->receiver_id);
 
@@ -58,7 +58,7 @@ class PaymentHistoryController extends Controller
             $admin->save();
             $freelancer->save();
         }
-        else if(isset($validatedData['status']) && $validatedData['status'] === 'Refunded') {
+        elseif(isset($validatedData['status']) && $validatedData['status'] === 'Refunded') {
             $client = User::find($payment->sender_id);
             $client->balance += $payment->amount;
             $client->save();
@@ -106,3 +106,4 @@ class PaymentHistoryController extends Controller
         return response()->json($payments, 200);
     }
 }
+

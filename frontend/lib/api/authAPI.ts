@@ -88,7 +88,7 @@ export const forgotPasswordAPI = async (email: string) => {
   if (response.status === 200) {
     toast.success(response.message);
   } else {
-    toast.error(response.error || "Unable to send reset password link");
+    toast.error(response.error ?? "Unable to send reset password link");
   }
 };
 

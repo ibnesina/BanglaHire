@@ -31,7 +31,7 @@ class AssignedProjectRequestController extends Controller
             'message'       => 'nullable|string'
         ]);
 
-        // Use the authenticated client's id 
+        // Use the authenticated client's id
         $validated['client_id'] = Auth::user()->id;
 
         // Retrieve the project to obtain the amount
@@ -111,3 +111,4 @@ class AssignedProjectRequestController extends Controller
         return response()->json($requestEntry);
     }
 }
+
