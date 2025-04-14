@@ -77,58 +77,82 @@ class ProjectController extends Controller
     public function update(Request $request, $id)
     {
         $project = Project::findOrFail($id);
+        $validatedData = $this->validateRequest($request);
 
-        $validatedData = $request->validate([
+        // If validation failed, return early
+        if ($validatedData instanceof \Illuminate\Http\JsonResponse) {
+            return $validatedData;
+        }
+
+        // Check if category and skills validation is required
+        $categoryValidationResult = $this->validateCategoryAndSkills($request, $validatedData, $project);
+        if ($categoryValidationResult) {
+            return $categoryValidationResult;
+        }
+
+        // Handle file upload if exists
+        $validatedData = $this->handleFileUpload($request, $validatedData);
+
+        // Update project
+        $project->update($validatedData);
+
+        // Return the updated project response
+        return response()->json($project, 200);
+    }
+
+    // Validate the incoming request
+    private function validateRequest(Request $request)
+    {
+        return $request->validate([
             'title'           => 'sometimes|string|max:255',
             'description'     => 'sometimes|nullable|string',
             'category_id'     => 'sometimes|exists:categories,id',
-            // Allow required_skills to be updated (as an array)
             'required_skills' => 'sometimes|nullable|array',
             'budget'          => 'sometimes|numeric',
             'status'          => 'sometimes|in:Open,In Progress,Closed',
             'file'            => 'sometimes|nullable|file|max:5120',
         ]);
+    }
+
+    // Validate category and skills based on the input
+    private function validateCategoryAndSkills(Request $request, array $validatedData, Project $project)
+    {
+        $category = null;
 
         if ($request->has('category_id')) {
-            // If category is updated, revalidate required_skills against the new category
             $category = Category::find($validatedData['category_id']);
             if (!$category) {
                 return response()->json(['message' => 'Selected category not found.'], 404);
             }
-            if (isset($validatedData['required_skills'])) {
-                $availableSkills = $category->skills ?? [];
-                foreach ($validatedData['required_skills'] as $skill) {
-                    if (!in_array($skill, $availableSkills)) {
-                        return response()->json([
-                            'message' => "Invalid skill selection: {$skill}. Please choose only from the available skills for the selected category."
-                        ], 422);
-                    }
-                }
-            }
-        } elseif (isset($validatedData['required_skills'])) {
-            // If category_id is not updated and required_skills are provided,
-            // use the project's existing category for validation.
+        } elseif (isset($validatedData['required_skills']) && $project->category) {
             $category = $project->category;
-            if ($category) {
-                $availableSkills = $category->skills ?? [];
-                foreach ($validatedData['required_skills'] as $skill) {
-                    if (!in_array($skill, $availableSkills)) {
-                        return response()->json([
-                            'message' => "Invalid skill selection: {$skill}. Please choose only from the available skills for the project's category."
-                        ], 422);
-                    }
+        }
+
+        if ($category && isset($validatedData['required_skills'])) {
+            $availableSkills = $category->skills ?? [];
+            foreach ($validatedData['required_skills'] as $skill) {
+                if (!in_array($skill, $availableSkills)) {
+                    return response()->json([
+                        'message' => "Invalid skill selection: {$skill}. Please choose only from the available skills for the selected category."
+                    ], 422);
                 }
             }
         }
 
+        return null;
+    }
+
+    // Handle file upload logic
+    private function handleFileUpload(Request $request, array $validatedData)
+    {
         if ($request->hasFile('file')) {
             $filePath = $request->file('file')->store('project_files');
             $validatedData['file'] = $filePath;
         }
 
-        $project->update($validatedData);
-        return response()->json($project, 200);
+        return $validatedData;
     }
+
 
     // (Optional) Delete a project
     public function destroy($id)

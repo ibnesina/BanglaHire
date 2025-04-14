@@ -50,8 +50,7 @@ export default function Signin() {
         className="h-screen flex flex-col items-center justify-center bg-gradient-to-r from-sky-500 to-sky-700"
       >
         <div className="text-5xl font-bold text-white mb-6">
-          <span className="text-teal-400">B</span>angla
-          <span className="text-teal-400">H</span>ire
+          <span className="text-teal-400">B</span>angla<span className="text-teal-400">H</span>ire
         </div>
 
         <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-lg">
