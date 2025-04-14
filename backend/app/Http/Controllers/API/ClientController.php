@@ -79,7 +79,7 @@ class ClientController extends Controller
      * - active_projects
      * - freelancer_performance_score
      */
-    public function updateStats(Request $request, $id)
+    public function updateStats($id)
     {
         $client = Client::findOrFail($id);
 

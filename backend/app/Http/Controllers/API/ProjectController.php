@@ -77,58 +77,71 @@ class ProjectController extends Controller
     public function update(Request $request, $id)
     {
         $project = Project::findOrFail($id);
+        $result = null; // Initialize the result variable
 
         $validatedData = $request->validate([
             'title'           => 'sometimes|string|max:255',
             'description'     => 'sometimes|nullable|string',
             'category_id'     => 'sometimes|exists:categories,id',
-            // Allow required_skills to be updated (as an array)
             'required_skills' => 'sometimes|nullable|array',
             'budget'          => 'sometimes|numeric',
             'status'          => 'sometimes|in:Open,In Progress,Closed',
             'file'            => 'sometimes|nullable|file|max:5120',
         ]);
 
+        // Check if a new category is provided, validate skills against that category.
         if ($request->has('category_id')) {
-            // If category is updated, revalidate required_skills against the new category
             $category = Category::find($validatedData['category_id']);
             if (!$category) {
-                return response()->json(['message' => 'Selected category not found.'], 404);
-            }
-            if (isset($validatedData['required_skills'])) {
-                $availableSkills = $category->skills ?? [];
-                foreach ($validatedData['required_skills'] as $skill) {
-                    if (!in_array($skill, $availableSkills)) {
-                        return response()->json([
-                            'message' => "Invalid skill selection: {$skill}. Please choose only from the available skills for the selected category."
-                        ], 422);
+                $result = response()->json(['message' => 'Selected category not found.'], 404);
+            } else {
+                if (isset($validatedData['required_skills'])) {
+                    $availableSkills = $category->skills ?? [];
+                    foreach ($validatedData['required_skills'] as $skill) {
+                        if (!in_array($skill, $availableSkills)) {
+                            $result = response()->json([
+                                'message' => "Invalid skill selection: {$skill}. Please choose only from the available skills for the selected category."
+                            ], 422);
+                            break;
+                        }
                     }
                 }
             }
         } elseif (isset($validatedData['required_skills'])) {
-            // If category_id is not updated and required_skills are provided,
-            // use the project's existing category for validation.
+            // When category_id is not updated, validate against the project's existing category.
             $category = $project->category;
             if ($category) {
                 $availableSkills = $category->skills ?? [];
                 foreach ($validatedData['required_skills'] as $skill) {
                     if (!in_array($skill, $availableSkills)) {
-                        return response()->json([
+                        $result = response()->json([
                             'message' => "Invalid skill selection: {$skill}. Please choose only from the available skills for the project's category."
                         ], 422);
+                        break;
                     }
                 }
             }
         }
 
+        // If an error was encountered during validation, return the corresponding response.
+        if ($result) {
+            return $result;
+        }
+
+        // Process file upload if present.
         if ($request->hasFile('file')) {
             $filePath = $request->file('file')->store('project_files');
             $validatedData['file'] = $filePath;
         }
 
+        // Update the project with the validated data.
         $project->update($validatedData);
-        return response()->json($project, 200);
+
+        // Assign the final successful response to the result variable.
+        $result = response()->json($project, 200);
+        return $result;
     }
+
 
     // (Optional) Delete a project
     public function destroy($id)
