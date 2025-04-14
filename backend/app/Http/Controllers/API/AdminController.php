@@ -80,12 +80,15 @@ class AdminController extends Controller
         // For demonstration, we can do real queries to count users, projects, etc.
         // Then store them in the `admins` table or just return them.
 
-        // $admin = Admin::findOrFail($id);
+        $admin = Admin::findOrFail($id);
         // Example pseudo-code:
         // $admin->total_users = User::count();
         // $admin->last_updated = now();
         // $admin->save();
 
-        return response()->json(['message' => 'Admin stats updated successfully.']);
+        return response()->json([
+            'message' => 'Admin stats updated successfully.',
+            'admin' => $admin
+        ]);
     }
 }
