@@ -329,7 +329,6 @@ class AuthController extends Controller
         ]);
 
         $googleUser = session('google_user');
-        // $accessToken = session('access_token');
 
         if (!$googleUser) {
             return response()->json(['error' => 'Google user data not found. Please login again.'], 400);
