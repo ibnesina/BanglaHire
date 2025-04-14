@@ -27,7 +27,6 @@ export default function ForgetPassword() {
       email: "",
     },
 });
-// await forgotPasswordAPI(email);
 
   const onForgotPassword = async (data:TpfSchema) => {
     setForgetPassLoading(true); 

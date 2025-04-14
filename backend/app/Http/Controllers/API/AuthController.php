@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
-use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
@@ -69,7 +68,7 @@ class AuthController extends Controller
     }
 
     // Email Verification
-    public function emailVerification(Request $request, $id, $hash) {
+    public function emailVerification($id, $hash) {
         $user = User::findOrFail($id);
         
         // Check if the hash is valid for the given user's email
@@ -239,6 +238,8 @@ class AuthController extends Controller
     // Handle the Google OAuth callback.
     public function handleGoogleCallback(Request $request)
     {
+        $result = null;
+
         try {
             Log::info('Google OAuth Callback Data:', $request->all());
 
@@ -254,54 +255,55 @@ class AuthController extends Controller
 
             if ($response->failed()) {
                 Log::error('Failed to get access token', ['error' => $response->body()]);
-                return response()->json(['error' => 'Unable to login with Google'], 500);
+                $result = response()->json(['error' => 'Unable to login with Google'], 500);
+            } else {
+                $tokens = $response->json();
+                $accessToken = $tokens['access_token'];
+                Log::info('Google Tokens:', ['accessToken' => $accessToken]);
+
+                // Step 2: Retrieve user information using the access token.
+                $userResponse = Http::withToken($accessToken)->get('https://www.googleapis.com/oauth2/v3/userinfo');
+                if ($userResponse->failed()) {
+                    Log::error('Failed to fetch user info', ['error' => $userResponse->body()]);
+                    $result = response()->json(['error' => 'Unable to fetch user data'], 500);
+                } else {
+                    $googleUser = $userResponse->json();
+                    Log::info('Google User Data:', ['googleUser' => $googleUser]);
+
+                    // Step 3: Check if the user exists by Google ID or email.
+                    $user = User::where('google_id', $googleUser['sub'])
+                                ->orWhere('email', $googleUser['email'])
+                                ->first();
+
+                    if (!$user) {
+                        // If the user does not exist, store the Google user data in session and redirect to role selection.
+                        session([
+                            'google_user'  => $googleUser,
+                            'access_token' => $accessToken
+                        ]);
+                        $result = redirect()->route('role.selection');
+                    } else {
+                        // If the user exists, log them in and return the authentication token.
+                        Auth::login($user);
+                        $token = $user->createToken('auth_token')->plainTextToken;
+                        $result = response()->json([
+                            'user'  => $user,
+                            'token' => $token,
+                        ]);
+                    }
+                }
             }
-
-            $tokens = $response->json();
-            $accessToken = $tokens['access_token'];
-            Log::info('Google Tokens:', ['accessToken' => $accessToken]);
-
-            // Step 2: Retrieve user information using the access token.
-            $userResponse = Http::withToken($accessToken)->get('https://www.googleapis.com/oauth2/v3/userinfo');
-            if ($userResponse->failed()) {
-                Log::error('Failed to fetch user info', ['error' => $userResponse->body()]);
-                return response()->json(['error' => 'Unable to fetch user data'], 500);
-            }
-
-            $googleUser = $userResponse->json();
-            Log::info('Google User Data:', ['googleUser' => $googleUser]);
-
-            // Step 3: Check if the user exists by Google ID or email.
-            $user = User::where('google_id', $googleUser['sub'])
-                        ->orWhere('email', $googleUser['email'])
-                        ->first();
-
-            // If the user does not exist, store the Google user data in session and redirect to role selection.
-            if (!$user) {
-                session([
-                    'google_user'  => $googleUser,
-                    'access_token' => $accessToken
-                ]);
-
-                return redirect()->route('role.selection');
-            }
-
-            // If the user exists, log them in and return the authentication token.
-            Auth::login($user);
-            $token = $user->createToken('auth_token')->plainTextToken;
-
-            return response()->json([
-                'user'  => $user,
-                'token' => $token,
-            ]);
         } catch (\Exception $e) {
             Log::error('Google login error', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-            return response()->json(['error' => 'Unable to login with Google'], 500);
+            $result = response()->json(['error' => 'Unable to login with Google'], 500);
         }
+
+        return $result;
     }
+
 
     // Show the role selection response.
     // Since this is API-only, we return JSON that instructs the frontend to display a role selection UI.

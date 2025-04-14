@@ -21,16 +21,6 @@ class CustomVerifyEmail extends VerifyEmailBase
     }
 
     /**
-     * Get the notification's delivery channels.
-     *
-     * @return array<int, string>
-     */
-    // public function via(object $notifiable): array
-    // {
-    //     return ['mail'];
-    // }
-
-    /**
      * Get the mail representation of the notification.
      */
     public function toMail($notifiable)

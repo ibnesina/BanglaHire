@@ -127,34 +127,39 @@ class CategoryController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $result = null;
+
         // Check admin access.
         if (Auth::user()->type !== 'Admin') {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            $result = response()->json(['message' => 'Unauthorized'], 403);
+        } else {
+            $category = Category::find($id);
+            if (!$category) {
+                $result = response()->json(['message' => 'Category not found'], 404);
+            } else {
+                // Validate the incoming update data.
+                $validator = Validator::make($request->all(), [
+                    'name'   => 'required|unique:categories,name,' . $category->id . '|max:255',
+                    'skills' => 'sometimes|array'
+                ]);
+
+                if ($validator->fails()) {
+                    $result = response()->json($validator->errors(), 422);
+                } else {
+                    // Update the category information.
+                    $category->update([
+                        'name'   => $request->input('name'),
+                        'skills' => $request->input('skills', $category->skills)
+                    ]);
+
+                    $result = response()->json($category, 200);
+                }
+            }
         }
 
-        $category = Category::find($id);
-        if (!$category) {
-            return response()->json(['message' => 'Category not found'], 404);
-        }
-
-        // Validate the incoming update data.
-        $validator = Validator::make($request->all(), [
-            'name'   => 'required|unique:categories,name,' . $category->id . '|max:255',
-            'skills' => 'sometimes|array'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
-        }
-
-        // Update the category information.
-        $category->update([
-            'name'   => $request->input('name'),
-            'skills' => $request->input('skills', $category->skills)
-        ]);
-
-        return response()->json($category, 200);
+        return $result;
     }
+
 
     /**
      * Delete a category.

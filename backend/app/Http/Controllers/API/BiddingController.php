@@ -43,7 +43,6 @@ class BiddingController extends Controller
     public function update(Request $request, $id)
     {
         $bidding = Bidding::findOrFail($id);
-        // $this->authorize('update', $bidding);
 
         $validatedData = $request->validate([
             'cover_letter'   => 'sometimes|nullable|string',

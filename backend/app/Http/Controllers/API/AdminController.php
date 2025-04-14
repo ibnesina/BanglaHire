@@ -74,7 +74,8 @@ class AdminController extends Controller
     /**
      * Example method: Update or retrieve platform-wide stats (optional).
      */
-    public function updateStats(Request $request, $id)
+    // public function updateStats(Request $request, $id)
+    public function updateStats($id)
     {
         // For demonstration, we can do real queries to count users, projects, etc.
         // Then store them in the `admins` table or just return them.
