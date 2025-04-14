@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Validator;
 
 class CategoryController extends Controller
 {
+    private const CATEGORY_NOT_FOUND_MESSAGE = 'Category not found';
+
     /**
      * Display a listing of all categories.
      */
@@ -30,7 +32,7 @@ class CategoryController extends Controller
         $category = Category::find($id);
 
         if (!$category) {
-            return response()->json(['message' => 'Category not found'], 404);
+            return response()->json(['message' => self::CATEGORY_NOT_FOUND_MESSAGE], 404);
         }
 
         // Assuming Category model casts 'skills' as an array, otherwise decode manually.
@@ -86,7 +88,7 @@ class CategoryController extends Controller
     {
         $category = Category::find($id);
         if (!$category) {
-            return response()->json(['message' => 'Category not found'], 404);
+            return response()->json(['message' => self::CATEGORY_NOT_FOUND_MESSAGE], 404);
         }
         return response()->json($category, 200);
     }
@@ -135,7 +137,7 @@ class CategoryController extends Controller
         } else {
             $category = Category::find($id);
             if (!$category) {
-                $result = response()->json(['message' => 'Category not found'], 404);
+                $result = response()->json(['message' => self::CATEGORY_NOT_FOUND_MESSAGE], 404);
             } else {
                 // Validate the incoming update data.
                 $validator = Validator::make($request->all(), [
@@ -173,7 +175,7 @@ class CategoryController extends Controller
 
         $category = Category::find($id);
         if (!$category) {
-            return response()->json(['message' => 'Category not found'], 404);
+            return response()->json(['message' => self::CATEGORY_NOT_FOUND_MESSAGE], 404);
         }
 
         $category->delete();

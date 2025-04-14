@@ -14,19 +14,20 @@ class FreelancerController extends Controller
     /**
      * Create or update the freelancer profile.
      */
+    private const NULLABLE_STRING = 'nullable|string';
     public function store(Request $request)
     {
         $result = null;
 
         // Validate the incoming request with the new category_id field.
         $request->validate([
-            'bio'             => 'nullable|string',
+            'bio'             => self::NULLABLE_STRING,
             'category_id'     => 'required|exists:categories,id',
             'skills'          => 'nullable|array',
-            'experiences'     => 'nullable|string',
+            'experiences'     => self::NULLABLE_STRING,
             'hourly_rate'     => 'nullable|numeric|min:0',
             'certifications'  => 'nullable|array',
-            'portfolio_link'  => 'nullable|string',
+            'portfolio_link'  => self::NULLABLE_STRING,
         ]);
 
         $user = Auth::user();
