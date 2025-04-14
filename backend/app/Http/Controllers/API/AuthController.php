@@ -52,7 +52,14 @@ class AuthController extends Controller
                     'admin_id' => $user->id,
                 ]);
                 break;
+            default:
+                // Default to Freelancer if the type doesn't match known values
+                Freelancer::create([
+                    'freelancer_id' => $user->id,
+                ]);
+                break;
         }
+
 
         // Send the email verification notification
         $user->sendEmailVerificationNotification();
@@ -139,11 +146,12 @@ class AuthController extends Controller
         return $request->user();
     }
 
+    private const EMAIL_VALIDATION_RULE = 'required|email|exists:users,email';
     // Send a password reset link to the user's email
     public function forgotPassword(Request $request)
     {
         $request->validate([
-            'email' => 'required|email|exists:users,email',
+            'email' => self::EMAIL_VALIDATION_RULE,
         ]);
 
         // Send the password reset link via the Password broker
