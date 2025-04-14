@@ -119,3 +119,4 @@ class AssignedProjectController extends Controller
         return response()->json(['message' => 'Assignment deleted'], 200);
     }
 }
+

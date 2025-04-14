@@ -53,11 +53,9 @@ class AuthController extends Controller
                 ]);
                 break;
             default:
-                // Default to Freelancer if the type doesn't match known values
-                Freelancer::create([
-                    'freelancer_id' => $user->id,
-                ]);
-                break;
+                // You can throw an exception, log an error, or handle it as needed
+                throw new \InvalidArgumentException("Invalid user type: {$user->type}");
+        
         }
 
 
@@ -122,14 +120,14 @@ class AuthController extends Controller
         $token = $user->createToken('auth_token')->plainTextToken;
 
         // Load the associated role data based on the user's type
-        $roleData = null;
-        if ($user->type === 'Freelancer') {
-            $roleData = $user->freelancer;
-        } elseif ($user->type === 'Client') {
-            $roleData = $user->client;
-        } elseif ($user->type === 'Admin') {
-            $roleData = $user->admin;
-        }
+        // $roleData = null;
+        // if ($user->type === 'Freelancer') {
+        //     $roleData = $user->freelancer;
+        // } elseif ($user->type === 'Client') {
+        //     $roleData = $user->client;
+        // } elseif ($user->type === 'Admin') {
+        //     $roleData = $user->admin;
+        // }
 
         return response()->json([
             'message'   => 'Login successful',
@@ -171,7 +169,7 @@ class AuthController extends Controller
     {
         $request->validate([
             'token'                 => 'required',
-            'email'                 => 'required|email|exists:users,email',
+            'email'                 => self::EMAIL_VALIDATION_RULE,
             'password'              => 'required|min:8|confirmed',
         ]);
 
@@ -195,7 +193,7 @@ class AuthController extends Controller
     public function resetPassword(Request $request)
     {
         $request->validate([
-            'email'        => 'required|email|exists:users,email',
+            'email'        => self::EMAIL_VALIDATION_RULE,
             'old_password' => 'required|string',
             'password'     => 'required|string|min:8|confirmed',
         ]);
@@ -315,7 +313,7 @@ class AuthController extends Controller
 
     // Show the role selection response.
     // Since this is API-only, we return JSON that instructs the frontend to display a role selection UI.
-    public function showRoleSelection(Request $request)
+    public function showRoleSelection()
     {
         return response()->json([
             'message' => 'Please select your role',
@@ -331,7 +329,7 @@ class AuthController extends Controller
         ]);
 
         $googleUser = session('google_user');
-        $accessToken = session('access_token');
+        // $accessToken = session('access_token');
 
         if (!$googleUser) {
             return response()->json(['error' => 'Google user data not found. Please login again.'], 400);

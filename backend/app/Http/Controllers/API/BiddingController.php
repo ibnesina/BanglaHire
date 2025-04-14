@@ -54,3 +54,4 @@ class BiddingController extends Controller
         return response()->json($bidding, 200);
     }
 }
+

@@ -76,3 +76,4 @@ class LocalJobController extends Controller
         return response()->json(['message' => 'Job deleted successfully']);
     }
 }
+
