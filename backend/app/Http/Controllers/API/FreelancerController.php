@@ -145,7 +145,7 @@ class FreelancerController extends Controller
     {
         // For demonstration purposes, here we simulate updating stats.
         // In a real implementation, you'd query the Payments, Reviews, Bids, and Projects tables.
-        // $freelancer = Freelancer::findOrFail($id);
+        $freelancer = Freelancer::findOrFail($id);
 
         // Example pseudo-code:
         // $totalEarnings = Payment::where('freelancer_id', $id)->sum('amount');
@@ -156,6 +156,9 @@ class FreelancerController extends Controller
         // $freelancer->last_updated = now();
         // $freelancer->save();
 
-        return response()->json(['message' => 'Freelancer stats updated successfully.']);
+        return response()->json([
+            'message' => 'Freelancer stats updated successfully.',
+            'freelancer' => $freelancer
+        ]);
     }
 }
