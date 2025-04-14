@@ -59,15 +59,14 @@ Route::get('/clients', [ClientController::class, 'index']);
 Route::get('/clients/{id}', [ClientController::class, 'show']);
 
 // Projects section
-Route::get('/projects', [ProjectController::class, 'index']);         
-// Route::get('/projects/{id}', [ProjectController::class, 'show']);
+Route::get('/projects', [ProjectController::class, 'index']);
 Route::get(RoutePaths::PROJECT_SHOW, [ProjectController::class, 'show']);
 
 // Local Jobs section
 Route::get('/local-jobs', [LocalJobController::class, 'index']);
-Route::get(RoutePaths::LocalJobs_SHOW, [LocalJobController::class, 'show']);
+Route::get(RoutePaths::LOCALJOBS_SHOW, [LocalJobController::class, 'show']);
 
-// Categorirs & Skills 
+// Categorirs & Skills
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::get(RoutePaths::CATEGORIES_SHOW, [CategoryController::class, 'show']);
 Route::get('/categories/{id}/skills', [CategoryController::class, 'getCategorySkills']);
@@ -109,7 +108,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         // Update stats for a specific admin
         Route::put('/admins/{id}/update-stats', [AdminController::class, 'updateStats']);
 
-        // Categorirs & Skills 
+        // Categorirs & Skills
         Route::post('/categories', [CategoryController::class, 'store']);
         Route::put(RoutePaths::CATEGORIES_SHOW, [CategoryController::class, 'update']);
         Route::delete(RoutePaths::CATEGORIES_SHOW, [CategoryController::class, 'destroy']);
@@ -182,11 +181,12 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 
         // Local Jobs section
         Route::post('/local-jobs', [LocalJobController::class, 'store']);
-        Route::put(RoutePaths::LocalJobs_SHOW, [LocalJobController::class, 'update']);
-        Route::delete(RoutePaths::LocalJobs_SHOW, [LocalJobController::class, 'destroy']);
+        Route::put(RoutePaths::LOCALJOBS_SHOW, [LocalJobController::class, 'update']);
+        Route::delete(RoutePaths::LOCALJOBS_SHOW, [LocalJobController::class, 'destroy']);
 
         // Project Request creation
         Route::post('project-requests', [AssignedProjectRequestController::class, 'store']);
     });
 
 });
+
