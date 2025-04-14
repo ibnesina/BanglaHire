@@ -24,57 +24,65 @@ class WorkController extends Controller
      */
     public function index(Request $request)
     {
+        $response = null;
+
         // Base query: eager-load client and category if you want to display that info
         $query = Project::with(['client', 'category']);
 
         // If no query params, return the most recent projects.
         if (!$request->has('category_id') && !$request->has('skills')) {
-            // Return, for example, the 20 most recent projects
+            // Return, for example, the 20 most recent projects.
             $projects = $query->orderBy('created_at', 'desc')->limit(20)->get();
-            return response()->json($projects, 200);
-        }
+            $response = response()->json($projects, 200);
+        } else {
+            // If category is specified, filter by that category.
+            if ($request->has('category_id')) {
+                $categoryId = $request->input('category_id');
+                $category = Category::find($categoryId);
 
-        // If category is specified, filter by that category
-        if ($request->has('category_id')) {
-            $categoryId = $request->input('category_id');
-            $category = Category::find($categoryId);
-
-            if (!$category) {
-                return response()->json(['message' => 'Category not found'], 404);
+                if (!$category) {
+                    $response = response()->json(['message' => 'Category not found'], 404);
+                } else {
+                    $query->where('category_id', $categoryId);
+                }
             }
 
-            $query->where('category_id', $categoryId);
-        }
+            // Proceed only if no error response is already set.
+            if (!$response) {
+                // If no 'skills' param, return projects (filtered by category if provided) in most recent order.
+                if (!$request->has('skills')) {
+                    $projects = $query->orderBy('created_at', 'desc')->get();
+                    $response = response()->json($projects, 200);
+                } else {
+                    // If 'skills' param is provided, handle "best match" sorting
+                    $requestedSkills = array_map('trim', explode(',', $request->input('skills')));
 
-        // If no 'skills' param, return projects (filtered by category if provided) in most recent order
-        if (!$request->has('skills')) {
-            $projects = $query->orderBy('created_at', 'desc')->get();
-            return response()->json($projects, 200);
-        }
+                    // Get the current list from the DB (already filtered by category if given)
+                    $projects = $query->get();
 
-        // If 'skills' param is provided, we handle "best match" sorting
-        $requestedSkills = array_map('trim', explode(',', $request->input('skills')));
+                    // Sort projects by overlap of required_skills with requested skills.
+                    // If there's a tie, break it by recency (newest first).
+                    $sorted = $projects->sort(function ($a, $b) use ($requestedSkills) {
+                        $aOverlap = $this->countSkillOverlap($a->required_skills, $requestedSkills);
+                        $bOverlap = $this->countSkillOverlap($b->required_skills, $requestedSkills);
 
-        // Get the current list from the DB (already filtered by category if given)
-        $projects = $query->get();
+                        // Descending order by overlap.
+                        if ($bOverlap !== $aOverlap) {
+                            return $bOverlap <=> $aOverlap;
+                        }
+                        
+                        // Tiebreaker: recency (newest first)
+                        return $b->created_at <=> $a->created_at;
+                    })->values(); // Reindex collection
 
-        // Sort them by overlap of required_skills with $requestedSkills
-        // Then (optionally) break ties by recency if you wish
-        $sorted = $projects->sort(function ($a, $b) use ($requestedSkills) {
-            $aOverlap = $this->countSkillOverlap($a->required_skills, $requestedSkills);
-            $bOverlap = $this->countSkillOverlap($b->required_skills, $requestedSkills);
-
-            // Descending by overlap
-            if ($bOverlap !== $aOverlap) {
-                return $bOverlap <=> $aOverlap;  // More overlap => higher
+                    $response = response()->json($sorted, 200);
+                }
             }
+        }
 
-            // Tiebreak by recency (newest first)
-            return $b->created_at <=> $a->created_at;
-        })->values();  // Reindex collection
-
-        return response()->json($sorted, 200);
+        return $response;
     }
+
 
     /**
      * Private helper to count how many of $requestedSkills appear in $projectSkills.

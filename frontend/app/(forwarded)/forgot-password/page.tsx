@@ -43,10 +43,11 @@ export default function ForgotPasswordPage() {
   return (
     <div className="w-full h-screen flex justify-center bg-red-100 py-40">
       <div className="w-full max-w-md p-6 rounded-lg shadow-lg bg-gradient-to-r from-red-200 to-red-300">
-        <div className="text-5xl font-bold text-white mb-6">
-          <span className="text-red-800">B</span>angla
-          <span className="text-red-800">H</span>ire
-        </div>
+      
+      <div className="text-5xl font-bold text-white mb-6">
+        <span className="text-teal-400">B</span>angla<span className="text-teal-400">H</span>ire
+      </div>
+
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
             <label
