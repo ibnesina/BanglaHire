@@ -9,8 +9,8 @@ import { useForm } from "react-hook-form";
 
 export default function ForgotPasswordPage() {
   const searchParams = useSearchParams();
-  const token = searchParams.get("token") || "";
-  const email = searchParams.get("email") || "";
+  const token = searchParams.get("token") ?? "";
+  const email = searchParams.get("email") ?? "";
   const [loading, setLoading] = useState(false);
   const {
     register,

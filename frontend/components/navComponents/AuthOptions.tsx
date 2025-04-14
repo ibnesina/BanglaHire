@@ -32,40 +32,57 @@ const AuthOptions = observer(() => {
 
   return user ? (
     <div className="relative" ref={dropdownRef}>
-      <div
+      {/* Replace clickable div with a native button */}
+      <button
+        type="button"
         className="flex items-center gap-2 cursor-pointer"
         onClick={() => setOpen(!open)}
+        aria-haspopup="menu"
+        aria-expanded={open}
       >
         <Avatar>
-          <AvatarImage
-            src={user.profile_picture || "https://github.com/shadcn.png"}
-          />
+          <AvatarImage src={user.profile_picture ?? "https://github.com/shadcn.png"} />
           <AvatarFallback>
-            {user.name
-              .split(" ")
-              .map((n) => n[0].toUpperCase())
-              .join("")}
+            {user.name.split(" ").map((n) => n[0].toUpperCase()).join("")}
           </AvatarFallback>
         </Avatar>
         <span>{user.name}</span>
-      </div>
+      </button>
+  
       {open && (
-        <div className="absolute right-0 mt-2 w-48 bg-white text-black rounded-md shadow-lg z-10">
+        <div
+          className="absolute right-0 mt-2 w-48 bg-white text-black rounded-md shadow-lg z-10"
+          role="menu"
+          aria-label="User menu"
+        >
           <ul>
-            <Link href="/profile">
-              <li className="hover:bg-gray-100 px-4 py-2">My Profile</li>
-            </Link>
-            <Link href="/settings">
-              <li className="hover:bg-gray-100 px-4 py-2">Settings</li>
-            </Link>
-            <button
-              className="w-full text-left cursor-pointer"
-              onClick={async () => {
-                await logoutAPI();
-              }}
-            >
-              <li className="hover:bg-gray-100 px-4 py-2">Logout</li>
-            </button>
+            <li>
+              <Link href="/profile" legacyBehavior>
+                {/* Use an anchor tag as a native interactive element */}
+                <a className="block hover:bg-gray-100 px-4 py-2" role="menuitem">
+                  My Profile
+                </a>
+              </Link>
+            </li>
+            <li>
+              <Link href="/settings" legacyBehavior>
+                <a className="block hover:bg-gray-100 px-4 py-2" role="menuitem">
+                  Settings
+                </a>
+              </Link>
+            </li>
+            <li>
+              <button
+                type="button"
+                className="w-full text-left block hover:bg-gray-100 px-4 py-2"
+                onClick={async () => {
+                  await logoutAPI();
+                }}
+                role="menuitem"
+              >
+                Logout
+              </button>
+            </li>
           </ul>
         </div>
       )}

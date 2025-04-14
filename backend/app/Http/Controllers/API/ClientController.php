@@ -81,8 +81,7 @@ class ClientController extends Controller
      */
     public function updateStats($id)
     {
-        $client = Client::findOrFail($id);
-
+        // $client = Client::findOrFail($id);
         // Example pseudo-code for future use:
         // $client->total_spending = Payment::where('client_id', $id)->sum('amount');
         // $client->average_freelancer_rating_given = Review::where('client_id', $id)->avg('rating');
