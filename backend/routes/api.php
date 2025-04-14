@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Http\Request;
 
 use App\Http\Controllers\API\AdminController;
 use App\Http\Controllers\API\AssignedProjectController;
@@ -17,6 +16,8 @@ use App\Http\Controllers\API\ProjectController;
 use App\Http\Controllers\API\ReviewController;
 use App\Http\Controllers\API\TalentController;
 use App\Http\Controllers\API\WorkController;
+
+use App\Constants\RoutePaths;
 
 // Public Routes
 
@@ -59,15 +60,16 @@ Route::get('/clients/{id}', [ClientController::class, 'show']);
 
 // Projects section
 Route::get('/projects', [ProjectController::class, 'index']);         
-Route::get('/projects/{id}', [ProjectController::class, 'show']);
+// Route::get('/projects/{id}', [ProjectController::class, 'show']);
+Route::get(RoutePaths::PROJECT_SHOW, [ProjectController::class, 'show']);
 
 // Local Jobs section
 Route::get('/local-jobs', [LocalJobController::class, 'index']);
-Route::get('/local-jobs/{id}', [LocalJobController::class, 'show']);
+Route::get(RoutePaths::LocalJobs_SHOW, [LocalJobController::class, 'show']);
 
 // Categorirs & Skills 
 Route::get('/categories', [CategoryController::class, 'index']);
-Route::get('/categories/{id}', [CategoryController::class, 'show']);
+Route::get(RoutePaths::CATEGORIES_SHOW, [CategoryController::class, 'show']);
 Route::get('/categories/{id}/skills', [CategoryController::class, 'getCategorySkills']);
 Route::get('/categoriesWithMetrics', [CategoryController::class, 'categoriesWithMetrics']);
 
@@ -78,11 +80,11 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 
     // Assigned Projects routes (visible to all authenticated users)
     Route::get('/assignments', [AssignedProjectController::class, 'index']);
-    Route::get('/assignments/{id}', [AssignedProjectController::class, 'show']);
+    Route::get(RoutePaths::ASSIGNMENTS_SHOW, [AssignedProjectController::class, 'show']);
 
     // Reviews routes
     Route::get('/reviews', [ReviewController::class, 'index']);
-    Route::get('/reviews/{id}', [ReviewController::class, 'show']);
+    Route::get(RoutePaths::REVIEW_SHOW, [ReviewController::class, 'show']);
 
     // Hire Talent
     // GET /talent?category_id=1&skills=Laravel,Vue.js
@@ -109,8 +111,8 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 
         // Categorirs & Skills 
         Route::post('/categories', [CategoryController::class, 'store']);
-        Route::put('/categories/{id}', [CategoryController::class, 'update']);
-        Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
+        Route::put(RoutePaths::CATEGORIES_SHOW, [CategoryController::class, 'update']);
+        Route::delete(RoutePaths::CATEGORIES_SHOW, [CategoryController::class, 'destroy']);
 
         // Freelancer and Client Control
         Route::put('/freelancers/{id}/update-stats', [FreelancerController::class, 'updateStats']);
@@ -118,10 +120,10 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 
         // Payment History endpoints
         Route::get('/payments', [PaymentHistoryController::class, 'index']);
-        Route::get('/payments/{id}', [PaymentHistoryController::class, 'show']);
+        Route::get(RoutePaths::PAYMENT_SHOW, [PaymentHistoryController::class, 'show']);
         // Note: We no longer use PaymentHistoryController::store because payment records are auto-created on assignment completion.
-        Route::put('/payments/{id}', [PaymentHistoryController::class, 'update']);
-        Route::delete('/payments/{id}', [PaymentHistoryController::class, 'destroy']);
+        Route::put(RoutePaths::PAYMENT_SHOW, [PaymentHistoryController::class, 'update']);
+        Route::delete(RoutePaths::PAYMENT_SHOW, [PaymentHistoryController::class, 'destroy']);
     });
 
     // Freelancer-only routes
@@ -159,18 +161,18 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 
         // Projects
         Route::post('/projects', [ProjectController::class, 'store']);
-        Route::put('/projects/{id}', [ProjectController::class, 'update']);
-        Route::delete('/projects/{id}', [ProjectController::class, 'destroy']);
+        Route::put(RoutePaths::PROJECT_SHOW, [ProjectController::class, 'update']);
+        Route::delete(RoutePaths::PROJECT_SHOW, [ProjectController::class, 'destroy']);
 
         // Only clients can create, update, or delete assignments (project assignment is done by the client who created the project)
         Route::post('/assignments', [AssignedProjectController::class, 'store']);
-        Route::put('/assignments/{id}', [AssignedProjectController::class, 'update']);
-        Route::delete('/assignments/{id}', [AssignedProjectController::class, 'destroy']);
+        Route::put(RoutePaths::ASSIGNMENTS_SHOW, [AssignedProjectController::class, 'update']);
+        Route::delete(RoutePaths::ASSIGNMENTS_SHOW, [AssignedProjectController::class, 'destroy']);
 
         // Only clients can submit, update, or delete reviews after a project is completed
         Route::post('/reviews', [ReviewController::class, 'store']);
-        Route::put('/reviews/{id}', [ReviewController::class, 'update']);
-        Route::delete('/reviews/{id}', [ReviewController::class, 'destroy']);
+        Route::put(RoutePaths::REVIEW_SHOW, [ReviewController::class, 'update']);
+        Route::delete(RoutePaths::REVIEW_SHOW, [ReviewController::class, 'destroy']);
 
         // Fetch reviews by client ID for profile views
         Route::get('/client-reviews', [ReviewController::class, 'getByClient']);
@@ -180,8 +182,8 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 
         // Local Jobs section
         Route::post('/local-jobs', [LocalJobController::class, 'store']);
-        Route::put('/local-jobs/{id}', [LocalJobController::class, 'update']);
-        Route::delete('/local-jobs/{id}', [LocalJobController::class, 'destroy']);
+        Route::put(RoutePaths::LocalJobs_SHOW, [LocalJobController::class, 'update']);
+        Route::delete(RoutePaths::LocalJobs_SHOW, [LocalJobController::class, 'destroy']);
 
         // Project Request creation
         Route::post('project-requests', [AssignedProjectRequestController::class, 'store']);
