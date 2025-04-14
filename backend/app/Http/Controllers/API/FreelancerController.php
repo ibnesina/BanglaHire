@@ -14,79 +14,80 @@ class FreelancerController extends Controller
     /**
      * Create or update the freelancer profile.
      */
+    private const NULLABLE_STRING = 'nullable|string';
     public function store(Request $request)
     {
+        $result = null;
+
         // Validate the incoming request with the new category_id field.
         $request->validate([
-            'bio'             => 'nullable|string',
+            'bio'             => self::NULLABLE_STRING,
             'category_id'     => 'required|exists:categories,id',
             'skills'          => 'nullable|array',
-            'experiences'     => 'nullable|string',
+            'experiences'     => self::NULLABLE_STRING,
             'hourly_rate'     => 'nullable|numeric|min:0',
             'certifications'  => 'nullable|array',
-            'portfolio_link'  => 'nullable|string',
+            'portfolio_link'  => self::NULLABLE_STRING,
         ]);
 
         $user = Auth::user();
         if (!$user) {
             Log::error("Unauthorized access attempt to freelancer store.");
-            return response()->json(['message' => 'Unauthorized. Please log in.'], 401);
-        }
+            $result = response()->json(['message' => 'Unauthorized. Please log in.'], 401);
+        } elseif ($user->type !== 'Freelancer') {
+            $result = response()->json(['message' => 'Unauthorized. Only freelancers can create profiles.'], 403);
+        } else {
+            // Retrieve the category selected by the freelancer.
+            $category = Category::find($request->category_id);
+            if (!$category) {
+                $result = response()->json(['message' => 'Category not found.'], 404);
+            } else {
+                // If skills are provided, verify that each selected skill exists in the chosen category.
+                $hasSkillError = false;
+                if ($request->has('skills') && is_array($request->skills)) {
+                    foreach ($request->skills as $skill) {
+                        if (!in_array($skill, $category->skills)) {
+                            $result = response()->json([
+                                'message' => 'Invalid skill selection: ' . $skill . '. Please choose from the available skills for the selected category.'
+                            ], 422);
+                            $hasSkillError = true;
+                            break;
+                        }
+                    }
+                }
 
-        // Ensure that only users with type "Freelancer" can create or update a freelancer profile.
-        if ($user->type !== 'Freelancer') {
-            return response()->json(['message' => 'Unauthorized. Only freelancers can create profiles.'], 403);
-        }
+                // Only proceed if no skill error occurred.
+                if (!$hasSkillError && !$result) {
+                    // Retrieve existing freelancer profile.
+                    $freelancer = Freelancer::where('freelancer_id', $user->id)->first();
 
-        // Retrieve the category selected by the freelancer.
-        $category = Category::find($request->category_id);
-        if (!$category) {
-            return response()->json(['message' => 'Category not found.'], 404);
-        }
+                    $data = [
+                        'bio'             => $request->bio,
+                        'category_id'     => $request->category_id,
+                        'skills'          => $request->skills,
+                        'experiences'     => $request->experiences,
+                        'hourly_rate'     => $request->hourly_rate,
+                        'certifications'  => $request->certifications,
+                        'portfolio_link'  => $request->portfolio_link,
+                    ];
 
-        // If skills are provided, verify that each selected skill exists in the chosen category.
-        if ($request->has('skills') && is_array($request->skills)) {
-            foreach ($request->skills as $skill) {
-                if (!in_array($skill, $category->skills)) {
-                    return response()->json([
-                        'message' => 'Invalid skill selection: ' . $skill . '. Please choose from the available skills for the selected category.'
-                    ], 422);
+                    if ($freelancer) {
+                        $freelancer->update($data);
+                    } else {
+                        $freelancer = Freelancer::create(array_merge(['freelancer_id' => $user->id], $data));
+                    }
+
+                    $result = response()->json([
+                        'message'    => 'Freelancer profile updated successfully.',
+                        'freelancer' => $freelancer
+                    ]);
                 }
             }
         }
 
-        // Retrieve existing freelancer profile (assumes that a freelancer profile exists, otherwise, create one as needed)
-        $freelancer = Freelancer::where('freelancer_id', $user->id)->first();
-
-        if ($freelancer) {
-            $freelancer->update([
-                'bio'             => $request->bio,
-                'category_id'     => $request->category_id,
-                'skills'          => $request->skills,  // Storing the validated array of skills
-                'experiences'     => $request->experiences,
-                'hourly_rate'     => $request->hourly_rate,
-                'certifications'  => $request->certifications,
-                'portfolio_link'  => $request->portfolio_link,
-            ]);            
-        } else {
-            // In case you want to allow creation here when a profile does not exist:
-            $freelancer = Freelancer::create([
-                'freelancer_id'   => $user->id,
-                'bio'             => $request->bio,
-                'category_id'     => $request->category_id,
-                'skills'          => $request->skills,
-                'experiences'     => $request->experiences,
-                'hourly_rate'     => $request->hourly_rate,
-                'certifications'  => $request->certifications,
-                'portfolio_link'  => $request->portfolio_link,
-            ]);
-        }
-
-        return response()->json([
-            'message'    => 'Freelancer profile updated successfully.',
-            'freelancer' => $freelancer
-        ]);
+        return $result;
     }
+
 
 
     /**
@@ -131,7 +132,7 @@ class FreelancerController extends Controller
      *  - client_feedback_score: calculated feedback score.
      *  - last_updated: timestamp when stats were last refreshed.
      */
-    public function updateStats(Request $request, $id)
+    public function updateStats($id)
     {
         // For demonstration purposes, here we simulate updating stats.
         // In a real implementation, you'd query the Payments, Reviews, Bids, and Projects tables.
