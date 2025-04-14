@@ -23,18 +23,17 @@ class TalentController extends Controller
     {
         $response = null;
 
-        // If no filter is provided, return random freelancers (with user info and avg rating)
+        // When no filters are provided, use random freelancers.
         if (!$request->has('category_id') && !$request->has('sort')) {
             $response = $this->getRandomFreelancers();
         } else {
-            // Base query: include associated user and compute average rating from reviews.
+            // Build base query.
             $query = Freelancer::with('user')->withAvg('reviews', 'rating');
 
-            // Filter by category if provided.
+            // Apply category filter if provided.
             if ($request->has('category_id')) {
                 $categoryId = $request->input('category_id');
                 $category = Category::find($categoryId);
-
                 if (!$category) {
                     $response = response()->json(['message' => 'Category not found'], 404);
                 } else {
@@ -42,13 +41,11 @@ class TalentController extends Controller
                 }
             }
 
-            // Continue only if no early category error
-            if (!$response) {
-                // If skills are provided, do custom sorting
+            // Proceed only if no error response is set.
+            if (is_null($response)) {
                 if ($request->has('skills')) {
                     $requestedSkills = array_map('trim', explode(',', $request->input('skills')));
                     $freelancers = $query->get();
-
                     $sorted = $freelancers->sort(function ($a, $b) use ($requestedSkills) {
                         $aMatchCount = $this->countOverlap($a->skills, $requestedSkills);
                         $bMatchCount = $this->countOverlap($b->skills, $requestedSkills);
@@ -62,7 +59,7 @@ class TalentController extends Controller
 
                     $response = response()->json($sorted);
                 } else {
-                    // No skills filter but a sort parameter may be present
+                    // Apply sort if specified (and no skills filter)
                     if ($request->has('sort') && $request->input('sort') === 'highest_rating') {
                         $query->orderBy('reviews_avg_rating', 'desc');
                     }
@@ -76,9 +73,8 @@ class TalentController extends Controller
         return $response;
     }
 
-
     /**
-     * Helper method: return a random list of freelancers (with user info and average rating computed).
+     * Helper method: Return a random list of freelancers (with user info and average rating computed).
      */
     private function getRandomFreelancers()
     {
@@ -92,9 +88,9 @@ class TalentController extends Controller
     }
 
     /**
-     * Helper method: counts the number of overlapping skills.
+     * Helper method: Count the number of overlapping skills.
      *
-     * @param mixed $freelancerSkills (Expected: array of skills, e.g. ['Laravel', 'Vue.js'])
+     * @param mixed $freelancerSkills Expected to be an array of skills, e.g. ['Laravel', 'Vue.js']
      * @param array $requestedSkills
      * @return int
      */
@@ -105,4 +101,6 @@ class TalentController extends Controller
         }
         return count(array_intersect($freelancerSkills, $requestedSkills));
     }
+
 }
+
