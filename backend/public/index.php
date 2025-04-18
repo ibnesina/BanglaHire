@@ -1,5 +1,3 @@
-/* NOSONAR */
-
 <?php
 
 use Illuminate\Foundation\Application;
