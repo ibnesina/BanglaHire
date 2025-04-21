@@ -24,19 +24,22 @@
     </div>
 
     <div class="form-group">
-      <label>Payment Method</label><br>
-      <div class="form-check form-check-inline">
-        <input class="form-check-input" type="radio" name="payment_method"
-               id="ssl" value="sslcommerz" checked/>
-        <label class="form-check-label" for="ssl">SSLCOMMERZ</label>
-      </div>
-      <div class="form-check form-check-inline">
-        <input class="form-check-input" type="radio" name="payment_method"
-               id="stripe" value="stripe"/>
-        <label class="form-check-label" for="stripe">Stripe</label>
-      </div>
-      @error('payment_method')<div class="text-danger">{{ $message }}</div>@enderror
+      <fieldset>
+        <legend>Payment Method</legend>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="payment_method"
+                 id="ssl" value="sslcommerz" checked/>
+          <label class="form-check-label" for="ssl">SSLCOMMERZ</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="payment_method"
+                 id="stripe" value="stripe"/>
+          <label class="form-check-label" for="stripe">Stripe</label>
+        </div>
+        @error('payment_method')<div class="text-danger">{{ $message }}</div>@enderror
+      </fieldset>
     </div>
+    
 
     <button type="submit" class="btn btn-primary">Continue to Payment</button>
   </form>
