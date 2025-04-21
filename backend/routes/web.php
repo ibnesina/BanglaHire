@@ -29,3 +29,9 @@ Route::post(               '/payment/ssl-ipn',    [PaymentController::class,'ssl
 Route::match(['get','post'],'/success', [PaymentController::class,'sslSuccess']);
 Route::match(['get','post'],'/fail',    [PaymentController::class,'sslFail']);
 Route::match(['get','post'],'/cancel',  [PaymentController::class,'sslCancel']);
+
+
+// Stripe callbacks
+Route::get('/payment/stripe-success', [PaymentController::class, 'stripeSuccess']);
+Route::get('/payment/stripe-cancel',  [PaymentController::class, 'stripeCancel']);
+
