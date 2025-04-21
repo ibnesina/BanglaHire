@@ -8,6 +8,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Library\SslCommerz\SslCommerzNotification;
 
+use Stripe\Stripe;
+use Stripe\Checkout\Session;
+
 class PaymentController extends Controller
 {
     /** Show add‑balance form **/
@@ -69,7 +72,32 @@ class PaymentController extends Controller
             return $sslc->makePayment($post_data, 'hosted');
         }
 
-        abort(501, 'Stripe integration not implemented.');
+        
+        // === Stripe Checkout ===
+        
+        // Initialize Stripe
+        Stripe::setApiKey(config('services.stripe.secret'));
+
+        // Create a Checkout Session
+        $session = Session::create([
+            'payment_method_types' => ['card'],
+            'mode'                 => 'payment',
+            'client_reference_id'  => $tranId,
+            'customer_email'       => $user->email,
+            'line_items'           => [[
+                'price_data' => [
+                    'currency'     => $currency,
+                    'product_data' => ['name' => 'Account Top‑Up'],
+                    'unit_amount'  => $amount * 100,
+                ],
+                'quantity' => 1,
+            ]],
+            'success_url' => url('/payment/stripe-success') . '?session_id={CHECKOUT_SESSION_ID}',
+            'cancel_url'  => url('/payment/stripe-cancel'),
+        ]);
+
+        // Redirect user to Stripe Checkout page
+        return redirect($session->url);
     }
 
     /** Success callback **/
@@ -152,5 +180,44 @@ class PaymentController extends Controller
         }
 
         echo "IPN: Validation failed";
+    }
+
+    /** Stripe success callback **/
+    public function stripeSuccess(Request $request)
+    {
+        $sessionId = $request->query('session_id');
+        if (! $sessionId) {
+            return view('payment.failure');
+        }
+
+        Stripe::setApiKey(config('services.stripe.secret'));
+        $session = Session::retrieve($sessionId);  
+        // :contentReference[oaicite:4]{index=4}
+
+        if ($session->payment_status !== 'paid') {
+            return view('payment.failure');
+        }
+
+        $order = Transaction::where('transaction_id', $session->client_reference_id)
+                            ->where('status', 'Pending')
+                            ->firstOrFail();
+
+        $order->update([
+            'status'   => 'Completed',
+            'metadata' => ['stripe_session_id' => $sessionId],
+        ]);
+        $order->user->increment('balance', $order->amount);
+
+        return view('payment.success', [
+            'amount'   => $order->amount,
+            'currency' => $order->currency,
+        ]);
+    }
+
+    /** Stripe cancel callback **/
+    public function stripeCancel(Request $request)
+    {
+        // No DB update needed—remains “Pending” or let user retry
+        return view('payment.failure');
     }
 }
