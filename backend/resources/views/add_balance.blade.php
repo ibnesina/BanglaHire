@@ -2,7 +2,31 @@
 @section('title','Add Balance')
 
 @section('content')
-  <h2>Add Balance</h2>
+{{-- Quick inline styles for this page --}}
+<style>
+  .card-wrapper {
+    max-width: 480px;
+    margin: 2rem auto;
+  }
+  .card-wrapper h2 {
+    color: #4f46e5;
+  }
+  .btn-payment-method .btn-check:checked + .btn-outline-primary {
+    background-color: #4f46e5;
+    color: #fff;
+  }
+  .btn-grad {
+    background: linear-gradient(90deg, #4f46e5, #3b82f6);
+    border: none;
+    color: #fff;
+  }
+  .btn-grad:hover {
+    opacity: .9;
+  }
+</style>
+
+<div class="card-wrapper card shadow-sm p-4">
+  <h2 class="mb-4 text-center">Add Balance</h2>
 
   @if(session('success'))
     <div class="alert alert-success">{{ session('success') }}</div>
@@ -15,32 +39,50 @@
     @csrf
     <input type="hidden" name="user_id" value="{{ $user_id }}"/>
 
-    <div class="form-group">
-      <label for="amount">Amount (BDT)</label>
-      <input type="number" name="amount" id="amount"
-             class="form-control @error('amount') is-invalid @enderror"
-             min="1" step="0.01" value="{{ old('amount') }}" required/>
-      @error('amount')<span class="invalid-feedback">{{ $message }}</span>@enderror
+    <!-- Amount -->
+    <div class="mb-4">
+      <label for="amount" class="form-label">Amount (BDT)</label>
+      <div class="input-group">
+        <span class="input-group-text">BDT</span>
+        <input
+          type="number" name="amount" id="amount"
+          class="form-control @error('amount') is-invalid @enderror"
+          min="1" step="0.01" value="{{ old('amount') }}" required
+        />
+        @error('amount')
+          <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+      </div>
     </div>
 
-    <div class="form-group">
-      <fieldset>
-        <legend>Payment Method</legend>
-        <div class="form-check form-check-inline">
-          <input class="form-check-input" type="radio" name="payment_method"
-                 id="ssl" value="sslcommerz" checked/>
-          <label class="form-check-label" for="ssl">SSLCOMMERZ</label>
-        </div>
-        <div class="form-check form-check-inline">
-          <input class="form-check-input" type="radio" name="payment_method"
-                 id="stripe" value="stripe"/>
-          <label class="form-check-label" for="stripe">Stripe</label>
-        </div>
-        @error('payment_method')<div class="text-danger">{{ $message }}</div>@enderror
-      </fieldset>
-    </div>
-    
+    <!-- Payment Method -->
+    <div class="mb-4">
+      <label class="form-label d-block mb-2">Payment Method</label>
+      <div class="btn-group btn-payment-method d-flex" role="group">
+        <input
+          type="radio" class="btn-check" name="payment_method" id="ssl"
+          value="sslcommerz" autocomplete="off" checked
+        >
+        <label class="btn btn-outline-primary flex-fill" for="ssl">
+          SSLCOMMERZ
+        </label>
 
-    <button type="submit" class="btn btn-primary">Continue to Payment</button>
+        <input
+          type="radio" class="btn-check" name="payment_method" id="stripe"
+          value="stripe" autocomplete="off"
+        >
+        <label class="btn btn-outline-primary flex-fill" for="stripe">
+          Stripe
+        </label>
+      </div>
+      @error('payment_method')
+        <div class="text-danger mt-1">{{ $message }}</div>
+      @enderror
+    </div>
+
+    <button type="submit" class="btn btn-grad w-100 py-2">
+      Continue to Payment
+    </button>
   </form>
+</div>
 @endsection
