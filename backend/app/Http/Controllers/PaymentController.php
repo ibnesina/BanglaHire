@@ -72,7 +72,7 @@ class PaymentController extends Controller
             return $sslc->makePayment($post_data, 'hosted');
         }
 
-        
+
         // === Stripe Checkout ===
         
         // Initialize Stripe
@@ -191,7 +191,7 @@ class PaymentController extends Controller
         }
 
         Stripe::setApiKey(config('services.stripe.secret'));
-        $session = Session::retrieve($sessionId);  
+        $session = Session::retrieve($sessionId);
         // :contentReference[oaicite:4]{index=4}
 
         if ($session->payment_status !== 'paid') {
@@ -215,7 +215,7 @@ class PaymentController extends Controller
     }
 
     /** Stripe cancel callback **/
-    public function stripeCancel(Request $request)
+    public function stripeCancel()
     {
         // No DB update needed—remains “Pending” or let user retry
         return view('payment.failure');
