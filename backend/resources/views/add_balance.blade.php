@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title','Add Balance')
+@section('title', 'Add Balance')
 
 @section('content')
 {{-- Quick inline styles for this page --}}
@@ -22,6 +22,16 @@
   }
   .btn-grad:hover {
     opacity: .9;
+  }
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
   }
 </style>
 
@@ -58,7 +68,9 @@
     <!-- Payment Method -->
     <div class="mb-4">
       <label class="form-label d-block mb-2">Payment Method</label>
-      <div class="btn-group btn-payment-method d-flex" role="group">
+      <fieldset class="btn-group btn-payment-method d-flex">
+        <legend class="visually-hidden">Select Payment Method</legend>
+
         <input
           type="radio" class="btn-check" name="payment_method" id="ssl"
           value="sslcommerz" autocomplete="off" checked
@@ -74,7 +86,7 @@
         <label class="btn btn-outline-primary flex-fill" for="stripe">
           Stripe
         </label>
-      </div>
+      </fieldset>
       @error('payment_method')
         <div class="text-danger mt-1">{{ $message }}</div>
       @enderror
