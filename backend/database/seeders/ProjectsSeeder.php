@@ -46,7 +46,7 @@ class ProjectsSeeder extends Seeder
             $category = $categories->random();
 
             $skills = $category->skills;
-            $requiredSkills = Arr::random($skills, rand(1, min(3, count($skills)))); // Pick 1 to 3 valid skills
+            $requiredSkills = Arr::random($skills, random_int(1, min(3, count($skills))));
 
             Project::create([
                 'client_id' => $clients[array_rand($clients)],
@@ -54,7 +54,7 @@ class ProjectsSeeder extends Seeder
                 'title' => $sampleTitles[$i],
                 'description' => $descriptions[$i],
                 'required_skills' => $requiredSkills,
-                'budget' => rand(500, 10000),
+                'budget' => random_int(500, 10000),
                 'status' => 'Open',
                 'file' => null, // Add file path if needed
             ]);
