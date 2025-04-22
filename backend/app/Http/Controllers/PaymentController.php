@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Library\SslCommerz\SslCommerzNotification;
+use Raziul\Sslcommerz\Facades\Sslcommerz;
 
 use Stripe\Stripe;
 use Stripe\Checkout\Session;
@@ -23,163 +24,128 @@ class PaymentController extends Controller
     /** Handle form and initiate SSLCOMMERZ **/
     public function process(Request $request)
     {
-        $request->validate([
+        $data = $request->validate([
             'amount'         => 'required|numeric|min:1',
             'payment_method' => 'required|in:sslcommerz,stripe',
             'user_id'        => 'required|uuid|exists:users,id',
         ]);
 
-        // Authenticate by UUID
-        $user = User::findOrFail($request->user_id);
+        // Authenticate and prepare
+        $user = User::findOrFail($data['user_id']);
         Auth::login($user);
+        $trx = uniqid();
+        $amt = $data['amount'];
+        $cur = 'BDT';
 
-        $amount   = $request->amount;
-        $method   = $request->payment_method;
-        $tranId   = uniqid();
-        $currency = 'BDT';
-
-        // Record pending transaction
+        // Create pending record
         Transaction::create([
             'user_id'        => $user->id,
-            'payment_method' => $method,
-            'transaction_id' => $tranId,
-            'amount'         => $amount,
-            'currency'       => $currency,
+            'payment_method' => $data['payment_method'],
+            'transaction_id' => $trx,
+            'amount'         => $amt,
+            'currency'       => $cur,
             'status'         => 'Pending',
         ]);
 
-        if ($method === 'sslcommerz') {
-            $post_data = [
-                'total_amount'     => $amount,
-                'currency'         => $currency,
-                'tran_id'          => $tranId,
-                'cus_name'         => $user->name,
-                'cus_email'        => $user->email,
-                'cus_add1'         => $user->profile_picture ?? '',
-                'cus_phone'        => $user->payment_phone ?? '017xxxxxxxx',
-                'shipping_method'  => 'NO',
-                'product_name'     => 'Account Top‑Up',
-                'product_category' => 'Wallet',
-                'product_profile'  => 'general',
-                // **Absolute** callbacks
-                'success_url'      => url('/payment/ssl-success'),
-                'fail_url'         => url('/payment/ssl-fail'),
-                'cancel_url'       => url('/payment/ssl-cancel'),
-                'ipn_url'          => url('/payment/ssl-ipn'),
-            ];
+        if ($data['payment_method'] === 'sslcommerz') {
+            // Use facade to set order, customer, then initiate hosted checkout
+            $response = Sslcommerz::setOrder($amt, $trx, 'Account Top‑Up')    // set order amount, ID, description
+                ->setCustomer($user->name, $user->email, $user->payment_phone ?? '017xxxxxxxx')
+                ->setShippingInfo(0,'')                                      // no shipping
+                ->makePayment();                                             // returns a response object
 
-            $sslc = new SslCommerzNotification();
-            return $sslc->makePayment($post_data, 'hosted');
+                if ($response->success()) {
+                    return redirect($response->gatewayPageURL());
+                }
+                
+                $reason = $response->failedReason()
+                        ?? json_encode($response->toArray(), JSON_UNESCAPED_UNICODE);
+                
+                return back()->with('error', 'SSLCommerz init failed: '.$reason);
         }
 
-
-        // === Stripe Checkout ===
-        
-        // Initialize Stripe
-        Stripe::setApiKey(config('services.stripe.secret'));
-
-        // Create a Checkout Session
+        // === Stripe (keep your original format) ===
+        Stripe::setApiKey(config('services.stripe.secret'));                // Cashier could be used, but this matches your pattern :contentReference[oaicite:3]{index=3}
         $session = Session::create([
-            'payment_method_types' => ['card'],
-            'mode'                 => 'payment',
-            'client_reference_id'  => $tranId,
-            'customer_email'       => $user->email,
-            'line_items'           => [[
-                'price_data' => [
-                    'currency'     => $currency,
-                    'product_data' => ['name' => 'Account Top‑Up'],
-                    'unit_amount'  => $amount * 100,
+            'payment_method_types'=>['card'],
+            'mode'                =>'payment',
+            'client_reference_id' =>$trx,
+            'customer_email'      =>$user->email,
+            'line_items'          =>[[
+                'price_data'=>[
+                    'currency'    =>$cur,
+                    'product_data'=>['name'=>'Account Top‑Up'],
+                    'unit_amount' =>$amt * 100,
                 ],
-                'quantity' => 1,
+                'quantity'=>1,
             ]],
-            'success_url' => url('/payment/stripe-success') . '?session_id={CHECKOUT_SESSION_ID}',
-            'cancel_url'  => url('/payment/stripe-cancel'),
+            'success_url'=> url('/payment/stripe-success').'?session_id={CHECKOUT_SESSION_ID}',
+            'cancel_url' => url('/payment/stripe-cancel'),
         ]);
 
-        // Redirect user to Stripe Checkout page
         return redirect($session->url);
     }
 
-    /** Success callback **/
-    public function sslSuccess(Request $request)
-    {
-        $order = Transaction::where('transaction_id', $request->tran_id)
-                            ->where('status','Pending')
-                            ->firstOrFail();
-
-        $sslc  = new SslCommerzNotification();
-        $valid = $sslc->orderValidate(
-            $request->all(),
-            $request->tran_id,
-            $request->amount,
-            $request->currency
-        );
-
-        if (! $valid) {
-            return view('payment.failure');
-        }
-
-        // Complete order & update user balance
-        $order->update([
-            'status'   => 'Completed',
-            'metadata' => $request->all(),
-        ]);
-        $order->user->increment('balance', $order->amount);
-
-        return view('payment.success', [
-            'amount'   => $order->amount,
-            'currency' => $order->currency,
-        ]);
-    }
-
-    /** Failure callback **/
-    public function sslFail(Request $request)
-    {
-        Transaction::where('transaction_id',$request->tran_id)
-                   ->where('status','Pending')
-                   ->update(['status'=>'Failed']);
-
-        return view('payment.failure');
-    }
-
-    /** Cancel callback **/
-    public function sslCancel(Request $request)
-    {
-        Transaction::where('transaction_id',$request->tran_id)
-                   ->where('status','Pending')
-                   ->update(['status'=>'Canceled']);
-
-        return view('payment.failure');
-    }
-
-    /** IPN server‑to‑server **/
+    /** SSLCommerz IPN (server‑to‑server) **/
     public function sslIpn(Request $request)
     {
-        if (! $request->filled('tran_id')) {
-            echo "IPN: Missing tran_id"; return;
-        }
+        $data = $request->all();
+        $trx  = $data['tran_id'] ?? null;
 
-        $order = Transaction::where('transaction_id',$request->tran_id)
+        $order = Transaction::where('transaction_id',$trx)
                             ->where('status','Pending')
                             ->first();
         if (! $order) {
             echo "IPN: Invalid or duplicate"; return;
         }
 
-        $sslc  = new SslCommerzNotification();
-        $valid = $sslc->orderValidate(
-            $request->all(),
-            $request->tran_id,
-            $order->amount,
-            $order->currency
-        );
-        if ($valid) {
-            $order->update(['status'=>'Completed','metadata'=>$request->all()]);
-            $order->user->increment('balance', $order->amount);
+        if (Sslcommerz::validatePayment($data,$trx,$order->amount)) {
+            $order->update(['status'=>'Completed','metadata'=>$data]);
+            $order->user->increment('balance',$order->amount);
             echo "IPN: Completed"; return;
         }
-
         echo "IPN: Validation failed";
+    }
+
+    /** SSLCommerz Success callback **/
+    public function sslSuccess(Request $request)
+    {
+        dd($request);
+        
+        $data = $request->all();
+        $trx  = $data['tran_id'] ?? null;
+
+        $order = Transaction::where('transaction_id',$trx)
+                            ->where('status','Pending')
+                            ->firstOrFail();
+
+        if (! Sslcommerz::validatePayment($data,$trx,$order->amount)) {
+            return view('payment.failure');
+        }
+
+        $order->update(['status'=>'Completed','metadata'=>$data]);
+        $order->user->increment('balance',$order->amount);
+
+        return view('payment.success',['amount'=>$order->amount,'currency'=>$order->currency]);
+    }
+
+    /** SSLCommerz Fail & Cancel callbacks **/
+    public function sslFail(Request $request)
+    {
+        $trx = $request->input('tran_id');
+        Transaction::where('transaction_id',$trx)
+                   ->where('status','Pending')
+                   ->update(['status'=>'Failed']);
+        return view('payment.failure');
+    }
+
+    public function sslCancel(Request $request)
+    {
+        $trx = $request->input('tran_id');
+        Transaction::where('transaction_id',$trx)
+                   ->where('status','Pending')
+                   ->update(['status'=>'Canceled']);
+        return view('payment.failure');
     }
 
     /** Stripe success callback **/
