@@ -20,7 +20,7 @@ class BiddingsSeeder extends Seeder
 
         foreach ($projects as $project) {
             // Pick 3–6 random freelancers to bid on each project
-            $bidders = $freelancers->random(rand(3, 6));
+            $bidders = $freelancers->random(random_int(3, min(6, $freelancers->count())));
 
             foreach ($bidders as $freelancer) {
                 Bidding::create([
