@@ -3,8 +3,9 @@ import { useEffect, useState } from "react";
 import CategorySelectionOnFnd from "@/components/CategorySelectionOnFnd";
 import PostList from "@/components/PostList";
 import UserDetails from "@/components/UserDetails";
-import { Post } from "@/contracts/posts";
+import { Category, Post } from "@/contracts/posts";
 import { User } from "@/contracts/users";
+import { generateRandomPosts } from "@/lib/utils";
 
 const userData: User = {
   name: "John Smith",
@@ -29,9 +30,13 @@ const userData: User = {
   updated_at: "2023-01-01T00:00:00.000Z",
 };
 
+
+
 export default function TalentPage() {
   // State to track scroll position
   const [showBackToTop, setShowBackToTop] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const [posts, setPosts] = useState<Post[]>([]);
 
   useEffect(() => {
@@ -46,6 +51,10 @@ export default function TalentPage() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  useEffect(() => {
+    setPosts(generateRandomPosts(10));
+  }, [selectedCategory, selectedSkills]); 
 
   const scrollToTop = () => {
     window.scrollTo({
@@ -67,7 +76,12 @@ export default function TalentPage() {
 
       <div className="flex gap-6 p-6 bg-gray-50 rounded-xl">
         <div className="w-full md:w-1/4">
-          <CategorySelectionOnFnd setPosts={setPosts} />
+          <CategorySelectionOnFnd 
+            selectedCategory={selectedCategory}
+            setSelectedCategory={setSelectedCategory}
+            selectedSkills={selectedSkills}
+            setSelectedSkills={setSelectedSkills}
+          />
         </div>
         <div className="w-full md:w-2/4">
           <PostList posts={posts} />

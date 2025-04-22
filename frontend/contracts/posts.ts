@@ -10,3 +10,10 @@ export interface Post {
   paymentVerified: boolean;
   bids: number;
 }
+
+
+export interface Category {
+  id: number;
+  name: string;
+  skills: string[];
+}
