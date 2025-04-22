@@ -1,15 +1,37 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PaymentController;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-use App\Http\Controllers\API\AuthController;
+// 1) Show the “Add Balance” form
+Route::get('/balance/add/{user}', [PaymentController::class,'showAddBalanceForm'])
+     ->name('balance.add');
 
-Route::middleware(['web'])->group(function () {
-    Route::get('login/google', [AuthController::class, 'redirectToGoogle']);
-    Route::get('login/google/callback', [AuthController::class, 'handleGoogleCallback']);
-});
+// 2) Process the form submission
+Route::post('/balance/process', [PaymentController::class,'process'])
+     ->name('balance.process');
+
+// 3) Explicit, named SSLCOMMERZ callbacks
+Route::match(['get','post'],'/payment/ssl-success',[PaymentController::class,'sslSuccess'])
+     ->name('payment.ssl-success');
+Route::match(['get','post'],'/payment/ssl-fail',   [PaymentController::class,'sslFail'])
+     ->name('payment.ssl-fail');
+Route::match(['get','post'],'/payment/ssl-cancel', [PaymentController::class,'sslCancel'])
+     ->name('payment.ssl-cancel');
+Route::post(               '/payment/ssl-ipn',    [PaymentController::class,'sslIpn'])
+     ->name('payment.ssl-ipn');
+
+// 4) Catch sandbox’s default redirects (in case your post_data is ignored)
+Route::match(['get','post'],'/success', [PaymentController::class,'sslSuccess']);
+Route::match(['get','post'],'/fail',    [PaymentController::class,'sslFail']);
+Route::match(['get','post'],'/cancel',  [PaymentController::class,'sslCancel']);
+
+
+// Stripe callbacks
+Route::get('/payment/stripe-success', [PaymentController::class, 'stripeSuccess']);
+Route::get('/payment/stripe-cancel',  [PaymentController::class, 'stripeCancel']);
 

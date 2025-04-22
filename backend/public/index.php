@@ -1,5 +1,8 @@
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> b2d53a32d6e61507b92efe6b019831dfd73a6c33
 <?php
 
 use Illuminate\Foundation\Application;
