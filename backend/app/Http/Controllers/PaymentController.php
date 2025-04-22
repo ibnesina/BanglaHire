@@ -29,6 +29,8 @@ class PaymentController extends Controller
             'user_id'        => 'required|uuid|exists:users,id',
         ]);
 
+        http://localhost:8000/message/?sender=2fe6c689-4bee-4b4b-b3e1-e3af1f17db86,?receiver=uuid
+
         // Authenticate by UUID
         $user = User::findOrFail($request->user_id);
         Auth::login($user);
