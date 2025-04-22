@@ -1,3 +1,4 @@
+import Link from "next/link";
 import AuthOptions from "./AuthOptions";
 
 function NavBar() {
@@ -5,21 +6,21 @@ function NavBar() {
     <div className="flex justify-between items-center px-10 py-5 bg-slate-500 text-white sticky top-0 z-50">
       <p className="font-bold text-4xl ">BanglaHire</p>
       <div className="flex gap-5">
-        <a href="#">
-          <p className="px-4 border hover:bg-slate-300 hover:text-zinc-600 hover:font-semibold">
+        <Link href="/talent">
+          <p className="px-4 py-2 hover:bg-slate-300 hover:text-zinc-600 hover:font-semibold rounded-md">
             Hire Talent
           </p>
-        </a>
-        <a href="#">
-          <p className="px-8 border hover:bg-slate-300 hover:text-zinc-600 hover:font-semibold">
+        </Link>
+        <Link href="/work">
+          <p className="px-8 py-2 hover:bg-slate-300 hover:text-zinc-600 hover:font-semibold rounded-md">
             Find Work
           </p>
-        </a>
-        <a href="#">
-          <p className="px-4 border hover:bg-slate-300 hover:text-zinc-600 hover:font-semibold">
+        </Link>
+        <Link href="/about">
+          <p className="px-4 py-2 hover:bg-slate-300 hover:text-zinc-600 hover:font-semibold rounded-md">
             About Us
           </p>
-        </a>
+        </Link>
       </div>
       <div className="relative">
         <input
