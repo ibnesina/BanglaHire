@@ -12,7 +12,9 @@ class DatabaseSeeder extends Seeder
             CategoriesSeeder::class,
             UsersSeeder::class,
             FreelancersSeeder::class,
-            ClientsSeeder::class
+            ClientsSeeder::class,
+            ProjectsSeeder::class,
+            BiddingsSeeder::class,
         ]);
     }
 }
