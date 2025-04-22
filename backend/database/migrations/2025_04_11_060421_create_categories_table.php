@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->string('name')->unique();
             // Add a JSON column for skills with a default value of an empty JSON array.
-            $table->json('skills')->nullable()->default('[]');
+            $table->json('skills')->nullable();
             $table->timestamps();
         });
     }
