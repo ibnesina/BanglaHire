@@ -31,5 +31,6 @@ class VerifyCsrfToken extends Middleware
         'success',
         'fail',
         'cancel',
+        'ipn'
     ];
 }
