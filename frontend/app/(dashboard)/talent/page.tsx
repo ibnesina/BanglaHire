@@ -1,18 +1,57 @@
-
+"use client";
+import { useEffect, useState } from "react";
 import CategorySelectionOnFnd from "@/components/CategorySelectionOnFnd";
 import PostList from "@/components/PostList";
 import UserDetails from "@/components/UserDetails";
+import { Post } from "@/contracts/posts";
+import { User } from "@/contracts/users";
+
+const userData: User = {
+  name: "John Smith",
+  company: "Tech Solutions Ltd",
+  averageRating: 4.8,
+  totalSpending: "$5,240",
+  totalPosts: 12,
+  ongoingProjects: 3,
+  paymentVerified: true,
+  id: "1",
+  type: "Freelancer",
+  email: "john.smith@example.com",
+  profile_picture: null,
+  payment_phone: null,
+  balance: "0.00",
+  google_id: null,
+  avatar: null,
+  payment_history_id: null,
+  nationality: null,
+  email_verified_at: null,
+  created_at: "2023-01-01T00:00:00.000Z",
+  updated_at: "2023-01-01T00:00:00.000Z",
+};
 
 export default function TalentPage() {
-  // Sample user data for UserDetails component
-  const userData = {
-    name: "John Smith",
-    company: "Tech Solutions Ltd",
-    averageRating: 4.8,
-    totalSpending: "$5,240",
-    totalPosts: 12,
-    ongoingProjects: 3,
-    paymentVerified: true,
+  // State to track scroll position
+  const [showBackToTop, setShowBackToTop] = useState(false);
+  const [posts, setPosts] = useState<Post[]>([]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 300) {
+        setShowBackToTop(true);
+      } else {
+        setShowBackToTop(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
   };
 
   return (
@@ -28,15 +67,38 @@ export default function TalentPage() {
 
       <div className="flex gap-6 p-6 bg-gray-50 rounded-xl">
         <div className="w-full md:w-1/4">
-          <CategorySelectionOnFnd />
+          <CategorySelectionOnFnd setPosts={setPosts} />
         </div>
         <div className="w-full md:w-2/4">
-          <PostList />
+          <PostList posts={posts} />
         </div>
         <div className="w-full md:w-1/4">
           <UserDetails {...userData} />
         </div>
       </div>
+
+      {showBackToTop && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-8 right-8 bg-emerald-500 hover:bg-emerald-600 text-white p-3 rounded-full shadow-lg transition-all duration-300 cursor-pointer dark:bg-emerald-600 dark:hover:bg-emerald-700"
+          aria-label="Back to top"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={3}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M5 10l7-7m0 0l7 7m-7-7v18"
+            />
+          </svg>
+        </button>
+      )}
     </main>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from 'react';
+import { Post } from '@/contracts/posts';
+import React, { useEffect, useState } from 'react';
 
 // Dummy data (categories with skills)
 const categories = [
@@ -31,13 +32,95 @@ const categories = [
   }
 ];
 
+
+/*
+const posts = [
+  {
+    title: "Android App Tester for Multiple Devices",
+    budget: "$10",
+    description: "Eyta hobe description ekhane usfdgkfdgkdlsfjkdfjdskfjkdjkd",
+    skills: ["skill 1", "skill 2", "skill 3", "skill 4"],
+    client: "habibul pantho",
+    date: "2025-03-22",
+    file: "asd/fdsj/fdsj.doc",
+    location: "Bangladesh",
+    paymentVerified: true,
+    bids: 4,
+  },
+  {
+    title: "iOS Developer Needed for App Testing",
+    budget: "$15",
+    description:
+      "Looking for an experienced iOS developer for app testing in multiple environments.",
+    skills: ["skill 2", "skill 4", "skill 5"],
+    client: "John Doe",
+    date: "2025-03-21",
+    file: "asd/fdsj/fdsj2.doc",
+    location: "USA",
+    paymentVerified: false,
+    bids: 2,
+  },
+];
+*/
+function generateRandomPosts(count = 10) {
+  const titles = [
+    "Web Developer for E-commerce Site",
+    "Mobile App UI Designer",
+    "Full Stack Developer for SaaS Platform",
+    "Content Writer for Tech Blog",
+    "Data Analyst for Market Research",
+    "WordPress Developer for Blog Setup",
+    "Logo Designer for New Brand",
+    "SEO Specialist for Website Optimization",
+    "Video Editor for YouTube Channel",
+    "Social Media Manager for Startup",
+  ];
+  
+  const descriptions = [
+    "Looking for an experienced professional to help with our project.",
+    "Need someone who can deliver high-quality work on a tight deadline.",
+    "Seeking a talented individual with proven expertise in this field.",
+    "We need assistance with a complex project requiring specialized skills.",
+    "Searching for a dedicated freelancer who can work independently.",
+  ];
+  
+  const skillSets = [
+    ["HTML", "CSS", "JavaScript", "React"],
+    ["Python", "Django", "SQL", "AWS"],
+    ["UI/UX", "Figma", "Adobe XD", "Sketch"],
+    ["Content Writing", "SEO", "Research", "Editing"],
+    ["Node.js", "Express", "MongoDB", "REST API"],
+  ];
+  
+  const locations = ["Bangladesh", "USA", "India", "UK", "Canada", "Australia"];
+  const clients = ["John Doe", "Jane Smith", "Alex Johnson", "Sam Wilson", "Emily Brown", "Michael Zhang"];
+  
+  return Array.from({ length: count }, () => {
+    const randomDate = new Date();
+    randomDate.setDate(randomDate.getDate() + Math.floor(Math.random() * 30));
+    
+    return {
+      title: titles[Math.floor(Math.random() * titles.length)],
+      budget: `$${Math.floor(Math.random() * 100) + 5}`,
+      description: descriptions[Math.floor(Math.random() * descriptions.length)],
+      skills: skillSets[Math.floor(Math.random() * skillSets.length)],
+      client: clients[Math.floor(Math.random() * clients.length)],
+      date: randomDate.toISOString().split('T')[0],
+      file: `document/file_${Math.floor(Math.random() * 1000)}.doc`,
+      location: locations[Math.floor(Math.random() * locations.length)],
+      paymentVerified: Math.random() > 0.3,
+      bids: Math.floor(Math.random() * 10),
+    };
+  });
+}
+
 interface Category {
   id: number;
   name: string;
   skills: string[];
 }
 
-const CategorySelectionOnFnd = () => {
+const CategorySelectionOnFnd = ({ setPosts }: { setPosts: (posts: Post[]) => void }) => {
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const [error, setError] = useState("");
@@ -74,10 +157,15 @@ const CategorySelectionOnFnd = () => {
       return;
     }
     
-    console.log("Form submitted:", { category: selectedCategory, skills: selectedSkills });
+    setPosts(generateRandomPosts(5));
     // Here you would typically send the data to your API
   };
 
+
+  useEffect(() => {
+    setPosts(generateRandomPosts(5));
+  }, []);
+  
   return (
     <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
       <h2 className="text-2xl font-bold mb-6">Select Category and Skills</h2>

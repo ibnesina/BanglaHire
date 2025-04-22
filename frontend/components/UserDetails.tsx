@@ -1,14 +1,7 @@
-interface UserDetailsProps {
-  name: string;
-  company: string;
-  averageRating: number;
-  totalSpending: string;
-  totalPosts: number;
-  ongoingProjects: number;
-  paymentVerified: boolean;
-}
+import { User } from "@/contracts/users";
 
-const UserDetails: React.FC<UserDetailsProps> = ({
+
+const UserDetails: React.FC<User> = ({
   name,
   company,
   averageRating,
