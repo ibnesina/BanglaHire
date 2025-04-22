@@ -69,7 +69,7 @@ const CategorySelectionOnFnd = ({
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
+    <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md sticky top-24 z-10 transition-all duration-300">
       <h2 className="text-2xl font-bold mb-6">Select Category and Skills</h2>
 
       <div>
