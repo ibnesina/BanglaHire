@@ -20,10 +20,12 @@ function NavBar() {
 
   return (
     <div className="flex justify-between items-center px-10 py-5 bg-slate-500 text-white sticky top-0 z-50">
-      <p className="font-bold text-4xl ">BanglaHire</p>
+      {/* TODO:  */}
+      
+      <Link href="/" className="font-bold text-4xl cursor-pointer">BanglaHire</Link>
       <div className="flex gap-5">
         {navLinks.map((link) => (
-          <Link href={link.path} key={link.path}>
+          <Link href={link.path} key={link.path} className="cursor-pointer">
             <p
               className={`px-4 py-2 rounded-md hover:bg-slate-300 hover:text-zinc-600 hover:font-semibold ${
                 activeLink?.path === link.path
