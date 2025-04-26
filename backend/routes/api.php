@@ -146,8 +146,8 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::put('/freelancers', [FreelancerController::class, 'store']);
         Route::delete('/freelancers/{id}', [FreelancerController::class, 'destroy']);
 
-        // Projects
-        Route::post('projects/{projectId}/apply', [BiddingController::class, 'store']);
+        // Bidding
+        Route::post('/projects/{project_id}/biddings', [BiddingController::class, 'store']);
 
         // Fetch reviews by freelancer ID for profile views
         Route::get('/freelancer-reviews', [ReviewController::class, 'getByFreelancer']);
@@ -174,6 +174,9 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::post('/projects', [ProjectController::class, 'store']);
         Route::put(RoutePaths::PROJECT_SHOW, [ProjectController::class, 'update']);
         Route::delete(RoutePaths::PROJECT_SHOW, [ProjectController::class, 'destroy']);
+
+        // Biddings
+        Route::get('/projects/{project_id}/biddings', [BiddingController::class, 'index']);
 
         // Only clients can create, update, or delete assignments (project assignment is done by the client who created the project)
         Route::post('/assignments', [AssignedProjectController::class, 'store']);
