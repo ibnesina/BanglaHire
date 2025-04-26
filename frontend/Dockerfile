@@ -2,7 +2,7 @@
 FROM node:bookworm
 
 RUN npm install -g npm@10.9.2
-
+RUN npm install -g pnpm@10.5.2
 
 # Set working directory
 # WORKDIR /app

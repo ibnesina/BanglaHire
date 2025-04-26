@@ -13,14 +13,14 @@ export const signupAPI = async (data: TUserRegistrationSchema) => {
   const response = await apiRequest({ method: "POST", url: `/register`, data });
 
   if (response.status === 201) {
-    userStore.setUser(response.user);
-    userStore.setToken(response.token);
-    toast.success(response.message);
+    userStore.setUser(response.data.user);
+    userStore.setToken(response.data.token);
+    toast.success(response.data.message);
     redirect("/signin");
   } else if (response.status === 422) {
-    toast.info(response.message);
+    toast.info(response.data.message);
   } else {
-    toast.error(response.message);
+    toast.error(response.data.message);
   }
 };
 
@@ -33,35 +33,35 @@ export const signInAPI = async (data: TUserSignInSchema) => {
 
   if (response.status == 403) {
     // forbidden error
-    toast.info(response.message);
+    toast.info(response.data.message);
   } else if (response.status == 200) {
-    userStore.setUser(response.user);
-    userStore.setToken(response.token);
-    toast.success(response.message);
+    userStore.setUser(response.data.user);
+    userStore.setToken(response.data.token);
+    toast.success(response.data.message);
     setTimeout(() => {
       redirect("/");
     }, 1000);
   } else {
-    toast.error(response.message);
+    toast.error(response.data.message);
   }
 };
 
 export const getMeAPI = async () => {
   const response = await apiRequest({ method: "GET", url: "/me" });
   if (response.status === 200) {
-    return response;
+    return response.data;
   }
-  toast.error(response.message);
+  toast.error(response.data.message);
 };
 
 export const logoutAPI = async () => {
   const response = await apiRequest({ method: "POST", url: "/logout" });
   if (response.status === 200) {
     userStore.clearUser();
-    toast.success(response.message);
+    toast.success(response.data.message);
     redirect("/signin");
   } else {
-    toast.error(response.message);
+    toast.error(response.data.message);
   }
 };
 
@@ -73,9 +73,9 @@ export const resetPasswordAPI = async (data: TResetPasswordSchema) => {
   });
   console.log(response);
   if (response.status === 200) {
-    toast.success(response.message);
+    toast.success(response.data.message);
   } else {
-    toast.error(response.error);
+    toast.error(response.data.message);
   }
 };
 
@@ -86,9 +86,9 @@ export const forgotPasswordAPI = async (email: string) => {
     data: { email },
   });
   if (response.status === 200) {
-    toast.success(response.message);
+    toast.success(response.data.message);
   } else {
-    toast.error(response.error ?? "Unable to send reset password link");
+    toast.error(response.data.message ?? "Unable to send reset password link");
   }
 };
 
@@ -99,11 +99,11 @@ export const passwordChangeAPI = async (data: TPasswordChangeSchema) => {
     data,
   });
   if (response.status === 200) {
-    toast.success(response.message);
+    toast.success(response.data.message);
     setTimeout(() => {
       redirect("/signin");
     }, 2000);
   } else {
-    toast.error(response.error);
+    toast.error(response.data.message);
   }
 };

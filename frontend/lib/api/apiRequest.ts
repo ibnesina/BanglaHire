@@ -56,7 +56,7 @@ export default async function apiRequest(meta: ApiFetchOptions) {
     const responseData = await response.json();
 
     // Return the JSON data along with the HTTP status code
-    return { ...responseData, status: response.status };
+    return { data:responseData, status: response.status };
   } catch (error) {
     console.error("API request failed:", error);
     toast.error("Network error: Failed to reach the server");
