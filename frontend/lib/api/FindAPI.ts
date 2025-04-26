@@ -19,14 +19,33 @@ export const getCategoriesAPI = async () => {
   }
 };
 
-export const getTalentAPI = async (params?: {
-  category_id?: number;
-  skills?: string[];
-}) => {
+export const getTalentAPI = async (category_id?: number, skills?: string[]) => {
   const response = await apiRequest({
     method: "GET",
     url: "/talent",
-    params,
+    params: {
+      ...(category_id && { category_id }),
+      ...(skills?.length && { skills: skills.join(',') }),
+    },
+  });
+
+  if (response.status === 200) {
+    return response.data;
+  } else {
+    toast.error(response.data.message || "Failed to fetch talent");
+    return [];
+  }
+};
+
+
+export const getWorkAPI = async (category_id?: number, skills?: string[]) => {
+  const response = await apiRequest({
+    method: "GET",
+    url: "/work",
+    params: {
+      ...(category_id && { category_id }),
+      ...(skills?.length && { skills: skills.join(',') }),
+    },
   });
 
   if (response.status === 200) {

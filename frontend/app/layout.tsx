@@ -7,6 +7,7 @@ import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
 import { Toaster } from "sonner";
 import "./globals.css";
+import { Loader } from "@/components/ui/loader";
 
 export default observer(function RootLayout({
   children,
@@ -40,7 +41,7 @@ export default observer(function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body>
         <QueryClientProvider client={queryClient}>
-          {userStore.user === undefined ? "loading..." : children}
+          {userStore.user === undefined ? <Loader /> : children}
           <Toaster />
         </QueryClientProvider>
       </body>
