@@ -1,43 +1,31 @@
 "use client";
-import { useEffect, useState } from "react";
 import CategorySelectionOnFnd from "@/components/CategorySelectionOnFnd";
-import PostList from "@/components/PostList";
+import FreelancerComponent from "@/components/FrelancerComponent";
 import UserDetails from "@/components/UserDetails";
-import { Category, Post } from "@/contracts/posts";
+import { Category } from "@/contracts/posts";
 import { User } from "@/contracts/users";
-import { generateRandomPosts } from "@/lib/utils";
-
-const userData: User = {
-  name: "John Smith",
-  company: "Tech Solutions Ltd",
-  averageRating: 4.8,
-  totalSpending: "$5,240",
-  totalPosts: 12,
-  ongoingProjects: 3,
-  paymentVerified: true,
-  id: "1",
-  type: "Freelancer",
-  email: "john.smith@example.com",
-  profile_picture: null,
-  payment_phone: null,
-  balance: "0.00",
-  google_id: null,
-  avatar: null,
-  payment_history_id: null,
-  nationality: null,
-  email_verified_at: null,
-  created_at: "2023-01-01T00:00:00.000Z",
-  updated_at: "2023-01-01T00:00:00.000Z",
-};
-
+import { getTalentAPI } from "@/lib/api/FindAPI";
+import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 
 
 export default function TalentPage() {
-  // State to track scroll position
+  
   const [showBackToTop, setShowBackToTop] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+    null
+  );
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
-  const [posts, setPosts] = useState<Post[]>([]);
+
+  const { data: freelancers, isLoading } = useQuery({
+    queryKey: ["talent", selectedCategory, selectedSkills],
+    queryFn: () =>
+      getTalentAPI(
+        selectedCategory?.id || undefined,
+        selectedSkills.length > 0 ? selectedSkills : undefined
+      ),
+  });
+
 
   useEffect(() => {
     const handleScroll = () => {
@@ -52,16 +40,16 @@ export default function TalentPage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  useEffect(() => {
-    setPosts(generateRandomPosts(10));
-  }, [selectedCategory, selectedSkills]); 
-
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
       behavior: "smooth",
     });
   };
+
+  useEffect(() => {
+    console.log(selectedCategory, selectedSkills, freelancers);
+  }, [selectedCategory, selectedSkills, freelancers]);
 
   return (
     <main className="container mx-auto my-8">
@@ -76,7 +64,7 @@ export default function TalentPage() {
 
       <div className="flex gap-6 p-6 bg-gray-50 rounded-xl">
         <div className="w-full md:w-1/4">
-          <CategorySelectionOnFnd 
+          <CategorySelectionOnFnd
             selectedCategory={selectedCategory}
             setSelectedCategory={setSelectedCategory}
             selectedSkills={selectedSkills}
@@ -84,10 +72,10 @@ export default function TalentPage() {
           />
         </div>
         <div className="w-full md:w-2/4">
-          <PostList posts={posts} />
+          <FreelancerComponent freelancers={freelancers} isLoading={isLoading} />
         </div>
         <div className="w-full md:w-1/4">
-          <UserDetails {...userData} />
+          <UserDetails />
         </div>
       </div>
 

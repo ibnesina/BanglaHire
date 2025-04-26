@@ -19,7 +19,7 @@ export default async function apiRequest(meta: ApiFetchOptions) {
       encodedParams.append(key, JSON.stringify(value));
     }
     urlWithParams += `?${encodedParams.toString()}`;
-  }
+  } 
 
   // Add auth token to headers
   const token = userStore.token;
