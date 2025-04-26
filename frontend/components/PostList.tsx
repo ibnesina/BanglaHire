@@ -1,32 +1,6 @@
-const posts = [
-  {
-    title: "Android App Tester for Multiple Devices",
-    budget: "$10",
-    description: "Eyta hobe description ekhane usfdgkfdgkdlsfjkdfjdskfjkdjkd",
-    skills: ["skill 1", "skill 2", "skill 3", "skill 4"],
-    client: "habibul pantho",
-    date: "2025-03-22",
-    file: "asd/fdsj/fdsj.doc",
-    location: "Bangladesh",
-    paymentVerified: true,
-    bids: 4,
-  },
-  {
-    title: "iOS Developer Needed for App Testing",
-    budget: "$15",
-    description:
-      "Looking for an experienced iOS developer for app testing in multiple environments.",
-    skills: ["skill 2", "skill 4", "skill 5"],
-    client: "John Doe",
-    date: "2025-03-21",
-    file: "asd/fdsj/fdsj2.doc",
-    location: "USA",
-    paymentVerified: false,
-    bids: 2,
-  },
-];
+import { Post } from "@/contracts/posts";
 
-const PostList = () => {
+const PostList = ({posts}: {posts: Post[]}) => {
   return (
     <div className="w-full space-y-6">
       {posts.map((post, index) => (

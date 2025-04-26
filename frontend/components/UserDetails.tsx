@@ -1,14 +1,7 @@
-interface UserDetailsProps {
-  name: string;
-  company: string;
-  averageRating: number;
-  totalSpending: string;
-  totalPosts: number;
-  ongoingProjects: number;
-  paymentVerified: boolean;
-}
+import { User } from "@/contracts/users";
 
-const UserDetails: React.FC<UserDetailsProps> = ({
+
+const UserDetails: React.FC<User> = ({
   name,
   company,
   averageRating,
@@ -17,7 +10,7 @@ const UserDetails: React.FC<UserDetailsProps> = ({
   ongoingProjects,
   paymentVerified
 }) => (
-  <div className="w-full bg-white p-6 rounded-lg shadow-lg border border-gray-200 hover:shadow-xl transition-shadow">
+  <div className="w-full bg-white p-6 rounded-lg shadow-lg border sticky top-24 z-[10] border-gray-200 hover:shadow-xl transition-shadow max-w-2xl mx-auto">
     <div className="flex flex-col space-y-4">
       <div className="border-b pb-3">
         <h3 className="text-xl font-semibold text-gray-800">{name}</h3>
