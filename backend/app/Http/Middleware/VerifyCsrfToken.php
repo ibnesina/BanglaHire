@@ -22,15 +22,9 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken as Middleware;
 class VerifyCsrfToken extends Middleware
 {
     protected $except = [
-        // SSLCOMMERZ named callbacks
         'payment/ssl-success',
         'payment/ssl-fail',
         'payment/ssl-cancel',
         'payment/ssl-ipn',
-        // Sandbox fallback URLs
-        'success',
-        'fail',
-        'cancel',
-        'ipn'
     ];
 }
