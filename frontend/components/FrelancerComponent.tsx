@@ -19,7 +19,7 @@ const FreelancerComponent = ({
         <svg className="w-16 h-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M12 12a4 4 0 100-8 4 4 0 000 8z"></path>
         </svg>
-        <p className="text-xl font-semibold text-gray-700">No works found</p>
+        <p className="text-xl font-semibold text-gray-700">No Talent found</p>
         <p className="text-gray-500 mt-2">Try adjusting your search filters</p>
       </div>
     )}
