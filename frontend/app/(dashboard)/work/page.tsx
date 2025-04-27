@@ -1,10 +1,13 @@
 "use client";
 import CategorySelectionOnFnd from "@/components/CategorySelectionOnFnd";
-import PostList from "@/components/PostList";
+import PostList from "@/components/FrelancerComponent";
 import UserDetails from "@/components/UserDetails";
+import WorkComponent from "@/components/WorkComponent";
 import { Post } from "@/contracts/posts";
 import { User } from "@/contracts/users";
+import { getWorkAPI } from "@/lib/api/FindAPI";
 import { generateRandomPosts } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
 const userData: User = {
@@ -41,13 +44,20 @@ interface Category {
 export default function WorkPage() {
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
-  const [posts, setPosts] = useState<Post[]>([]);
+
   const [showBackToTop, setShowBackToTop] = useState(false);
 
-  useEffect(() => {
-    const dummyPosts = generateRandomPosts(10);
-    setPosts(dummyPosts);
 
+
+  const { data: works, isLoading } = useQuery({
+    queryKey: ["works", selectedCategory, selectedSkills],
+    queryFn: () =>
+      getWorkAPI(
+        selectedCategory?.id || undefined,
+        selectedSkills.length > 0 ? selectedSkills : undefined
+      ),
+  });
+  useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 300) {
         setShowBackToTop(true);
@@ -58,7 +68,7 @@ export default function WorkPage() {
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [selectedCategory, selectedSkills]);
+  }, []);
 
   const scrollToTop = () => {
     window.scrollTo({
@@ -71,10 +81,10 @@ export default function WorkPage() {
     <main className="container mx-auto my-8">
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-800">
-          Find Talented Freelancers
+          Find Work Opportunities
         </h1>
         <p className="text-gray-600 mt-2">
-          Browse our top rated professionals for your projects
+          Browse the latest projects and job postings from top employers
         </p>
       </div>
 
@@ -88,10 +98,10 @@ export default function WorkPage() {
           />
         </div>
         <div className="w-full md:w-2/4">
-          <PostList posts={posts} />
+          <WorkComponent works={works} isLoading={isLoading} />
         </div>
         <div className="w-full md:w-1/4">
-          <UserDetails {...userData} />
+          <UserDetails  />
         </div>
       </div>
 

@@ -1,0 +1,172 @@
+{
+  "createOrUpdateFreelancerProfile": {
+    "method": "POST",
+    "url": "/freelancers/profile",
+    "headers": {
+      "Authorization": "string (Bearer token - Freelancer only)"
+    },
+    "description": "Creates or updates the freelancer's profile based on the authenticated user.",
+    "request": {
+      "bio": "string | optional",
+      "category_id": "number (required, must exist in categories table)",
+      "skills": "array of strings | optional (must match available skills for category)",
+      "experiences": "string | optional",
+      "hourly_rate": "number | optional",
+      "certifications": "array of strings (URLs or certificates) | optional",
+      "portfolio_link": "string (URL) | optional"
+    },
+    "response": {
+      "message": "string",
+      "freelancer": {
+        "freelancer_id": "string (UUID)",
+        "bio": "string | null",
+        "category_id": "number | null",
+        "skills": ["string"],
+        "experiences": "string | null",
+        "hourly_rate": "number | null",
+        "certifications": ["string"],
+        "portfolio_link": "string | null",
+        "created_at": "string (datetime)",
+        "updated_at": "string (datetime)"
+      }
+    },
+    "error": {
+      "unauthorized": {
+        "message": "Unauthorized. Please log in."
+      },
+      "forbidden": {
+        "message": "Unauthorized. Only freelancers can create profiles."
+      },
+      "validation_error": {
+        "errors": {
+          "category_id": ["string"],
+          "skills": ["string"],
+          "hourly_rate": ["string"]
+        }
+      },
+      "invalid_skill": {
+        "message": "Invalid skill selection: <skill>. Please choose from the available skills for the selected category."
+      }
+    },
+    "additional_comments": [
+      "If a profile already exists, it is updated; otherwise, it is created.",
+      "Freelancers must belong to the 'Freelancer' user type."
+    ]
+  },
+
+  "getFreelancerById": {
+    "method": "GET",
+    "url": "/freelancers/{id}",
+    "url_params": {
+      "id": "string (UUID)"
+    },
+    "description": "Retrieves a freelancer's profile by their ID.",
+    "response": {
+      "freelancer": {
+        "freelancer_id": "string (UUID)",
+        "bio": "string | null",
+        "category_id": "number | null",
+        "skills": ["string"],
+        "experiences": "string | null",
+        "hourly_rate": "number | null",
+        "certifications": ["string"],
+        "portfolio_link": "string | null",
+        "created_at": "string (datetime)",
+        "updated_at": "string (datetime)",
+        "user": {
+          "id": "string (UUID)",
+          "name": "string",
+          "email": "string",
+          "profile_picture": "string | null"
+        }
+      }
+    },
+    "error": {
+      "not_found": {
+        "message": "Freelancer not found"
+      }
+    }
+  },
+
+  "getAllFreelancers": {
+    "method": "GET",
+    "url": "/freelancers",
+    "description": "Retrieves all freelancer profiles.",
+    "response": {
+      "freelancers": [
+        {
+          "freelancer_id": "string (UUID)",
+          "bio": "string | null",
+          "category_id": "number | null",
+          "skills": ["string"],
+          "experiences": "string | null",
+          "hourly_rate": "number | null",
+          "certifications": ["string"],
+          "portfolio_link": "string | null",
+          "created_at": "string (datetime)",
+          "updated_at": "string (datetime)",
+          "user": {
+            "id": "string (UUID)",
+            "name": "string",
+            "email": "string",
+            "profile_picture": "string | null"
+          }
+        }
+      ]
+    }
+  },
+
+  "deleteFreelancerProfile": {
+    "method": "DELETE",
+    "url": "/freelancers/{id}",
+    "headers": {
+      "Authorization": "string (Bearer token - Admin only or profile owner)"
+    },
+    "url_params": {
+      "id": "string (UUID)"
+    },
+    "description": "Deletes a freelancer's profile.",
+    "response": {
+      "message": "Freelancer profile deleted successfully."
+    },
+    "error": {
+      "not_found": {
+        "message": "Freelancer not found"
+      },
+      "unauthorized": {
+        "message": "Unauthorized"
+      }
+    }
+  },
+
+  "updateFreelancerStats": {
+    "method": "PUT",
+    "url": "/freelancers/{id}/update-stats",
+    "headers": {
+      "Authorization": "string (Bearer token - Admin only)"
+    },
+    "url_params": {
+      "id": "string (UUID)"
+    },
+    "description": "Updates a freelancer's calculated analytics stats. (Prototype simulation)",
+    "response": {
+      "message": "Freelancer stats updated successfully.",
+      "freelancer": {
+        "freelancer_id": "string (UUID)",
+        "...": "other freelancer fields"
+      }
+    },
+    "error": {
+      "not_found": {
+        "message": "Freelancer not found"
+      },
+      "unauthorized": {
+        "message": "Unauthorized"
+      }
+    },
+    "additional_comments": [
+      "This currently simulates updating stats.",
+      "Real implementation would require fetching data from Payments, Projects, Reviews, etc."
+    ]
+  }
+}
