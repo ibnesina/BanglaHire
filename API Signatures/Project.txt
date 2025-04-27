@@ -180,5 +180,41 @@
         "message": "Unauthorized"
       }
     }
+  },
+  "getMyOpenProjects": {
+    "method": "GET",
+    "url": "/clients/my-projects",
+    "headers": {
+      "Authorization": "string (Bearer token - Client only)"
+    },
+    "description": "Retrieves all 'Open' status projects i.e. non assigned projects created by the authenticated client.",
+    "response": {
+      "projects": [
+        {
+          "id": "number",
+          "client_id": "string (UUID)",
+          "category_id": "number",
+          "title": "string",
+          "description": "string | null",
+          "required_skills": ["string"],
+          "budget": "number",
+          "status": "'Open'",
+          "assigned_freelancer_id": "string (UUID) | null",
+          "file": "string | null",
+          "created_at": "string (datetime)",
+          "updated_at": "string (datetime)"
+        }
+      ]
+    },
+    "error": {
+      "unauthorized": {
+        "message": "Unauthorized"
+      }
+    },
+    "additional_comments": [
+      "Only projects with 'Open' status are returned.",
+      "Client must be authenticated."
+    ]
   }
 }
+
