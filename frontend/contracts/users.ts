@@ -15,6 +15,16 @@ export interface User {
   email_verified_at: string | null; // datetime
   created_at: string; // datetime
   updated_at: string; // datetime
+
+
+
+  
+  company?: string | null;
+  averageRating?: number | null;
+  totalSpending?: string | null;
+  totalPosts?: number | null;
+  ongoingProjects?: number | null;
+  paymentVerified?: boolean | null;
 }
 
 export const userRegistrationSchema = z

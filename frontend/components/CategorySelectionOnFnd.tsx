@@ -1,50 +1,39 @@
 "use client";
 
-import React, { useState } from 'react';
+import { Category } from "@/contracts/posts";
+import { getCategoriesAPI } from "@/lib/api/FindAPI";
+import React, { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 
-// Dummy data (categories with skills)
-const categories = [
-  {
-    id: 1,
-    name: "Web Development",
-    skills: ["HTML", "CSS", "JavaScript", "React", "Angular", "Vue"]
-  },
-  {
-    id: 2,
-    name: "Mobile Development",
-    skills: ["Android", "iOS", "React Native", "Flutter", "Kotlin", "Swift"]
-  },
-  {
-    id: 3,
-    name: "Design",
-    skills: ["UI/UX", "Graphic Design", "Photoshop", "Illustrator", "Figma"]
-  },
-  {
-    id: 4,
-    name: "Data Science",
-    skills: ["Python", "R", "Machine Learning", "Data Analysis", "SQL"]
-  },
-  {
-    id: 5,
-    name: "Digital Marketing",
-    skills: ["SEO", "SEM", "Social Media", "Content Marketing", "Analytics"]
-  }
-];
+const CategorySelectionOnFnd = ({
+  selectedCategory,
+  setSelectedCategory,
+  selectedSkills,
+  setSelectedSkills,
+}: {
+  selectedCategory: Category | null;
+  setSelectedCategory: (category: Category | null) => void;
+  selectedSkills: string[];
+  setSelectedSkills: (skills: string[]) => void;
+}) => {
 
-interface Category {
-  id: number;
-  name: string;
-  skills: string[];
-}
+const { data: categories, isLoading } = useQuery<Category[]>({
+  queryKey: ['categories'],
+  queryFn: getCategoriesAPI,
+  initialData: []
+});
+  
 
-const CategorySelectionOnFnd = () => {
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
-  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
+
+
+
   const [error, setError] = useState("");
 
-  const handleCategoryChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleCategoryChange = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
     const categoryId = parseInt(event.target.value);
-    const category = categories.find(cat => cat.id === categoryId);
+    const category = categories?.find((cat:Category) => cat.id === categoryId);
     setSelectedCategory(category || null);
     setSelectedSkills([]); // Reset skills when category changes
     setError("");
@@ -52,7 +41,7 @@ const CategorySelectionOnFnd = () => {
 
   const handleSkillChange = (skill: string) => {
     if (selectedSkills.includes(skill)) {
-      setSelectedSkills(selectedSkills.filter(s => s !== skill));
+      setSelectedSkills(selectedSkills.filter((s) => s !== skill));
     } else {
       if (selectedSkills.length < 5) {
         setSelectedSkills([...selectedSkills, skill]);
@@ -63,45 +52,37 @@ const CategorySelectionOnFnd = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!selectedCategory) {
-      setError("Please select a category");
-      return;
-    }
-    if (selectedSkills.length === 0) {
-      setError("Please select at least one skill");
-      return;
-    }
-    
-    console.log("Form submitted:", { category: selectedCategory, skills: selectedSkills });
-    // Here you would typically send the data to your API
-  };
-
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
+    <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md sticky top-24 z-10 transition-all duration-300">
       <h2 className="text-2xl font-bold mb-6">Select Category and Skills</h2>
-      
-      <form onSubmit={handleSubmit}>
+
+      <div>
         <div className="mb-6">
-          <label className="block text-gray-700 font-medium mb-2">Category:</label>
-          <select 
-            onChange={handleCategoryChange} 
+          <label className="block text-gray-700 font-medium mb-2">
+            Category:
+          </label>
+          <select
+            onChange={handleCategoryChange}
             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="">-- Select Category --</option>
-            {categories.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.name}
-              </option>
-            ))}
+            {isLoading ? (
+              <option>Loading...</option>
+            ) : (
+              categories?.map((category:Category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))
+            )}
           </select>
         </div>
 
         {selectedCategory && (
           <div className="mb-6">
             <label className="block text-gray-700 font-medium mb-2">
-              Skills: <span className="text-sm text-gray-500">(Select up to 5)</span>
+              Skills:{" "}
+              <span className="text-sm text-gray-500">(Select up to 5)</span>
             </label>
             <div className="grid grid-cols-2 gap-2 mt-2">
               {selectedCategory.skills.map((skill, index) => (
@@ -122,27 +103,14 @@ const CategorySelectionOnFnd = () => {
           </div>
         )}
 
-        {error && (
-          <div className="mb-4 text-red-500 text-sm">
-            {error}
+        {error && <div className="mb-4 text-red-500 text-sm">{error}</div>}
+
+        {selectedSkills.length > 0 && (
+          <div className="text-sm text-gray-600">
+            Selected: {selectedSkills.length}/5
           </div>
         )}
-
-        <div className="flex items-center justify-between">
-          <button
-            type="submit"
-            className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-colors"
-          >
-            Submit
-          </button>
-          
-          {selectedSkills.length > 0 && (
-            <div className="text-sm text-gray-600">
-              Selected: {selectedSkills.length}/5
-            </div>
-          )}
-        </div>
-      </form>
+      </div>
     </div>
   );
 };
