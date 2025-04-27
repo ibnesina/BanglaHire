@@ -161,4 +161,19 @@ class ProjectController extends Controller
         $project->delete();
         return response()->json(['message' => 'Project deleted'], 200);
     }
+
+
+    // Get all projects created by the authenticated client
+    public function myProjects()
+    {
+        // Only fetch projects where client_id matches the logged-in client
+        $clientId = Auth::user()->id;
+
+        $projects = Project::with(['assignedFreelancer', 'category'])
+                    ->where('client_id', $clientId)
+                    ->where('status', 'Open')
+                    ->get();
+
+        return response()->json($projects, 200);
+    }
 }
