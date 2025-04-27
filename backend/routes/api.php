@@ -18,6 +18,7 @@ use App\Http\Controllers\API\TalentController;
 use App\Http\Controllers\API\WorkController;
 
 use App\Constants\RoutePaths;
+use App\Http\Controllers\API\WithdrawRequestController;
 
 // Public Routes
 
@@ -92,9 +93,20 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     // Find Work
     Route::get('/work', [WorkController::class, 'index']);
 
+    // Withdraw Balance
+    Route::get('/withdraw-requests', [WithdrawRequestController::class, 'index']);
+    Route::post('/withdraw-requests', [WithdrawRequestController::class, 'store']);
+    Route::get(RoutePaths::WITHDRAW_SHOW, [WithdrawRequestController::class, 'show']);
+    Route::put(RoutePaths::WITHDRAW_SHOW, [WithdrawRequestController::class, 'update']);
+    Route::delete(RoutePaths::WITHDRAW_SHOW, [WithdrawRequestController::class, 'destroy']);
+
 
     // Admin-only routes
     Route::middleware('role:Admin')->group(function () {
+        // Withdraw Balance
+        Route::post('/withdraw-requests/{withdrawRequest}/approve', [WithdrawRequestController::class, 'approve']);
+        Route::post('/withdraw-requests/{withdrawRequest}/reject', [WithdrawRequestController::class, 'reject']);
+
         // Profile
         Route::get('/admin-dashboard', function () {
             return response()->json(['message' => 'Welcome, Admin']);
@@ -134,8 +146,8 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::put('/freelancers', [FreelancerController::class, 'store']);
         Route::delete('/freelancers/{id}', [FreelancerController::class, 'destroy']);
 
-        // Projects
-        Route::post('projects/{projectId}/apply', [BiddingController::class, 'store']);
+        // Bidding
+        Route::post('/projects/{project_id}/biddings', [BiddingController::class, 'store']);
 
         // Fetch reviews by freelancer ID for profile views
         Route::get('/freelancer-reviews', [ReviewController::class, 'getByFreelancer']);
@@ -162,6 +174,10 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::post('/projects', [ProjectController::class, 'store']);
         Route::put(RoutePaths::PROJECT_SHOW, [ProjectController::class, 'update']);
         Route::delete(RoutePaths::PROJECT_SHOW, [ProjectController::class, 'destroy']);
+        Route::get('/projects/my-projects', [ProjectController::class, 'myProjects']);
+
+        // Biddings
+        Route::get('/projects/{project_id}/biddings', [BiddingController::class, 'index']);
 
         // Only clients can create, update, or delete assignments (project assignment is done by the client who created the project)
         Route::post('/assignments', [AssignedProjectController::class, 'store']);
