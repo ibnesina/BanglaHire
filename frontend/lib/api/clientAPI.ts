@@ -34,3 +34,42 @@ export const createProjectAPI = async (data: {
     return null;
   }
 };
+
+
+
+export const getMyProjectsAPI = async () => {
+  const response = await apiRequest({
+    method: 'GET',
+    url: '/clients/my-projects',
+  });
+
+  if (response.status === 200) {
+    return response.data.projects;
+  } else if (response.status === 401) {
+    toast.error('Unauthorized. Please sign in as a client.');
+    return null;
+  } else {
+    toast.error(response.data.message || 'Failed to fetch open projects');
+    return null;
+  }
+};
+
+export const getProjectByIdAPI = async (id: number) => {
+  const response = await apiRequest({
+    method: 'GET',
+    url: `/projects/${id}`,
+  });
+
+  if (response.status === 200) {
+    return response.data;
+  } else if (response.status === 404) {
+    toast.error('Project not found');
+    return null;
+  } else if (response.status === 401) {
+    toast.error('Unauthorized. Please sign in.');
+    return null;
+  } else {
+    toast.error(response.data.message || 'Failed to fetch project details');
+    return null;
+  }
+};
