@@ -54,6 +54,7 @@ export interface Work {
     created_at: string;
     updated_at: string;
   };
+  
   category: {
     id: number;
     name: string;
