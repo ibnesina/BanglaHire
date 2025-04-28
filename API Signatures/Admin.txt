@@ -1,0 +1,156 @@
+{
+  "createOrUpdateAdmin": {
+    "method": "POST",
+    "url": "/admins/profile",
+    "headers": {
+      "Authorization": "string (Bearer token - Admin only)"
+    },
+    "description": "Creates or updates the admin profile for the authenticated admin user.",
+    "request": {
+      "department": "string | optional",
+      "role_level": "string | optional",
+      "is_super_admin": "boolean | optional"
+    },
+    "response": {
+      "message": "string",
+      "admin": {
+        "admin_id": "string (UUID)",
+        "department": "string | null",
+        "role_level": "string | null",
+        "is_super_admin": "boolean",
+        "created_at": "string (datetime)",
+        "updated_at": "string (datetime)"
+      }
+    },
+    "error": {
+      "unauthorized": {
+        "message": "Unauthorized. Only Admin users can do this."
+      },
+      "forbidden": {
+        "message": "Unauthorized. Only Admin users can create/update profiles."
+      },
+      "validation_error": {
+        "errors": {
+          "department": ["string"],
+          "role_level": ["string"],
+          "is_super_admin": ["boolean"]
+        }
+      }
+    },
+    "additional_comments": [
+      "Only users with the 'Admin' type can create or update admin profiles.",
+      "The 'is_super_admin' flag helps identify super admin users."
+    ]
+  },
+
+  "getAdminById": {
+    "method": "GET",
+    "url": "/admins/{id}",
+    "url_params": {
+      "id": "string (UUID)"
+    },
+    "description": "Retrieves a single admin record by admin ID.",
+    "response": {
+      "admin": {
+        "admin_id": "string (UUID)",
+        "department": "string | null",
+        "role_level": "string | null",
+        "is_super_admin": "boolean",
+        "created_at": "string (datetime)",
+        "updated_at": "string (datetime)",
+        "user": {
+          "id": "string (UUID)",
+          "name": "string",
+          "email": "string",
+          "profile_picture": "string | null"
+        }
+      }
+    },
+    "error": {
+      "not_found": {
+        "message": "Admin not found"
+      }
+    }
+  },
+
+  "getAllAdmins": {
+    "method": "GET",
+    "url": "/admins",
+    "description": "Retrieves a list of all admin profiles.",
+    "response": {
+      "admins": [
+        {
+          "admin_id": "string (UUID)",
+          "department": "string | null",
+          "role_level": "string | null",
+          "is_super_admin": "boolean",
+          "created_at": "string (datetime)",
+          "updated_at": "string (datetime)",
+          "user": {
+            "id": "string (UUID)",
+            "name": "string",
+            "email": "string",
+            "profile_picture": "string | null"
+          }
+        }
+      ]
+    }
+  },
+
+  "deleteAdminProfile": {
+    "method": "DELETE",
+    "url": "/admins/{id}",
+    "headers": {
+      "Authorization": "string (Bearer token - Admin only)"
+    },
+    "url_params": {
+      "id": "string (UUID)"
+    },
+    "description": "Deletes an admin profile.",
+    "response": {
+      "message": "Admin profile deleted successfully."
+    },
+    "error": {
+      "not_found": {
+        "message": "Admin not found"
+      },
+      "unauthorized": {
+        "message": "Unauthorized"
+      }
+    }
+  },
+
+  "updateAdminStats": {
+    "method": "PUT",
+    "url": "/admins/{id}/update-stats",
+    "headers": {
+      "Authorization": "string (Bearer token - Admin only)"
+    },
+    "url_params": {
+      "id": "string (UUID)"
+    },
+    "description": "Updates platform-wide admin stats, e.g., total users, total projects, etc.",
+    "response": {
+      "message": "Admin stats updated successfully.",
+      "admin": {
+        "admin_id": "string (UUID)",
+        "department": "string | null",
+        "role_level": "string | null",
+        "is_super_admin": "boolean",
+        "created_at": "string (datetime)",
+        "updated_at": "string (datetime)"
+      }
+    },
+    "error": {
+      "not_found": {
+        "message": "Admin not found"
+      },
+      "unauthorized": {
+        "message": "Unauthorized"
+      }
+    },
+    "additional_comments": [
+      "This method is used for managing platform-wide statistics and is generally restricted to super admins."
+    ]
+  }
+}
