@@ -3,29 +3,37 @@ import Link from "next/link";
 import AuthOptions from "./AuthOptions";
 import { usePathname } from "next/navigation";
 import { useMemo } from "react";
+import userStore from "@/lib/store";
+import { observer } from "mobx-react-lite";
 
-function NavBar() {
+const NavBar = observer(() => {
+  const { user } = userStore;
   // Define navigation links with their paths and labels
   const navLinks = useMemo(() => [
-    { path: "/talent", label: "Hire Talent" },
-    { path: "/work", label: "Find Work" },
-    { path: "/about", label: "About Us" },
-  ], []);
+    { path: "/", label: "Home", visibility: true },
+    { path: "/talent", label: "Hire Talent", visibility: user?.type === "Client" },
+    { path: "/work", label: "Find Work", visibility: user?.type === "Freelancer" },
+    { path: "/about", label: "About Us", visibility: true },
+  ], [user?.type]);
 
   // Get the current path and determine which link is active
   const pathname = usePathname();
   const activeLink = useMemo(() => {
-    return navLinks.find((link) => pathname?.startsWith(link.path));
+    if (pathname === "/") {
+      return navLinks.find((link) => link.path === "/");
+    } else {
+      return navLinks.find((link) => 
+        link.path !== "/" && pathname?.startsWith(link.path)
+      ) || navLinks.find((link) => link.path === "/");
+    }
   }, [pathname, navLinks]);
 
   return (
     <div className="flex justify-between items-center px-10 py-5 bg-slate-500 text-white sticky top-0 z-50">
-      {/* TODO:  */}
-      
       <Link href="/" className="font-bold text-4xl cursor-pointer">BanglaHire</Link>
       <div className="flex gap-5">
         {navLinks.map((link) => (
-          <Link href={link.path} key={link.path} className="cursor-pointer">
+          <Link href={link.path} key={link.path} className="cursor-pointer" style={{ display: link.visibility ? "block" : "none" }}>
             <p
               className={`px-4 py-2 rounded-md hover:bg-slate-300 hover:text-zinc-600 hover:font-semibold ${
                 activeLink?.path === link.path
@@ -51,6 +59,5 @@ function NavBar() {
       <AuthOptions />
     </div>
   );
-}
-
+});
 export default NavBar;
