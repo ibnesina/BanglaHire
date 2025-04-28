@@ -32,7 +32,16 @@ export interface Freelancer {
   reviews_avg_rating: number | null;
   user: User;
 }
-
+export interface Bidding {
+  id: number;
+  project_id: number;
+  freelancer_id: string;
+  cover_letter: string | null;
+  bidding_amount: string;
+  created_at: string;
+  updated_at: string;
+  freelancer: Freelancer;
+}
 
 export interface Work {
   id: number;
@@ -42,7 +51,7 @@ export interface Work {
   description: string;
   required_skills: string[];
   budget: string;
-  status: 'Open' | 'In Progress' | 'Closed';
+  status: "Open" | "In Progress" | "Closed";
   assigned_freelancer_id: string | null;
   file: string | null;
   created_at: string;
@@ -54,7 +63,7 @@ export interface Work {
     created_at: string;
     updated_at: string;
   };
-  
+
   category: {
     id: number;
     name: string;
