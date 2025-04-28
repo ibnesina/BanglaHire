@@ -14,7 +14,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="max-w-6xl mx-auto my-10 px-4 sm:px-6 lg:px-8">
-      <h1 className="text-3xl font-bold mb-8">Settings</h1>
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-3xl font-bold">Settings</h1>
+        <Link href="/" className="px-4 py-2 bg-slate-500 text-white rounded-md hover:bg-slate-600 transition-colors">
+          Back to Home
+        </Link>
+      </div>
       <div className="flex flex-col md:flex-row gap-8">
         <aside className="w-full md:w-1/4">
           <nav className="space-y-1">
