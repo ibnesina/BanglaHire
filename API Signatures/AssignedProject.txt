@@ -1,0 +1,125 @@
+{
+  "listAssignments": {
+    "method": "GET",
+    "url": "/assignments",
+    "description": "Get all assigned projects (visible to all authenticated users).",
+    "response": {
+      "assignments": [
+        {
+          "id": "number",
+          "project_id": "number",
+          "client_id": "string (UUID)",
+          "freelancer_id": "string (UUID)",
+          "assigned_date": "string (datetime)",
+          "status": "'Assigned' | 'Submitted' | 'Completed' | 'Canceled'",
+          "deadline": "string (date)",
+          "payment_amount": "number",
+          "payment_status": "'Pending' | 'Released' | 'Disputed'",
+          "completion_date": "string (nullable, date)",
+          "review_id": "number | null"
+        }
+      ]
+    }
+  },
+
+  "getAssignment": {
+    "method": "GET",
+    "url": "/assignments/{id}",
+    "url_params": {
+      "id": "number"
+    },
+    "description": "Retrieve a single assignment by ID.",
+    "response": {
+      "assignment": {
+        "id": "number",
+        "project_id": "number",
+        "client_id": "string (UUID)",
+        "freelancer_id": "string (UUID)",
+        "assigned_date": "string (datetime)",
+        "status": "'Assigned' | 'Submitted' | 'Completed' | 'Canceled'",
+        "deadline": "string (date)",
+        "payment_amount": "number",
+        "payment_status": "'Pending' | 'Released' | 'Disputed'",
+        "completion_date": "string (nullable, date)",
+        "review_id": "number | null"
+      }
+    }
+  },
+
+  "createAssignment": {
+    "method": "POST",
+    "url": "/assignments",
+    "headers": {
+      "Authorization": "string (Bearer token - Client only)"
+    },
+    "request": {
+      "project_id": "number (required, must exist in projects table)",
+      "freelancer_id": "string (UUID, required, must exist in freelancers table)"
+    },
+    "response": {
+      "assignment": {
+        "id": "number",
+        "project_id": "number",
+        "client_id": "string (UUID)",
+        "freelancer_id": "string (UUID)",
+        "assigned_date": "string (datetime)",
+        "status": "'Assigned'",
+        "deadline": "string (date)",
+        "payment_amount": "number",
+        "payment_status": "'Pending'"
+      }
+    },
+    "notes": [
+      "The payment_amount is automatically fetched from the freelancer's bidding amount.",
+      "The project's status is updated to 'Assigned' upon assignment."
+    ]
+  },
+
+  "updateAssignment": {
+    "method": "PUT",
+    "url": "/assignments/{id}",
+    "url_params": {
+      "id": "number"
+    },
+    "headers": {
+      "Authorization": "string (Bearer token - Client or Freelancer based on context)"
+    },
+    "request": {
+      "status": "'Assigned' | 'In Progress' | 'Completed' | 'Canceled' | 'Submitted'",
+      "completion_date": "nullable|date",
+      "review_id": "nullable|exists in reviews table"
+    },
+    "response": {
+      "assignment": {
+        "id": "number",
+        "project_id": "number",
+        "client_id": "string (UUID)",
+        "freelancer_id": "string (UUID)",
+        "status": "'Submitted' or 'Completed'",
+        "deadline": "string (date)",
+        "payment_amount": "number",
+        "payment_status": "'Pending' | 'Completed'",
+        "completion_date": "string (nullable, date)"
+      }
+    },
+    "notes": [
+      "If freelancer submits project: status becomes 'Submitted' and project status becomes 'Submitted'.",
+      "If client accepts project: status becomes 'Completed' and project status becomes 'Closed'.",
+      "On client acceptance, payment splits happen between Admin and Freelancer."
+    ]
+  },
+
+  "deleteAssignment": {
+    "method": "DELETE",
+    "url": "/assignments/{id}",
+    "url_params": {
+      "id": "number"
+    },
+    "headers": {
+      "Authorization": "string (Bearer token - Client only)"
+    },
+    "response": {
+      "message": "Assignment deleted successfully."
+    }
+  }
+}

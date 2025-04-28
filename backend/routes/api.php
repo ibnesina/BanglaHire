@@ -81,6 +81,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     // Assigned Projects routes (visible to all authenticated users)
     Route::get('/assignments', [AssignedProjectController::class, 'index']);
     Route::get(RoutePaths::ASSIGNMENTS_SHOW, [AssignedProjectController::class, 'show']);
+    Route::put(RoutePaths::ASSIGNMENTS_SHOW, [AssignedProjectController::class, 'update']);
 
     // Reviews routes
     Route::get('/reviews', [ReviewController::class, 'index']);
@@ -181,7 +182,6 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 
         // Only clients can create, update, or delete assignments (project assignment is done by the client who created the project)
         Route::post('/assignments', [AssignedProjectController::class, 'store']);
-        Route::put(RoutePaths::ASSIGNMENTS_SHOW, [AssignedProjectController::class, 'update']);
         Route::delete(RoutePaths::ASSIGNMENTS_SHOW, [AssignedProjectController::class, 'destroy']);
 
         // Only clients can submit, update, or delete reviews after a project is completed

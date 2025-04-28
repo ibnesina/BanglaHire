@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\AssignedProject;
+use App\Models\Bidding;
 use App\Models\PaymentHistory;
 use App\Models\Project;
 use App\Models\User;
@@ -33,7 +34,6 @@ class AssignedProjectController extends Controller
         $validatedData = $request->validate([
             'project_id'     => 'required|exists:projects,id',   // Project ID
             'freelancer_id'  => 'required|exists:freelancers,freelancer_id',  // Freelancer ID
-            'payment_amount' => 'required|numeric',  // Payment amount (taken from bid)
         ]);
 
         // Retrieve the project and ensure that the authenticated client is the owner
@@ -42,10 +42,22 @@ class AssignedProjectController extends Controller
             return response()->json(['error' => 'Unauthorized: You do not own this project'], 403);
         }
 
+        // Retrieve the bidding record for the selected freelancer
+        $bidding = Bidding::where('project_id', $validatedData['project_id'])
+                        ->where('freelancer_id', $validatedData['freelancer_id'])
+                        ->first();
+
+        if (!$bidding) {
+            return response()->json(['error' => 'No bid found from the selected freelancer for this project'], 404);
+        }
+
+        // Get the bidding amount
+        $paymentAmount = $bidding->bidding_amount;
+
         // Auto-generate the deadline (7 days from today)
         $deadline = now()->addDays(7);
 
-        // Update the project's status to "In Progress" when it is assigned
+        // Update the project's status to "Assigned" when it is assigned
         $project->status = 'Assigned';
         $project->assigned_freelancer_id = $validatedData['freelancer_id'];
         $project->save();
@@ -54,7 +66,7 @@ class AssignedProjectController extends Controller
         $assignment = AssignedProject::create([
             'project_id'       => $validatedData['project_id'],
             'freelancer_id'    => $validatedData['freelancer_id'],
-            'payment_amount'   => $validatedData['payment_amount'],
+            'payment_amount'   => $paymentAmount,  // Use bidding amount
             'deadline'         => $deadline,
             'status'           => 'Assigned',  // Automatically set to 'Assigned'
             'payment_status'   => 'Pending',   // Automatically set to 'Pending'
@@ -64,6 +76,7 @@ class AssignedProjectController extends Controller
 
         return response()->json($assignment, 201);  // Return the created assignment
     }
+
 
 
     // Update an assignment (for example, to change status, deadline, or payment info)
