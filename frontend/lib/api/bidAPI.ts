@@ -34,3 +34,21 @@ export const createBiddingAPI = async (
     return null;
   }
 };
+
+
+export const getBiddingsAPI = async (projectId: number) => {
+  const response = await apiRequest({
+    method: "GET",
+    url: `/projects/${projectId}/biddings`,
+  });
+
+  if (response.status === 200) {
+    return response.data;
+  } else if (response.status === 404) {
+    toast.error("Project not found");
+    return null;
+  } else {
+    toast.error(response.data.message || "Failed to retrieve biddings");
+    return null;
+  }
+};
