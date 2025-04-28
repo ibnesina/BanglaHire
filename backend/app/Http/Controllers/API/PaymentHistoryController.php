@@ -43,7 +43,7 @@ class PaymentHistoryController extends Controller
                       ->from('admins')
                       ->where('is_super_admin', 1);
             })->first();
-
+ 
             $freelancer = User::find($payment->receiver_id);
 
             if($payment->payment_type == 'Escrow') {
