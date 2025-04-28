@@ -45,6 +45,10 @@ class AssignedProjectController extends Controller
         // Auto-generate the deadline (7 days from today)
         $deadline = now()->addDays(7);
 
+        // Update the project's status to "In Progress" when it is assigned
+        $project->status = 'In Progress';
+        $project->save();
+
         // Create the assignment record with necessary details
         $assignment = AssignedProject::create([
             'project_id'       => $validatedData['project_id'],

@@ -51,8 +51,8 @@ class PaymentHistoryController extends Controller
                 $freelancer->balance += $payment->amount * 0.95;
             }
             else {
-                $admin->balance += $payment->amount * 0.15;
-                $freelancer->balance += $payment->amount * 0.85;
+                $admin->balance += $payment->amount * 0.10;
+                $freelancer->balance += $payment->amount * 0.90;
             }
 
             $admin->save();
