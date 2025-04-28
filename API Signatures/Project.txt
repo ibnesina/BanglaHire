@@ -183,7 +183,7 @@
   },
   "getMyOpenProjects": {
     "method": "GET",
-    "url": "/clients/my-projects",
+    "url": "/my-projects",
     "headers": {
       "Authorization": "string (Bearer token - Client only)"
     },

@@ -29,34 +29,37 @@ class AssignedProjectController extends Controller
     // Create a new project assignment (only the client who created the project can assign it)
     public function store(Request $request)
     {
+        // Validate the incoming data
         $validatedData = $request->validate([
-            'project_id'     => 'required|exists:projects,id',
-            // freelancer_id must be provided to assign the project
-            'freelancer_id'  => 'required|exists:freelancers,freelancer_id',
-            // deadline when the project is expected to be completed
-            'deadline'       => 'required|date',
-            'payment_amount' => 'required|numeric',
-            'status'         => 'required|in:Assigned,In Progress,Completed,Canceled',
-            'payment_status' => 'required|in:Pending,Released,Disputed',
-            // completion_date and review_id are optional at assignment
-            'completion_date'=> 'nullable|date',
-            'review_id'      => 'nullable|exists:reviews,id',
+            'project_id'     => 'required|exists:projects,id',   // Project ID
+            'freelancer_id'  => 'required|exists:freelancers,freelancer_id',  // Freelancer ID
+            'payment_amount' => 'required|numeric',  // Payment amount (taken from bid)
         ]);
 
-        // Retrieve the project and ensure that the authenticated client is the creator
+        // Retrieve the project and ensure that the authenticated client is the owner
         $project = Project::findOrFail($validatedData['project_id']);
         if (Auth::user()->id !== $project->client_id) {
             return response()->json(['error' => 'Unauthorized: You do not own this project'], 403);
         }
 
-        // Force the client_id from the authenticated client
-        $validatedData['client_id'] = Auth::user()->id;
-        $validatedData['assigned_date'] = now();
+        // Auto-generate the deadline (7 days from today)
+        $deadline = now()->addDays(7);
 
-        $assignment = AssignedProject::create($validatedData);
+        // Create the assignment record with necessary details
+        $assignment = AssignedProject::create([
+            'project_id'       => $validatedData['project_id'],
+            'freelancer_id'    => $validatedData['freelancer_id'],
+            'payment_amount'   => $validatedData['payment_amount'],
+            'deadline'         => $deadline,
+            'status'           => 'Assigned',  // Automatically set to 'Assigned'
+            'payment_status'   => 'Pending',   // Automatically set to 'Pending'
+            'client_id'        => Auth::user()->id,  // Authenticated client
+            'assigned_date'    => now(),
+        ]);
 
-        return response()->json($assignment, 201);
+        return response()->json($assignment, 201);  // Return the created assignment
     }
+
 
     // Update an assignment (for example, to change status, deadline, or payment info)
     public function update(Request $request, $id)

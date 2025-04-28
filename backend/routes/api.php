@@ -174,7 +174,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::post('/projects', [ProjectController::class, 'store']);
         Route::put(RoutePaths::PROJECT_SHOW, [ProjectController::class, 'update']);
         Route::delete(RoutePaths::PROJECT_SHOW, [ProjectController::class, 'destroy']);
-        Route::get('/projects/my-projects', [ProjectController::class, 'myProjects']);
+        Route::get('/my-projects', [ProjectController::class, 'myProjects']);
 
         // Biddings
         Route::get('/projects/{project_id}/biddings', [BiddingController::class, 'index']);
