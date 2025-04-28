@@ -27,7 +27,7 @@ return new class extends Migration
             $table->decimal('budget', 10, 2)->default(0.00);
 
             // Status: Open, In Progress, Closed
-            $table->enum('status', ['Open', 'In Progress', 'Closed'])->default('Open');
+            $table->enum('status', ['Open', 'Assigned', 'Submitted', 'Closed'])->default('Open');
 
             // Nullable assigned freelancer ID (UUID)
             $table->uuid('assigned_freelancer_id')->nullable();
