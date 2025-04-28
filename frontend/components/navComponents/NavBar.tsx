@@ -1,25 +1,42 @@
+"use client";
+import Link from "next/link";
 import AuthOptions from "./AuthOptions";
+import { usePathname } from "next/navigation";
+import { useMemo } from "react";
 
 function NavBar() {
+  // Define navigation links with their paths and labels
+  const navLinks = useMemo(() => [
+    { path: "/talent", label: "Hire Talent" },
+    { path: "/work", label: "Find Work" },
+    { path: "/about", label: "About Us" },
+  ], []);
+
+  // Get the current path and determine which link is active
+  const pathname = usePathname();
+  const activeLink = useMemo(() => {
+    return navLinks.find((link) => pathname?.startsWith(link.path));
+  }, [pathname, navLinks]);
+
   return (
     <div className="flex justify-between items-center px-10 py-5 bg-slate-500 text-white sticky top-0 z-50">
-      <p className="font-bold text-4xl ">BanglaHire</p>
+      {/* TODO:  */}
+      
+      <Link href="/" className="font-bold text-4xl cursor-pointer">BanglaHire</Link>
       <div className="flex gap-5">
-        <a href="#">
-          <p className="px-4 border hover:bg-slate-300 hover:text-zinc-600 hover:font-semibold">
-            Hire Talent
-          </p>
-        </a>
-        <a href="#">
-          <p className="px-8 border hover:bg-slate-300 hover:text-zinc-600 hover:font-semibold">
-            Find Work
-          </p>
-        </a>
-        <a href="#">
-          <p className="px-4 border hover:bg-slate-300 hover:text-zinc-600 hover:font-semibold">
-            About Us
-          </p>
-        </a>
+        {navLinks.map((link) => (
+          <Link href={link.path} key={link.path} className="cursor-pointer">
+            <p
+              className={`px-4 py-2 rounded-md hover:bg-slate-300 hover:text-zinc-600 hover:font-semibold ${
+                activeLink?.path === link.path
+                  ? "bg-slate-300 text-zinc-600 font-semibold"
+                  : ""
+              }`}
+            >
+              {link.label}
+            </p>
+          </Link>
+        ))}
       </div>
       <div className="relative">
         <input
