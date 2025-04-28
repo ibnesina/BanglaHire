@@ -51,3 +51,21 @@ export const getMyProjectsAPI = async () => {
     return null;
   }
 };
+ 
+
+export const getProjectByIdAPI = async (id: number) => {
+  const response = await apiRequest({
+    method: "GET",
+    url: `/projects/${id}`,
+  });
+
+  if (response.status === 200) {
+    return response.data;
+  } else if (response.status === 404) {
+    toast.error("Project not found");
+    return null;
+  } else {
+    toast.error(response.data.message || "Failed to fetch project");
+    return null;
+  }
+};
