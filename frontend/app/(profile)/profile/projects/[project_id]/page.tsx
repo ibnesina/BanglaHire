@@ -65,7 +65,7 @@ export default function ProjectDetails() {
             <div>
               <h3 className="text-lg font-semibold mb-2">Required Skills</h3>
               <div className="flex flex-wrap gap-2">
-                {project.required_skills.map((skill, index) => (
+                {project.required_skills.map((skill: string, index: number) => (
                   <span key={index} className="bg-slate-100 text-slate-800 px-2 py-1 rounded-md text-sm">
                     {skill}
                   </span>

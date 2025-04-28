@@ -2,7 +2,7 @@
 import Link from "next/link";
 import AuthOptions from "./AuthOptions";
 import { usePathname } from "next/navigation";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import userStore from "@/lib/store";
 import { observer } from "mobx-react-lite";
 
@@ -16,6 +16,9 @@ const NavBar = observer(() => {
     { path: "/about", label: "About Us", visibility: true },
   ], [user?.type]);
 
+
+  
+
   // Get the current path and determine which link is active
   const pathname = usePathname();
   const activeLink = useMemo(() => {
@@ -28,12 +31,27 @@ const NavBar = observer(() => {
     }
   }, [pathname, navLinks]);
 
+
+  // Redirect if user tries to access unauthorized routes
+  const filteredLinks = useMemo(() => 
+    navLinks.filter(link => 
+      link.visibility === true
+    ), [navLinks]);
+
+  // Redirect logic for unauthorized access
+  useEffect(() => {
+    if (user?.type === "Client" && pathname?.startsWith("/work")) {
+      window.location.href = "/";
+    } else if (user?.type === "Freelancer" && pathname?.startsWith("/talent")) {
+      window.location.href = "/";
+    }
+  }, [pathname, user?.type]);
   return (
     <div className="flex justify-between items-center px-10 py-5 bg-slate-500 text-white sticky top-0 z-50">
       <Link href="/" className="font-bold text-4xl cursor-pointer">BanglaHire</Link>
       <div className="flex gap-5">
-        {navLinks.map((link) => (
-          <Link href={link.path} key={link.path} className="cursor-pointer" style={{ display: link.visibility ? "block" : "none" }}>
+        {filteredLinks.map((link) => (
+          <Link href={link.path} key={link.path} className="cursor-pointer">
             <p
               className={`px-4 py-2 rounded-md hover:bg-slate-300 hover:text-zinc-600 hover:font-semibold ${
                 activeLink?.path === link.path
