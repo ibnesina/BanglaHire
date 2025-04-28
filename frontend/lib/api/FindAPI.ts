@@ -1,4 +1,4 @@
-import { CategoryWithMatrix } from "@/contracts/types";
+import { TCategoryWithMatrix } from "@/contracts/types";
 import { toast } from "sonner";
 import apiRequest from "./apiRequest";
 
@@ -21,7 +21,7 @@ export const getCategoriesAPI = async () => {
 };
 
 export const getCategoriesWithMatrixAPI = async (): Promise<
-  CategoryWithMatrix[]
+  TCategoryWithMatrix[]
 > => {
   try {
     const response = await apiRequest({
@@ -30,7 +30,7 @@ export const getCategoriesWithMatrixAPI = async (): Promise<
     });
 
     if (response.status === 200) {
-      return response.data as CategoryWithMatrix[];
+      return response.data as TCategoryWithMatrix[];
     } else {
       toast.error(response.data.message || "Failed to fetch categories");
       return [];

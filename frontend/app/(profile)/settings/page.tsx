@@ -1,9 +1,6 @@
-"use client";
 
-import { observer } from "mobx-react";
-
-const Settings = observer(() => {
+const Settings = () => {
   return <main></main>;
-});
+};
 
 export default Settings;

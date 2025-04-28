@@ -23,7 +23,7 @@ const UserDetails = observer(() => {
           
           <div className="flex flex-col">
             <span className="text-gray-500 text-sm">Balance:</span>
-            <span className="font-medium">${user.balance}</span>
+            <span className="font-medium">৳{user.balance}</span>
           </div>
           
           <div className="flex flex-col">
