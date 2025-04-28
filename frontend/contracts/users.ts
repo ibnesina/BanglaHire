@@ -15,16 +15,28 @@ export interface User {
   email_verified_at: string | null; // datetime
   created_at: string; // datetime
   updated_at: string; // datetime
-
-
-
   
-  company?: string | null;
-  averageRating?: number | null;
-  totalSpending?: string | null;
-  totalPosts?: number | null;
-  ongoingProjects?: number | null;
-  paymentVerified?: boolean | null;
+  // company?: string | null;
+  // averageRating?: number | null;
+  // totalSpending?: string | null;
+  // totalPosts?: number | null;
+  // ongoingProjects?: number | null;
+  // paymentVerified?: boolean | null;
+}
+
+export interface Freelancer {
+  freelancer_id: string;
+  bio: string | null;
+  category_id: number | null;
+  skills: string[];
+  experiences: string | null;
+  hourly_rate: number | null;
+  certifications: string[];
+  portfolio_link: string | null;
+  created_at: string;
+  updated_at: string;
+  reviews_avg_rating?: number | null;
+  user: User;
 }
 
 export const userRegistrationSchema = z
