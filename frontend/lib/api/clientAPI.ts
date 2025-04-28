@@ -38,11 +38,11 @@ export const createProjectAPI = async (data: {
 export const getMyProjectsAPI = async () => {
   const response = await apiRequest({
     method: "GET",
-    url: "/clients/my-projects",
+    url: "/my-projects",
   });
 
   if (response.status === 200) {
-    return response.data.projects;
+    return response.data;
   } else if (response.status === 401) {
     toast.error("Unauthorized. Please sign in as a client.");
     return null;
