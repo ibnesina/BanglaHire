@@ -1,7 +1,7 @@
 {
   "createOrUpdateFreelancerProfile": {
-    "method": "POST",
-    "url": "/freelancers/profile",
+    "method": "PUT",
+    "url": "/freelancers",
     "headers": {
       "Authorization": "string (Bearer token - Freelancer only)"
     },

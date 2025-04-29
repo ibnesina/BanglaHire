@@ -171,7 +171,6 @@ class ProjectController extends Controller
 
         $projects = Project::with(['assignedFreelancer', 'category'])
                     ->where('client_id', $clientId)
-                    ->where('status', 'Open')
                     ->get();
 
         return response()->json($projects, 200);

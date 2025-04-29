@@ -81,6 +81,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     // Assigned Projects routes (visible to all authenticated users)
     Route::get('/assignments', [AssignedProjectController::class, 'index']);
     Route::get(RoutePaths::ASSIGNMENTS_SHOW, [AssignedProjectController::class, 'show']);
+    Route::put(RoutePaths::ASSIGNMENTS_SHOW, [AssignedProjectController::class, 'update']);
 
     // Reviews routes
     Route::get('/reviews', [ReviewController::class, 'index']);
@@ -147,8 +148,9 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::delete('/freelancers/{id}', [FreelancerController::class, 'destroy']);
 
         // Bidding
+        Route::get('/freelancer/biddings', [BiddingController::class, 'myBiddings']);
         Route::post('/projects/{project_id}/biddings', [BiddingController::class, 'store']);
-
+        
         // Fetch reviews by freelancer ID for profile views
         Route::get('/freelancer-reviews', [ReviewController::class, 'getByFreelancer']);
 
@@ -159,6 +161,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::get('project-requests', [AssignedProjectRequestController::class, 'index']);
         Route::patch('project-requests/{id}', [AssignedProjectRequestController::class, 'update']);
         Route::get('project-requests/{id}', [AssignedProjectRequestController::class, 'show']);
+        Route::get('/freelancer/assignments', [AssignedProjectController::class, 'myAssignments']);
     });
 
     // Client-only routes
@@ -174,14 +177,13 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::post('/projects', [ProjectController::class, 'store']);
         Route::put(RoutePaths::PROJECT_SHOW, [ProjectController::class, 'update']);
         Route::delete(RoutePaths::PROJECT_SHOW, [ProjectController::class, 'destroy']);
-        Route::get('/projects/my-projects', [ProjectController::class, 'myProjects']);
+        Route::get('/my-projects', [ProjectController::class, 'myProjects']);
 
         // Biddings
         Route::get('/projects/{project_id}/biddings', [BiddingController::class, 'index']);
 
         // Only clients can create, update, or delete assignments (project assignment is done by the client who created the project)
         Route::post('/assignments', [AssignedProjectController::class, 'store']);
-        Route::put(RoutePaths::ASSIGNMENTS_SHOW, [AssignedProjectController::class, 'update']);
         Route::delete(RoutePaths::ASSIGNMENTS_SHOW, [AssignedProjectController::class, 'destroy']);
 
         // Only clients can submit, update, or delete reviews after a project is completed

@@ -7,7 +7,8 @@ interface ApiFetchOptions extends RequestInit {
   data?: unknown;
 }
 
-const HOST = "http://127.0.0.1:8000/api";
+const HOST = process.env.NEXT_PUBLIC_API_HOST;
+
 export default async function apiRequest(meta: ApiFetchOptions) {
   const { url, method = "GET", params, headers, data, ...rest } = meta;
 

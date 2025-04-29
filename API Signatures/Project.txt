@@ -13,7 +13,7 @@
           "description": "string | null",
           "required_skills": ["string"],
           "budget": "number (decimal, e.g., 1000.00)",
-          "status": "'Open' | 'In Progress' | 'Closed'",
+          "status": "'Open' | 'Assigned' | 'Submitted' | 'Closed'",
           "assigned_freelancer_id": "string (UUID) | null",
           "file": "string | null",
           "created_at": "string (datetime)",
@@ -36,7 +36,7 @@
       "description": "string | null",
       "required_skills": ["string"],
       "budget": "number (decimal)",
-      "status": "'Open' | 'In Progress' | 'Closed'",
+      "status": "'Open' | 'Assigned' | 'Submitted' | 'Closed'",
       "assigned_freelancer_id": "string (UUID) | null",
       "file": "string | null",
       "created_at": "string (datetime)",
@@ -183,7 +183,7 @@
   },
   "getMyOpenProjects": {
     "method": "GET",
-    "url": "/clients/my-projects",
+    "url": "/my-projects",
     "headers": {
       "Authorization": "string (Bearer token - Client only)"
     },
@@ -198,7 +198,7 @@
           "description": "string | null",
           "required_skills": ["string"],
           "budget": "number",
-          "status": "'Open'",
+          "status": "'Open' | 'Assigned' | 'Submitted' | 'Closed'",
           "assigned_freelancer_id": "string (UUID) | null",
           "file": "string | null",
           "created_at": "string (datetime)",

@@ -1,5 +1,6 @@
 import { Work } from "@/contracts/posts";
 import { Loader } from "@/components/ui/loader";
+import Link from "next/link";
 
 const WorkComponent = ({
   works,
@@ -51,7 +52,7 @@ const WorkComponent = ({
             ))}
           </div>
 
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center mb-4">
             <div className="text-sm text-gray-500">
               <span className="font-medium text-gray-700">
                 {work.category.name}
@@ -70,6 +71,12 @@ const WorkComponent = ({
               {work.status}
             </span>
           </div>
+          
+          <Link href={`/bidding/${work.id}`}>
+            <button className="w-full px-4 py-2 bg-slate-500 text-white rounded-md hover:bg-slate-600 transition-colors text-sm font-medium cursor-pointer">
+              View Details & Bid
+            </button>
+          </Link>
         </div>
       ))}
     </div>
