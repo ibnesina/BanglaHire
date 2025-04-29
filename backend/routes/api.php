@@ -209,7 +209,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         
         // Add Balance
         Route::post('/add-balance', [PaymentController::class, 'process'])
-        ->name('api.addBalance.process');
+            ->name('api.addBalance.process');
 
         // SSLCommerz IPN callback
         Route::post('/add-balance/ssl-ipn', [PaymentController::class, 'sslIpn'])
