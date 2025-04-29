@@ -15,6 +15,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 class AuthController extends Controller
 {
@@ -73,28 +74,35 @@ class AuthController extends Controller
     }
 
     // Email Verification
-    public function emailVerification($id, $hash) {
+    public function emailVerification($id, $hash)
+    {
         $user = User::findOrFail($id);
-        
-        // Check if the hash is valid for the given user's email
-        // if (! hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
-        if (! hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
-            return redirect()->away(config('app.frontend_url')
-               . '/email-verification?error=Invalid verification link.');
+
+        $expected = hash_hmac(
+            'sha256',
+            $user->getEmailForVerification(),
+            config('app.key')
+        );
+
+        if (! hash_equals($expected, (string) $hash)) {
+            return redirect()
+                ->away(config('app.frontend_url')
+                . '/email-verification?error=Invalid verification link.');
         }
-            
-    
-        // If already verified, just redirect with a message
+
         if ($user->hasVerifiedEmail()) {
-            return redirect()->away(config('app.frontend_url') . '/email-verification?message=Email already verified.');
+            return redirect()
+                ->away(config('app.frontend_url')
+                . '/email-verification?message=Email already verified.');
         }
-        
-        // Mark the user's email as verified
+
         $user->markEmailAsVerified();
-        
-        // Redirect to the frontend route with a success message
-        return redirect()->away(config('app.frontend_url') . '/email-verification?message=Email verified successfully.');
+
+        return redirect()
+            ->away(config('app.frontend_url')
+            . '/email-verification?message=Email verified successfully.');
     }
+
 
     // Login the user and return their info along with associated role data
     public function login(Request $request) {
