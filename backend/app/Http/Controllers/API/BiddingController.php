@@ -20,6 +20,18 @@ class BiddingController extends Controller
         return response()->json($biddings, 200);
     }
 
+    // Show all biddings placed by the authenticated freelancer
+    public function myBiddings()
+    {
+        $freelancerId = Auth::id();
+        $biddings = Bidding::where('freelancer_id', $freelancerId)
+                        ->with(['project.client', 'project.category'])
+                        ->get();
+
+        return response()->json($biddings, 200);
+    }
+
+
     // Freelancer places a bid
     public function store(Request $request, $projectId)
     {

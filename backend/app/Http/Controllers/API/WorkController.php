@@ -27,42 +27,47 @@ class WorkController extends Controller
     {
         $user = Auth::user();
 
-        // Base query with eager loads; exclude projects the freelancer has already bid on
-        $query = Project::with(['client', 'category', 'biddings'])
+        // 1) Base query, exclude already-bid projects for freelancers
+        $query = Project::with(['client', 'category'])
             ->when(
-                optional($user)->type === 'Freelancer',
-                fn($q) => $q->whereDoesntHave('biddings', fn($qb) =>
-                    $qb->where('freelancer_id', Auth::id())
-                )
+                $user && $user->type === 'Freelancer',
+                function($q) use ($user) {
+                    $q->whereDoesntHave('biddings', function($qb) use ($user) {
+                        $qb->where('freelancer_id', $user->id);
+                    });
+                }
             );
 
-        // If filtering by category, validate first
+        // 2) Category filter (early return on 404)
         if ($request->filled('category_id')) {
-            $categoryId = $request->input('category_id');
-            if (! Category::find($categoryId)) {
+            $cat = Category::find($request->input('category_id'));
+            if (! $cat) {
                 return response()->json(['message' => 'Category not found'], 404);
             }
-            $query->where('category_id', $categoryId);
+            $query->where('category_id', $cat->id);
         }
 
-        // Decide whether to sort by skills or by recency
+        // 3) If skills are provided, do best‐match sorting
         if ($request->filled('skills')) {
-            $requestedSkills = array_map('trim', explode(',', $request->input('skills')));
-            $projects = $query->get()->sort(function ($a, $b) use ($requestedSkills) {
-                $aOverlap = $this->countSkillOverlap($a->required_skills, $requestedSkills);
-                $bOverlap = $this->countSkillOverlap($b->required_skills, $requestedSkills);
-                if ($bOverlap !== $aOverlap) {
-                    return $bOverlap <=> $aOverlap;
+            $skills = array_map('trim', explode(',', $request->input('skills')));
+            $projects = $query->get()->sort(function($a, $b) use ($skills) {
+                $aCnt = $this->countSkillOverlap($a->required_skills, $skills);
+                $bCnt = $this->countSkillOverlap($b->required_skills, $skills);
+                if ($bCnt !== $aCnt) {
+                    return $bCnt <=> $aCnt;
                 }
                 return $b->created_at <=> $a->created_at;
             })->values();
-        } else {
-            // No skills filter: limit to 20 most recent if no category, else all in category
-            $projects = $query
-                ->orderBy('created_at', 'desc')
-                ->when(! $request->filled('category_id'), fn($q) => $q->limit(20))
-                ->get();
+
+            return response()->json($projects, 200);
         }
+
+        // 4) No skills filter: return recent projects
+        //    – limit 20 if no category, else all in category
+        $projects = $query
+            ->orderBy('created_at', 'desc')
+            ->when(! $request->filled('category_id'), fn($q) => $q->limit(20))
+            ->get();
 
         return response()->json($projects, 200);
     }
