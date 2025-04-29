@@ -1,0 +1,81 @@
+{
+  "addBalance": {
+    "method": "POST",
+    "url": "/add-balance",
+    "headers": { "Authorization": "Bearer <token>" },
+    "request": {
+      "amount": "number (required, ≥100)",
+      "payment_method": "'sslcommerz' | 'stripe' (required)"
+    },
+    "response": {
+      "transaction_id": "string",
+      "checkout_url": "string"
+    },
+    "errors": {
+      "401": { "message": "Unauthorized" },
+      "422": { "message": "Validation errors" },
+      "500": { "message": "SSLCommerz init failed: <reason>" }
+    }
+  },
+
+  "sslIpn": {
+    "method": "POST",
+    "url": "/add-balance/ssl-ipn",
+    "response": {
+      "message": "'Completed' | 'Validation failed' | 'Invalid or duplicate IPN'"
+    },
+    "errors": {
+      "400": { "message": "Invalid or duplicate IPN" }
+    }
+  },
+
+  "sslSuccess": {
+    "method": "GET|POST",
+    "url": "/add-balance/ssl-success",
+    "response": {
+      "message": "Payment successful",
+      "amount": "number",
+      "currency": "string",
+      "transaction_id": "string"
+    },
+    "errors": {
+      "400": { "message": "Payment validation failed" }
+    }
+  },
+
+  "sslFail": {
+    "method": "POST",
+    "url": "/add-balance/ssl-fail",
+    "response": { "message": "Payment failed or cancelled" }
+  },
+
+  "sslCancel": {
+    "method": "POST",
+    "url": "/add-balance/ssl-cancel",
+    "response": { "message": "Payment cancelled" }
+  },
+
+  "stripeSuccess": {
+    "method": "GET",
+    "url": "/add-balance/stripe-success",
+    "query_params": { "session_id": "string (required)" },
+    "response": {
+      "message": "Payment successful",
+      "amount": "number",
+      "currency": "string",
+      "transaction_id": "string"
+    },
+    "errors": {
+      "400": { 
+        "no_session": "No session_id provided",
+        "not_paid": "Payment not completed"
+      }
+    }
+  },
+
+  "stripeCancel": {
+    "method": "GET",
+    "url": "/add-balance/stripe-cancel",
+    "response": { "message": "Payment cancelled" }
+  }
+}
