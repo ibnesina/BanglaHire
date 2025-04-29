@@ -1,18 +1,17 @@
 "use client";
 import { Loader } from "@/components/ui/loader";
 import { Bidding } from "@/contracts/posts";
-import { getBiddingsAPI } from "@/lib/api/bidAPI";
+import { createAssignmentAPI, getAssignmentAPI, getBiddingsAPI } from "@/lib/api/bidAPI";
 import { getProjectByIdAPI } from "@/lib/api/clientAPI";
 import { formatDate } from "@/lib/utils";
-import { useQuery } from "@tanstack/react-query";
-import { useParams } from "next/navigation";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { toast } from "sonner";
-
-
-
 
 export default function ProjectDetails() {
   const { project_id } = useParams();
+  const router = useRouter();
 
   const {
     data: project,
@@ -33,6 +32,40 @@ export default function ProjectDetails() {
     queryFn: () => getBiddingsAPI(Number(project_id)),
     enabled: !!project_id && project?.status === "Open",
   });
+
+  const {
+    data: assignment,
+    isLoading: assignmentLoading,
+    error: assignmentError,
+  } = useQuery({
+    queryKey: ["assignment", project_id],
+    queryFn: () => getAssignmentAPI(Number(project_id)),
+    enabled: !!project_id && project?.status === "Assigned",
+  });
+
+  useEffect(() => {
+    console.log(assignment)
+  }, [assignment]);
+
+  const assignFreelancerMutation = useMutation({
+    mutationFn: (data: { project_id: number; freelancer_id: string }) =>
+      createAssignmentAPI(data),
+    onSuccess: () => {
+      toast.success("Freelancer assigned successfully");
+      router.refresh();
+    },
+    onError: (error) => {
+      toast.error("Failed to assign freelancer");
+      console.error(error);
+    },
+  });
+
+  const handleApproveBid = (bid: Bidding) => {
+    assignFreelancerMutation.mutate({
+      project_id: Number(project_id),
+      freelancer_id: bid.freelancer_id,
+    });
+  };
 
   if (projectLoading) {
     return (
@@ -136,48 +169,72 @@ export default function ProjectDetails() {
           </div>
 
           {/* Assigned Freelancer */}
-          {project.assigned_freelancer && (
-            <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-              <h3 className="text-xl font-semibold mb-3 text-gray-800 border-b pb-2">
-                Assigned Freelancer
+          {assignment && (
+            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+              <h3 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2">
+                Assignment Details
               </h3>
-              <div className="flex items-center gap-3 mt-4">
-                <div className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white h-12 w-12 rounded-full flex items-center justify-center font-bold shadow-md">
-                  {project.assigned_freelancer.name.charAt(0)}
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Freelancer Information */}
+                <div className="bg-blue-50 p-4 rounded-md">
+                  <h4 className="font-semibold text-blue-800 mb-3">Assigned Freelancer</h4>
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white h-12 w-12 rounded-full flex items-center justify-center font-bold shadow-md">
+                      {assignment.freelancer.bio?.charAt(0) || "F"}
+                    </div>
+                    <div>
+                      <p className="font-medium text-lg">Freelancer</p>
+                      <p className="text-gray-600 text-sm">{assignment.freelancer.bio}</p>
+                    </div>
+                  </div>
+                  <div className="mt-3 space-y-2">
+                    <p className="text-sm"><span className="font-medium">Skills:</span> {JSON.parse(assignment.freelancer.skills || '[]').join(', ')}</p>
+                    <p className="text-sm"><span className="font-medium">Hourly Rate:</span> ৳{parseFloat(assignment.freelancer.hourly_rate).toFixed(2)}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-medium text-lg">
-                    {project.assigned_freelancer.name}
-                  </p>
-                  <p className="text-gray-500 text-sm">Freelancer</p>
+                
+                {/* Assignment Status */}
+                <div className="bg-gray-50 p-4 rounded-md">
+                  <h4 className="font-semibold text-gray-800 mb-3">Assignment Status</h4>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600">Status:</span>
+                      <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                        {assignment.status}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600">Payment:</span>
+                      <span className="bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-sm font-medium">
+                        {assignment.payment_status} - ৳{parseFloat(assignment.payment_amount).toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600">Assigned Date:</span>
+                      <span className="text-gray-800">{formatDate(assignment.assigned_date)}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600">Deadline:</span>
+                      <span className="text-gray-800 font-medium">{formatDate(assignment.deadline)}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
-
-          {/* Attachments */}
-          {project.file && (
-            <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-              <h3 className="text-xl font-semibold mb-3 text-gray-800 border-b pb-2">
-                Attachments
-              </h3>
-              <a
-                href={project.file}
-                className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-md mt-2 transition-colors shadow-sm"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  viewBox="0 0 16 16"
-                >
-                  <path d="M4.5 3a2.5 2.5 0 0 1 5 0v9a1.5 1.5 0 0 1-3 0V5a.5.5 0 0 1 1 0v7a.5.5 0 0 0 1 0V3a1.5 1.5 0 1 0-3 0v9a2.5 2.5 0 0 0 5 0V5a.5.5 0 0 1 1 0v7a3.5 3.5 0 1 1-7 0V3z" />
-                </svg>
-                View Attachment
-              </a>
+              
+              {/* Client Information */}
+              <div className="mt-4 border-t pt-4">
+                <h4 className="font-semibold text-gray-800 mb-2">Client Information</h4>
+                <div className="flex items-center gap-3">
+                  <div className="bg-gradient-to-r from-green-500 to-teal-600 text-white h-10 w-10 rounded-full flex items-center justify-center font-bold shadow-sm">
+                    {assignment.client.company_name?.charAt(0) || "C"}
+                  </div>
+                  <div>
+                    <p className="font-medium">{assignment.client.company_name}</p>
+                    <p className="text-gray-500 text-sm">Payment verified: {assignment.client.payment_method_verified ? "Yes" : "No"}</p>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 
@@ -211,10 +268,10 @@ export default function ProjectDetails() {
                       <div className="flex justify-between mb-2">
                         <div className="flex items-center gap-2">
                           <div className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white h-8 w-8 rounded-full flex items-center justify-center font-bold">
-                            {bid.freelancer?.name?.charAt(0) || "F"}
+                            {bid.freelancer.user?.name?.charAt(0) || "F"}
                           </div>
                           <span className="font-medium">
-                            {bid.freelancer?.name || "Freelancer"}
+                            {bid.freelancer.user?.name || "Freelancer"}
                           </span>
                         </div>
                         <span className="text-green-600 font-semibold bg-green-50 px-3 py-1 rounded-full">
@@ -230,14 +287,9 @@ export default function ProjectDetails() {
                         </p>
                         <div className="flex gap-2">
                           <button
-                            className="bg-green-100 hover:bg-green-200 text-green-700 px-4 py-1.5 rounded-md text-sm font-medium transition-colors flex items-center gap-1"
-                            onClick={() =>
-                              toast.success(
-                                `Approved bid from ${
-                                  bid.freelancer.name || "Freelancer"
-                                }`
-                              )
-                            }
+                            className="bg-green-100 hover:bg-green-200 text-green-700 px-4 py-1.5 rounded-md text-sm font-medium transition-colors flex items-center gap-1 cursor-pointer"
+                            onClick={() => handleApproveBid(bid)}
+                            disabled={assignFreelancerMutation.isPending}
                           >
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
@@ -252,11 +304,11 @@ export default function ProjectDetails() {
                             Approve
                           </button>
                           <button
-                            className="bg-red-100 hover:bg-red-200 text-red-700 px-4 py-1.5 rounded-md text-sm font-medium transition-colors flex items-center gap-1"
+                            className="bg-red-100 hover:bg-red-200 text-red-700 px-4 py-1.5 rounded-md text-sm font-medium transition-colors flex items-center gap-1 cursor-pointer"
                             onClick={() =>
                               toast.error(
                                 `Rejected bid from ${
-                                  bid.freelancer.name || "Freelancer"
+                                  bid.freelancer.user.name || "Freelancer"
                                 }`
                               )
                             }
