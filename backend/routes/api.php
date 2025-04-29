@@ -148,8 +148,9 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::delete('/freelancers/{id}', [FreelancerController::class, 'destroy']);
 
         // Bidding
+        Route::get('/freelancer/biddings', [BiddingController::class, 'myBiddings']);
         Route::post('/projects/{project_id}/biddings', [BiddingController::class, 'store']);
-
+        
         // Fetch reviews by freelancer ID for profile views
         Route::get('/freelancer-reviews', [ReviewController::class, 'getByFreelancer']);
 
@@ -160,6 +161,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::get('project-requests', [AssignedProjectRequestController::class, 'index']);
         Route::patch('project-requests/{id}', [AssignedProjectRequestController::class, 'update']);
         Route::get('project-requests/{id}', [AssignedProjectRequestController::class, 'show']);
+        Route::get('/freelancer/assignments', [AssignedProjectController::class, 'myAssignments']);
     });
 
     // Client-only routes
