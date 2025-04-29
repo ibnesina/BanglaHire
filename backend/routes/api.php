@@ -18,6 +18,7 @@ use App\Http\Controllers\API\TalentController;
 use App\Http\Controllers\API\WorkController;
 
 use App\Constants\RoutePaths;
+use App\Http\Controllers\API\PaymentController;
 use App\Http\Controllers\API\WithdrawRequestController;
 
 // Public Routes
@@ -204,6 +205,29 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 
         // Project Request creation
         Route::post('project-requests', [AssignedProjectRequestController::class, 'store']);
+
+        
+        // Add Balance
+        Route::post('/add-balance', [PaymentController::class, 'process'])
+        ->name('api.addBalance.process');
+
+        // SSLCommerz IPN callback
+        Route::post('/add-balance/ssl-ipn', [PaymentController::class, 'sslIpn'])
+            ->name('api.addBalance.ssl-ipn');
+
+        // SSLCommerz user-redirect callbacks
+        Route::match(['get','post'], '/add-balance/ssl-success', [PaymentController::class, 'sslSuccess'])
+            ->name('api.addBalance.ssl-success');
+        Route::post('/add-balance/ssl-fail', [PaymentController::class, 'sslFail'])
+            ->name('api.addBalance.ssl-fail');
+        Route::post('/add-balance/ssl-cancel', [PaymentController::class, 'sslCancel'])
+            ->name('api.addBalance.ssl-cancel');
+
+        // Stripe user-redirect callbacks
+        Route::get('/add-balance/stripe-success', [PaymentController::class, 'stripeSuccess'])
+            ->name('api.addBalance.stripe-success');
+        Route::get('/add-balance/stripe-cancel', [PaymentController::class, 'stripeCancel'])
+            ->name('api.addBalance.stripe-cancel');
     });
 
 });
