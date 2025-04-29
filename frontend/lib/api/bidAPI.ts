@@ -147,7 +147,7 @@ export const getMyAssignmentsAPI = async () => {
 export const updateAssignmentAPI = async (
   projectId: number,
   data: {
-    status?: 'Assigned' | 'Submitted' | 'In Progress' | 'Completed' | 'Canceled';
+    status?: 'Assigned' | 'Submitted' | 'Completed' | 'Canceled';
     completion_date?: string | null;
     review_id?: number | null;
   }
