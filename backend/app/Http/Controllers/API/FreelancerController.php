@@ -18,67 +18,55 @@ class FreelancerController extends Controller
 
     public function store(Request $request)
     {
-        // Validate the incoming request.
+        // 1) Guard: must be an authenticated Freelancer
+        $user = Auth::user();
+        if (! $user || $user->type !== 'Freelancer') {
+            return response()->json([
+                'message' => 'Unauthorized. Only freelancers can create/update profiles.'
+            ], 403);
+        }
+
+        // 2) Validate inputs, reusing NULLABLE_STRING
         $data = $request->validate([
-            'bio'             => self::NULLABLE_STRING,
-            'category_id'     => 'required|exists:categories,id',
-            'skills'          => 'nullable|array',
-            'experiences'     => self::NULLABLE_STRING,
-            'hourly_rate'     => 'nullable|numeric|min:0',
-            'certifications'  => 'nullable|array',
-            'portfolio_link'  => self::NULLABLE_STRING,
+            'bio'            => self::NULLABLE_STRING,
+            'category_id'    => 'required|exists:categories,id',
+            'skills'         => 'nullable|array',
+            'experiences'    => self::NULLABLE_STRING,
+            'hourly_rate'    => 'nullable|numeric|min:0',
+            'certifications' => 'nullable|array',
+            'portfolio_link' => self::NULLABLE_STRING,
         ]);
 
-        // Check for a logged-in user.
-        $user = Auth::user();
-        if (!$user) {
-            Log::error("Unauthorized access attempt to freelancer store.");
-            return response()->json(['message' => 'Unauthorized. Please log in.'], 401);
-        }
-        if ($user->type !== 'Freelancer') {
-            return response()->json(['message' => 'Unauthorized. Only freelancers can create profiles.'], 403);
-        }
-
-        // Validate that the provided category exists.
-        $category = Category::find($data['category_id']);
-        if (!$category) {
-            return response()->json(['message' => 'Category not found.'], 404);
+        // 3) Skill‐subset check (single return if it fails)
+        $category     = Category::find($data['category_id']); // exists:categories ensures this
+        $invalidSkill = $this->findInvalidSkill($data['skills'] ?? [], $category->skills);
+        if ($invalidSkill) {
+            return response()->json([
+                'message' => "Invalid skill selection: {$invalidSkill}. Please choose only from the available skills for the selected category."
+            ], 422);
         }
 
-        // Validate skills (if provided) against the category's available skills.
-        if (!empty($data['skills']) && is_array($data['skills'])) {
-            $invalidSkill = $this->findInvalidSkill($data['skills'], $category->skills);
-            if ($invalidSkill) {
-                return response()->json([
-                    'message' => 'Invalid skill selection: ' . $invalidSkill . '. Please choose from the available skills for the selected category.'
-                ], 422);
-            }
-        }
+        // 4) Create-or-update in one call
+        $freelancer = Freelancer::updateOrCreate(
+            ['freelancer_id' => $user->id],
+            [
+                'bio'             => $data['bio'] ?? null,
+                'category_id'     => $data['category_id'],
+                'skills'          => $data['skills'] ?? null,
+                'experiences'     => $data['experiences'] ?? null,
+                'hourly_rate'     => $data['hourly_rate'] ?? null,
+                'certifications'  => $data['certifications'] ?? null,
+                'portfolio_link'  => $data['portfolio_link'] ?? null,
+            ]
+        );
 
-        // Retrieve or create the freelancer profile.
-        $freelancer = Freelancer::where('freelancer_id', $user->id)->first();
-        $profileData = [
-            'bio'             => $data['bio'] ?? null,
-            'category_id'     => $data['category_id'],
-            'skills'          => $data['skills'] ?? null,
-            'experiences'     => $data['experiences'] ?? null,
-            'hourly_rate'     => $data['hourly_rate'] ?? null,
-            'certifications'  => $data['certifications'] ?? null,
-            'portfolio_link'  => $data['portfolio_link'] ?? null,
-        ];
-
-        if ($freelancer) {
-            $freelancer->update($profileData);
-        } else {
-            $profileData['freelancer_id'] = $user->id;
-            $freelancer = Freelancer::create($profileData);
-        }
-
+        // 5) Final success return
         return response()->json([
             'message'    => 'Freelancer profile updated successfully.',
             'freelancer' => $freelancer
-        ]);
+        ], 200);
     }
+    
 
     /**
      * Checks the list of provided skills against the available skills.
