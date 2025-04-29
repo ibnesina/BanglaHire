@@ -106,3 +106,21 @@ export const getAssignmentAPI = async (projectId: number) => {
     return null;
   }
 };
+
+
+export const getMyBiddingsAPI = async () => {
+  const response = await apiRequest({
+    method: "GET",
+    url: "/freelancer/biddings",
+  });
+
+  if (response.status === 200) {
+    return response.data;
+  } else if (response.status === 401) {
+    toast.error("Unauthorized. Please sign in as a freelancer.");
+    return null;
+  } else {
+    toast.error(response.data.message || "Failed to retrieve your biddings");
+    return null;
+  }
+};

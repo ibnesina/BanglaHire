@@ -1,7 +1,11 @@
 "use client";
 import { Loader } from "@/components/ui/loader";
 import { Bidding } from "@/contracts/posts";
-import { createAssignmentAPI, getAssignmentAPI, getBiddingsAPI } from "@/lib/api/bidAPI";
+import {
+  createAssignmentAPI,
+  getAssignmentAPI,
+  getBiddingsAPI,
+} from "@/lib/api/bidAPI";
 import { getProjectByIdAPI } from "@/lib/api/clientAPI";
 import { formatDate } from "@/lib/utils";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -33,18 +37,14 @@ export default function ProjectDetails() {
     enabled: !!project_id && project?.status === "Open",
   });
 
-  const {
-    data: assignment,
-    isLoading: assignmentLoading,
-    error: assignmentError,
-  } = useQuery({
+  const { data: assignment } = useQuery({
     queryKey: ["assignment", project_id],
     queryFn: () => getAssignmentAPI(Number(project_id)),
     enabled: !!project_id && project?.status === "Assigned",
   });
 
   useEffect(() => {
-    console.log(assignment)
+    console.log(assignment);
   }, [assignment]);
 
   const assignFreelancerMutation = useMutation({
@@ -174,29 +174,43 @@ export default function ProjectDetails() {
               <h3 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2">
                 Assignment Details
               </h3>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Freelancer Information */}
                 <div className="bg-blue-50 p-4 rounded-md">
-                  <h4 className="font-semibold text-blue-800 mb-3">Assigned Freelancer</h4>
+                  <h4 className="font-semibold text-blue-800 mb-3">
+                    Assigned Freelancer
+                  </h4>
                   <div className="flex items-center gap-3 mb-3">
                     <div className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white h-12 w-12 rounded-full flex items-center justify-center font-bold shadow-md">
                       {assignment.freelancer.bio?.charAt(0) || "F"}
                     </div>
                     <div>
                       <p className="font-medium text-lg">Freelancer</p>
-                      <p className="text-gray-600 text-sm">{assignment.freelancer.bio}</p>
+                      <p className="text-gray-600 text-sm">
+                        {assignment.freelancer.bio}
+                      </p>
                     </div>
                   </div>
                   <div className="mt-3 space-y-2">
-                    <p className="text-sm"><span className="font-medium">Skills:</span> {JSON.parse(assignment.freelancer.skills || '[]').join(', ')}</p>
-                    <p className="text-sm"><span className="font-medium">Hourly Rate:</span> ৳{parseFloat(assignment.freelancer.hourly_rate).toFixed(2)}</p>
+                    <p className="text-sm">
+                      <span className="font-medium">Skills:</span>{" "}
+                      {JSON.parse(assignment.freelancer.skills || "[]").join(
+                        ", "
+                      )}
+                    </p>
+                    <p className="text-sm">
+                      <span className="font-medium">Hourly Rate:</span> ৳
+                      {parseFloat(assignment.freelancer.hourly_rate).toFixed(2)}
+                    </p>
                   </div>
                 </div>
-                
+
                 {/* Assignment Status */}
                 <div className="bg-gray-50 p-4 rounded-md">
-                  <h4 className="font-semibold text-gray-800 mb-3">Assignment Status</h4>
+                  <h4 className="font-semibold text-gray-800 mb-3">
+                    Assignment Status
+                  </h4>
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600">Status:</span>
@@ -207,31 +221,43 @@ export default function ProjectDetails() {
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600">Payment:</span>
                       <span className="bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-sm font-medium">
-                        {assignment.payment_status} - ৳{parseFloat(assignment.payment_amount).toFixed(2)}
+                        {assignment.payment_status} - ৳
+                        {parseFloat(assignment.payment_amount).toFixed(2)}
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600">Assigned Date:</span>
-                      <span className="text-gray-800">{formatDate(assignment.assigned_date)}</span>
+                      <span className="text-gray-800">
+                        {formatDate(assignment.assigned_date)}
+                      </span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600">Deadline:</span>
-                      <span className="text-gray-800 font-medium">{formatDate(assignment.deadline)}</span>
+                      <span className="text-gray-800 font-medium">
+                        {formatDate(assignment.deadline)}
+                      </span>
                     </div>
                   </div>
                 </div>
               </div>
-              
+
               {/* Client Information */}
               <div className="mt-4 border-t pt-4">
-                <h4 className="font-semibold text-gray-800 mb-2">Client Information</h4>
+                <h4 className="font-semibold text-gray-800 mb-2">
+                  Client Information
+                </h4>
                 <div className="flex items-center gap-3">
                   <div className="bg-gradient-to-r from-green-500 to-teal-600 text-white h-10 w-10 rounded-full flex items-center justify-center font-bold shadow-sm">
                     {assignment.client.company_name?.charAt(0) || "C"}
                   </div>
                   <div>
-                    <p className="font-medium">{assignment.client.company_name}</p>
-                    <p className="text-gray-500 text-sm">Payment verified: {assignment.client.payment_method_verified ? "Yes" : "No"}</p>
+                    <p className="font-medium">
+                      {assignment.client.company_name}
+                    </p>
+                    <p className="text-gray-500 text-sm">
+                      Payment verified:{" "}
+                      {assignment.client.payment_method_verified ? "Yes" : "No"}
+                    </p>
                   </div>
                 </div>
               </div>
