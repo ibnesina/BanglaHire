@@ -1,11 +1,11 @@
 {
-  "getBiddings": {
+  "getProjectBiddings": {
     "method": "GET",
     "url": "/projects/{project_id}/biddings",
     "url_params": {
       "project_id": "number"
     },
-    "description": "Retrieves all biddings placed on a specific project, including freelancer details.",
+    "description": "Retrieves all bids placed on a specific project, including each freelancer’s profile and user details.",
     "response": {
       "biddings": [
         {
@@ -13,20 +13,17 @@
           "project_id": "number",
           "freelancer_id": "string (UUID)",
           "cover_letter": "string | null",
-          "bidding_amount": "number (decimal, e.g., 500.00)",
+          "bidding_amount": "number (decimal, e.g. 500.00)",
           "created_at": "string (datetime)",
           "updated_at": "string (datetime)",
           "freelancer": {
             "freelancer_id": "string (UUID)",
             "bio": "string | null",
-            "category_id": "number | null",
             "skills": ["string"],
             "experiences": "string | null",
             "hourly_rate": "number | null",
-            "certifications": ["string"],
+            "certifications": ["string"] | null,
             "portfolio_link": "string | null",
-            "created_at": "string (datetime)",
-            "updated_at": "string (datetime)",
             "user": {
               "id": "string (UUID)",
               "name": "string",
@@ -36,22 +33,62 @@
           }
         }
       ]
+    },
+    "error": {
+      "not_found": {
+        "message": "Project not found"
+      }
+    }
+  },
+
+  "getMyBiddings": {
+    "method": "GET",
+    "url": "/freelancer/biddings",
+    "headers": {
+      "Authorization": "string (Bearer token - Freelancer only)"
+    },
+    "description": "Retrieves all bids placed by the authenticated freelancer, including project details.",
+    "response": {
+      "biddings": [
+        {
+          "id": "number",
+          "project_id": "number",
+          "freelancer_id": "string (UUID)",
+          "cover_letter": "string | null",
+          "bidding_amount": "number",
+          "created_at": "string (datetime)",
+          "updated_at": "string (datetime)",
+          "project": {
+            "id": "number",
+            "title": "string",
+            "description": "string | null",
+            "client_id": "string (UUID)",
+            "category_id": "number",
+            "required_skills": ["string"],
+            "budget": "number",
+            "status": "string",
+            "assigned_freelancer_id": "string (UUID) | null",
+            "file": "string | null"
+          }
+        }
+      ]
     }
   },
 
   "createBidding": {
     "method": "POST",
     "url": "/projects/{project_id}/biddings",
-    "headers": {
-      "Authorization": "string (Bearer token - Freelancer only)"
-    },
     "url_params": {
       "project_id": "number"
     },
+    "headers": {
+      "Authorization": "string (Bearer token - Freelancer only)"
+    },
     "request": {
       "cover_letter": "string (required)",
-      "bidding_amount": "number (required, e.g., 500.00)"
+      "bidding_amount": "number (required, e.g. 500.00)"
     },
+    "description": "Places a new bid on the specified project.",
     "response": {
       "id": "number",
       "project_id": "number",
@@ -64,8 +101,8 @@
     "error": {
       "validation_error": {
         "errors": {
-          "cover_letter": ["string"],
-          "bidding_amount": ["string"]
+          "cover_letter": ["required", "string"],
+          "bidding_amount": ["required", "numeric"]
         }
       },
       "unauthorized": {
@@ -76,29 +113,30 @@
       }
     },
     "additional_comments": [
-      "Freelancers can only place a bid if authenticated.",
-      "Each bid is associated with a specific project and freelancer."
+      "Only authenticated freelancers can place bids.",
+      "Each bid must include a cover letter and bidding amount."
     ]
   },
 
   "updateBidding": {
     "method": "PUT",
     "url": "/biddings/{id}",
-    "headers": {
-      "Authorization": "string (Bearer token - Freelancer who owns the bid)"
-    },
     "url_params": {
       "id": "number"
+    },
+    "headers": {
+      "Authorization": "string (Bearer token - Freelancer only)"
     },
     "request": {
       "cover_letter": "string (optional)",
       "bidding_amount": "number (optional)"
     },
+    "description": "Updates an existing bid. Only the owner of the bid may update it.",
     "response": {
       "id": "number",
       "project_id": "number",
       "freelancer_id": "string (UUID)",
-      "cover_letter": "string",
+      "cover_letter": "string | null",
       "bidding_amount": "number",
       "created_at": "string (datetime)",
       "updated_at": "string (datetime)"
@@ -107,7 +145,7 @@
       "validation_error": {
         "errors": {
           "cover_letter": ["string"],
-          "bidding_amount": ["string"]
+          "bidding_amount": ["numeric"]
         }
       },
       "unauthorized": {
@@ -118,8 +156,8 @@
       }
     },
     "additional_comments": [
-      "Freelancers can only update their own bids.",
-      "Fields are optional but must respect the validation rules if provided."
+      "Fields are optional but must follow validation rules if present.",
+      "Freelancers can only update their own bids."
     ]
   }
 }
