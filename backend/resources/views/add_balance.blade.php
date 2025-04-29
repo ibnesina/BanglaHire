@@ -67,7 +67,7 @@
 
     <!-- Payment Method -->
     <div class="mb-4">
-      <label class="form-label d-block mb-2">Payment Method</label>
+      <span class="form-label d-block mb-2">Payment Method</span>
       <fieldset class="btn-group btn-payment-method d-flex">
         <legend class="visually-hidden">Select Payment Method</legend>
 
