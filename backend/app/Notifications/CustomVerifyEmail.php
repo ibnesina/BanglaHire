@@ -3,51 +3,51 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Auth\Notifications\VerifyEmail as BaseVerify;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
-use Illuminate\Auth\Notifications\VerifyEmail as VerifyEmailBase;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\URL;
 
-class CustomVerifyEmail extends VerifyEmailBase
+class CustomVerifyEmail extends BaseVerify
 {
     use Queueable;
 
     /**
-     * Create a new notification instance.
+     * Build the verification URL using HMAC-SHA256.
      */
-    public function __construct()
+    protected function verificationUrl($notifiable)
     {
-        //
+        $expiration = Carbon::now()
+            ->addMinutes(config('auth.verification.expire', 60));
+
+        $hash = hash_hmac(
+            'sha256',
+            $notifiable->getEmailForVerification(),
+            config('app.key')
+        );
+
+        return URL::temporarySignedRoute(
+            'verification.verify',
+            $expiration,
+            [
+                'id'   => $notifiable->getKey(),
+                'hash' => $hash,
+            ]
+        );
     }
 
     /**
-     * Get the mail representation of the notification.
+     * Send your custom Blade template.
      */
     public function toMail($notifiable)
     {
         $verificationUrl = $this->verificationUrl($notifiable);
 
-        // Custom Blade view version:
         return (new MailMessage)
+            ->subject('Please Confirm Your Email Address')
             ->view('emails.verify-email', [
+                'user'            => $notifiable,
                 'verificationUrl' => $verificationUrl,
-                'user' => $notifiable, // Instead of $this->user, use $notifiable
-            ])
-            ->subject('Please Confirm Your Email Address');
-
-        // Alternatively, if you don’t need a custom view, you can simply return buildMailMessage($verificationUrl)
-        // return $this->buildMailMessage($verificationUrl);
-    }
-
-    /**
-     * Get the array representation of the notification.
-     *
-     * @return array<string, mixed>
-     */
-    public function toArray(object $notifiable): array
-    {
-        return [
-            //
-        ];
+            ]);
     }
 }
