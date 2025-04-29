@@ -13,9 +13,24 @@ class BiddingController extends Controller
     // Show all biddings for a project (optional)
     public function index($projectId)
     {
-        $biddings = Bidding::where('project_id', $projectId)->with('freelancer')->get();
+        $biddings = Bidding::where('project_id', $projectId)
+                        ->with(['freelancer', 'freelancer.user'])
+                        ->get();
+
         return response()->json($biddings, 200);
     }
+
+    // Show all biddings placed by the authenticated freelancer
+    public function myBiddings()
+    {
+        $freelancerId = Auth::id();
+        $biddings = Bidding::where('freelancer_id', $freelancerId)
+                        ->with(['project.client', 'project.category'])
+                        ->get();
+
+        return response()->json($biddings, 200);
+    }
+
 
     // Freelancer places a bid
     public function store(Request $request, $projectId)

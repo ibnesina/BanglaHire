@@ -21,9 +21,12 @@ class AssignedProjectController extends Controller
     }
 
     // Show a single assignment by ID
-    public function show($id)
+    public function show($projectId)
     {
-        $assignment = AssignedProject::with(['project', 'client', 'freelancer', 'review'])->findOrFail($id);
+        $assignment = AssignedProject::where('project_id', $projectId)
+                                    ->with(['project', 'client', 'freelancer', 'review'])
+                                    ->firstOrFail();
+
         return response()->json($assignment, 200);
     }
 
@@ -80,87 +83,100 @@ class AssignedProjectController extends Controller
 
 
     // Update an assignment (for example, to change status, deadline, or payment info)
-    public function update(Request $request, $id)
+    public function update(Request $request, $projectId)
     {
-        $assignment = AssignedProject::findOrFail($id);
+        // 1. Fetch assignment or 404
+        $assignment = AssignedProject::where('project_id', $projectId)->firstOrFail();
 
-        $validatedData = $request->validate([
-            'status'         => 'sometimes|in:Assigned,In Progress,Completed,Canceled',
-            'payment_status' => 'sometimes|in:Pending,Released,Disputed', // No need to input, handled by default
+        // 2. Validate incoming status & related fields
+        $validated = $request->validate([
+            'status'         => 'sometimes|in:Assigned,In Progress,Completed,Canceled,Submitted',
             'completion_date'=> 'sometimes|nullable|date',
             'review_id'      => 'sometimes|nullable|exists:reviews,id',
         ]);
 
-        // Case 1: Freelancer submits project - update status to "In Progress" in the assignment and "Submitted" in the project
-        if (isset($validatedData['status']) && $validatedData['status'] === 'Submitted') {
-            $assignment->status = 'Submitted';
-            $assignment->save();
+        // 3. Prepare the project and the (firstOrNew) payment record
+        $project = Project::findOrFail($assignment->project_id);
 
-            // Update project status to "Submitted" for freelancer
-            $project = Project::findOrFail($assignment->project_id);
-            $project->status = 'Submitted';
-            $project->save();
+        $payment = PaymentHistory::firstOrNew([
+            'project_id'  => $assignment->project_id,
+            'sender_id'   => $assignment->client_id,
+            'receiver_id' => $assignment->freelancer_id,
+        ], [
+            'amount'       => $assignment->payment_amount,
+            'payment_type' => 'Fixed-Price',
+            'status'       => 'Pending',
+        ]);
 
-            return response()->json($assignment, 200);  // Return updated assignment status
-        }
+        // 4. Branch by new status
+        switch ($validated['status'] ?? null) {
+            case 'Submitted':
+                $assignment->status = 'Submitted';
+                $project->status    = 'Submitted';
+                break;
 
-        // Case 2: Client accepts project - update status to "Completed" in the assignment and "Closed" in the project
-        if (isset($validatedData['status']) && $validatedData['status'] === 'Completed') {
+            case 'Completed':
+                // a) Assignment & payment_status
+                $assignment->status         = 'Completed';
+                $assignment->payment_status = 'Released';
 
-            // Update the assignment status to "Completed"
-            $assignment->status = 'Completed';
-            $assignment->save();
-
-            // Mark the payment as "Completed" in the PaymentHistory
-            $paymentHistory = PaymentHistory::where('project_id', $assignment->project_id)
-                ->where('sender_id', $assignment->client_id)
-                ->where('receiver_id', $assignment->freelancer_id)
-                ->first();
-
-            if ($paymentHistory) {
-                // Update the payment status to "Completed"
-                $paymentHistory->status = 'Completed';
-                $paymentHistory->save();
-
-                // Perform the calculation for admin and freelancer split
-                $admin = User::where('id', function ($query) {
-                    $query->select('admin_id')
-                        ->from('admins')
-                        ->where('is_super_admin', 1);  // Get the super admin
-                })->first();
-
-                $freelancer = User::find($paymentHistory->receiver_id);
-
-                // Payment type splitting logic
-                if ($paymentHistory->payment_type == 'Escrow') {
-                    // 5% goes to the admin and 95% to the freelancer
-                    $admin->balance += $paymentHistory->amount * 0.05;
-                    $freelancer->balance += $paymentHistory->amount * 0.95;
-                } else {
-                    // 10% goes to the admin and 90% to the freelancer
-                    $admin->balance += $paymentHistory->amount * 0.10;
-                    $freelancer->balance += $paymentHistory->amount * 0.90;
+                // b) If payment is brand-new, deduct from client
+                if (! $payment->exists) {
+                    $client = User::findOrFail($assignment->client_id);
+                    if ($client->balance < $assignment->payment_amount) {
+                        return response()->json(['error' => 'Client has insufficient balance.'], 400);
+                    }
+                    $client->balance -= $assignment->payment_amount;
+                    $client->save();
                 }
 
-                // Save the updated balances for both admin and freelancer
+                // c) Mark payment completed
+                $payment->status = 'Completed';
+
+                // d) Split to admin & freelancer
+                $admin = User::whereIn('id', function ($q) {
+                    $q->select('admin_id')->from('admins')->where('is_super_admin', 1);
+                })->first();
+
+                $freelancerUser = User::findOrFail($payment->receiver_id);
+
+                if ($payment->payment_type === 'Escrow') {
+                    $adminShare      = $payment->amount * 0.05;
+                    $freelancerShare = $payment->amount * 0.95;
+                } else {
+                    $adminShare      = $payment->amount * 0.10;
+                    $freelancerShare = $payment->amount * 0.90;
+                }
+
+                $admin->balance         += $adminShare;
+                $freelancerUser->balance += $freelancerShare;
                 $admin->save();
-                $freelancer->save();
-            }
+                $freelancerUser->save();
 
-            // Update the project status to "Closed" for the client
-            $project = Project::findOrFail($assignment->project_id);
-            $project->status = 'Closed';
-            $project->save();
+                $project->status = 'Closed';
+                break;
 
-            return response()->json($assignment, 200);
+            case 'Canceled':
+                $assignment->status = 'Canceled';
+                // If no record existed, firstOrNew created it—so just mark failed.
+                $payment->status = 'Failed';
+                $project->status = 'Canceled';
+                break;
+
+            default:
+                // Any other fields to update?
+                $assignment->update($validated);
+                // We’ll still save project/payment below.
         }
 
-        // Handle other status updates, such as cancellation or other changes
-        $assignment->update($validatedData);
+        // 5. Persist everything
+        $assignment->save();
+        $payment->save();
+        $project->save();
 
-        return response()->json($assignment, 200);  // Return updated assignment
+        // 6. Single successful return
+        return response()->json($assignment, 200);
     }
-
 
     // Delete an assignment
     public function destroy($id)
@@ -170,5 +186,23 @@ class AssignedProjectController extends Controller
 
         return response()->json(['message' => 'Assignment deleted'], 200);
     }
+
+
+    /**
+     * GET /freelancer/assignments
+     *
+     * Returns all assignments assigned to the authenticated freelancer.
+     */
+    public function myAssignments()
+    {
+        $freelancerId = Auth::id();
+
+        $assignments = AssignedProject::where('freelancer_id', $freelancerId)
+            ->with(['project', 'client', 'freelancer', 'review'])
+            ->get();
+
+        return response()->json($assignments, 200);
+    }
+
 }
 

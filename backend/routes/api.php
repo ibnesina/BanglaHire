@@ -18,6 +18,7 @@ use App\Http\Controllers\API\TalentController;
 use App\Http\Controllers\API\WorkController;
 
 use App\Constants\RoutePaths;
+use App\Http\Controllers\API\PaymentController;
 use App\Http\Controllers\API\WithdrawRequestController;
 
 // Public Routes
@@ -35,6 +36,24 @@ Route::post('/password/change', [AuthController::class, 'passwordChange']);
 
 // Reset Password
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+
+// SSLCommerz IPN callback
+Route::post('/add-balance/ssl-ipn', [PaymentController::class, 'sslIpn'])
+->name('api.addBalance.ssl-ipn');
+
+// SSLCommerz user-redirect callbacks
+Route::match(['get','post'], '/add-balance/ssl-success', [PaymentController::class, 'sslSuccess'])
+->name('api.addBalance.ssl-success');
+Route::post('/add-balance/ssl-fail', [PaymentController::class, 'sslFail'])
+->name('api.addBalance.ssl-fail');
+Route::post('/add-balance/ssl-cancel', [PaymentController::class, 'sslCancel'])
+->name('api.addBalance.ssl-cancel');
+
+// Stripe user-redirect callbacks
+Route::get('/add-balance/stripe-success', [PaymentController::class, 'stripeSuccess'])
+->name('api.addBalance.stripe-success');
+Route::get('/add-balance/stripe-cancel', [PaymentController::class, 'stripeCancel'])
+->name('api.addBalance.stripe-cancel');
 
 Route::middleware(['web'])->group(function () {
     // Initiate Google login.
@@ -148,8 +167,9 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::delete('/freelancers/{id}', [FreelancerController::class, 'destroy']);
 
         // Bidding
+        Route::get('/freelancer/biddings', [BiddingController::class, 'myBiddings']);
         Route::post('/projects/{project_id}/biddings', [BiddingController::class, 'store']);
-
+        
         // Fetch reviews by freelancer ID for profile views
         Route::get('/freelancer-reviews', [ReviewController::class, 'getByFreelancer']);
 
@@ -160,6 +180,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::get('project-requests', [AssignedProjectRequestController::class, 'index']);
         Route::patch('project-requests/{id}', [AssignedProjectRequestController::class, 'update']);
         Route::get('project-requests/{id}', [AssignedProjectRequestController::class, 'show']);
+        Route::get('/freelancer/assignments', [AssignedProjectController::class, 'myAssignments']);
     });
 
     // Client-only routes
@@ -202,6 +223,13 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 
         // Project Request creation
         Route::post('project-requests', [AssignedProjectRequestController::class, 'store']);
+
+        
+        // Add Balance
+        Route::post('/add-balance', [PaymentController::class, 'process'])
+            ->name('api.addBalance.process');
+
+        
     });
 
 });
