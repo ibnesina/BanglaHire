@@ -30,6 +30,24 @@ const AuthOptions = observer(() => {
     };
   }, []);
 
+<<<<<<< HEAD
+=======
+  const dropdownOptions = [
+    { label: "My Profile", href: "/profile" },
+    {
+      label: "Add Balance",
+      href: "/add-balance",
+      visibility: user?.type === "Client",
+    },
+    { label: "Settings", href: "/settings" },
+  ];
+
+  // Filter dropdown options based on visibility
+  const filteredDropdownOptions = dropdownOptions.filter(
+    option => option.visibility === undefined || option.visibility === true
+  );
+  
+>>>>>>> 45ee64f07d6bb4f6e0b03962f8df7c0760766fb3
   return user ? (
     <div className="relative" ref={dropdownRef}>
       {/* Replace clickable div with a native button */}
@@ -41,14 +59,29 @@ const AuthOptions = observer(() => {
         aria-expanded={open}
       >
         <Avatar>
+<<<<<<< HEAD
           <AvatarImage src={user.profile_picture ?? "https://github.com/shadcn.png"} />
           <AvatarFallback>
             {user.name.split(" ").map((n) => n[0].toUpperCase()).join("")}
+=======
+          <AvatarImage
+            src={user.profile_picture ?? "https://github.com/shadcn.png"}
+          />
+          <AvatarFallback>
+            {user.name
+              .split(" ")
+              .map((n) => n[0].toUpperCase())
+              .join("")}
+>>>>>>> 45ee64f07d6bb4f6e0b03962f8df7c0760766fb3
           </AvatarFallback>
         </Avatar>
         <span>{user.name}</span>
       </button>
+<<<<<<< HEAD
   
+=======
+
+>>>>>>> 45ee64f07d6bb4f6e0b03962f8df7c0760766fb3
       {open && (
         <div
           className="absolute right-0 mt-2 w-48 bg-white text-black rounded-md shadow-lg z-10"
@@ -56,6 +89,7 @@ const AuthOptions = observer(() => {
           aria-label="User menu"
         >
           <ul>
+<<<<<<< HEAD
             <li>
               <Link href="/profile" legacyBehavior>
                 {/* Use an anchor tag as a native interactive element */}
@@ -71,6 +105,20 @@ const AuthOptions = observer(() => {
                 </a>
               </Link>
             </li>
+=======
+            {filteredDropdownOptions.map((option, id) => (
+              <li key={id}>
+                <Link href={option.href} legacyBehavior>
+                  <a
+                    className="block hover:bg-gray-100 px-4 py-2"
+                    role="menuitem"
+                  >
+                    {option.label}
+                  </a>
+                </Link>
+              </li>
+            ))}
+>>>>>>> 45ee64f07d6bb4f6e0b03962f8df7c0760766fb3
             <li>
               <button
                 type="button"
