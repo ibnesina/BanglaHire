@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { CreditCard, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import apiRequest from "@/lib/api/apiRequest";
 import NavBar from "@/components/navComponents/NavBar";
@@ -14,21 +15,18 @@ export default function AddBalancePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
     try {
       const { data, status } = await apiRequest({
         method: "POST",
         url: "/add-balance",
         data: { amount: parseFloat(amount), payment_method: method },
       });
-
       if (status === 201 && data.checkout_url) {
-        // Redirect browser to the payment gateway
         window.location.href = data.checkout_url;
       } else {
         toast.error(data.message || "Failed to initiate payment");
       }
-    } catch (err) {
+    } catch {
       toast.error("Network error");
     } finally {
       setLoading(false);
@@ -38,16 +36,22 @@ export default function AddBalancePage() {
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
       <NavBar />
-      <main className="flex-grow flex items-center justify-center py-16">
-        <div className="bg-white shadow-2xl rounded-2xl p-12 max-w-2xl w-full mx-4">
-          <h2 className="text-4xl font-extrabold text-blue-700 text-center mb-10">
+
+      {/* Added py-24 for top/bottom padding */}
+      <main className="flex-grow flex items-center justify-center px-6 py-24">
+        <div className="relative w-full max-w-2xl p-12 bg-white bg-opacity-40 backdrop-blur-md rounded-3xl shadow-2xl overflow-hidden">
+          {/* Decorative blobs */}
+          <div className="absolute -top-16 -right-16 w-40 h-40 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30"></div>
+          <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-indigo-200 rounded-full mix-blend-multiply filter blur-2xl opacity-30"></div>
+
+          <h2 className="relative text-4xl font-extrabold text-blue-800 text-center mb-10">
             Add Balance
           </h2>
 
-          <form onSubmit={handleSubmit} className="space-y-8">
+          <form onSubmit={handleSubmit} className="relative space-y-10">
             {/* Amount */}
             <div>
-              <label htmlFor="amount" className="block mb-3 text-lg font-medium text-gray-800">
+              <label htmlFor="amount" className="block mb-2 text-lg font-medium text-gray-800">
                 Amount (BDT)
               </label>
               <div className="flex">
@@ -61,7 +65,7 @@ export default function AddBalancePage() {
                   step="0.01"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  className="flex-1 border border-gray-300 rounded-r-lg px-5 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="flex-1 border border-gray-300 rounded-r-lg px-5 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
                   placeholder="0.00"
                   required
                 />
@@ -69,8 +73,10 @@ export default function AddBalancePage() {
             </div>
 
             {/* Payment Method */}
-            <div>
-              <span className="block mb-3 text-lg font-medium text-gray-800">Payment Method</span>
+            <fieldset>
+              <legend className="block mb-4 text-lg font-medium text-gray-800">
+                Payment Method
+              </legend>
               <div className="grid grid-cols-2 gap-6">
                 <label className="cursor-pointer">
                   <input
@@ -82,15 +88,17 @@ export default function AddBalancePage() {
                     className="sr-only"
                   />
                   <div
-                    className={`py-4 border rounded-lg text-center text-lg font-semibold transition ${
+                    className={`flex items-center justify-center space-x-3 py-4 px-6 border rounded-2xl text-lg font-semibold transition ${
                       method === "sslcommerz"
                         ? "bg-blue-600 text-white border-blue-600"
-                        : "bg-white text-gray-800 border-gray-300 hover:border-blue-500 hover:text-blue-600"
+                        : "bg-white text-gray-800 border-gray-300 hover:border-blue-400"
                     }`}
                   >
-                    SSLCOMMERZ
+                    <ShieldCheck className="w-6 h-6" />
+                    <span>SSLCOMMERZ</span>
                   </div>
                 </label>
+
                 <label className="cursor-pointer">
                   <input
                     type="radio"
@@ -101,29 +109,32 @@ export default function AddBalancePage() {
                     className="sr-only"
                   />
                   <div
-                    className={`py-4 border rounded-lg text-center text-lg font-semibold transition ${
+                    className={`flex items-center justify-center space-x-3 py-4 px-6 border rounded-2xl text-lg font-semibold transition ${
                       method === "stripe"
                         ? "bg-blue-600 text-white border-blue-600"
-                        : "bg-white text-gray-800 border-gray-300 hover:border-blue-500 hover:text-blue-600"
+                        : "bg-white text-gray-800 border-gray-300 hover:border-blue-400"
                     }`}
                   >
-                    Stripe
+                    <CreditCard className="w-6 h-6" />
+                    <span>Stripe</span>
                   </div>
                 </label>
               </div>
-            </div>
+            </fieldset>
 
             {/* Submit */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-4 rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 text-white text-xl font-semibold hover:opacity-90 transition"
+              className="w-full flex items-center justify-center space-x-2 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xl font-semibold rounded-2xl shadow-lg hover:opacity-90 transition cursor-pointer"
             >
-              {loading ? "Please wait…" : "Continue to Payment"}
+              <CreditCard className="w-6 h-6" />
+              <span>{loading ? "Please wait…" : "Continue to Payment"}</span>
             </button>
           </form>
         </div>
       </main>
+
       <Footer />
     </div>
   );

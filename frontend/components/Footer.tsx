@@ -7,12 +7,10 @@ export default function Footer() {
       options: [
         { link: "#", text: "How to hire" },
         { link: "#", text: "Talent Marketplace" },
-        { link: "#", text: "project Catalog" },
+        { link: "#", text: "Project Catalog" },
         { link: "#", text: "Hire an agency" },
         { link: "#", text: "Contact to hire" },
         { link: "#", text: "Direct Contracts" },
-        { link: "#", text: "Hire worldwide" },
-        { link: "#", text: "Hide in bangladesh" },
       ],
     },
     {
@@ -20,7 +18,7 @@ export default function Footer() {
       options: [
         { link: "#", text: "How to find work" },
         { link: "#", text: "Direct Contracts" },
-        { link: "#", text: "Find jobs wordwide" },
+        { link: "#", text: "Find jobs worldwide" },
         { link: "#", text: "Find jobs in Bangladesh" },
         { link: "#", text: "Exclusive resources" },
       ],
