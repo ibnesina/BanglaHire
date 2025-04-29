@@ -13,7 +13,10 @@ class BiddingController extends Controller
     // Show all biddings for a project (optional)
     public function index($projectId)
     {
-        $biddings = Bidding::where('project_id', $projectId)->with('freelancer')->get();
+        $biddings = Bidding::where('project_id', $projectId)
+                        ->with(['freelancer', 'freelancer.user'])
+                        ->get();
+
         return response()->json($biddings, 200);
     }
 
