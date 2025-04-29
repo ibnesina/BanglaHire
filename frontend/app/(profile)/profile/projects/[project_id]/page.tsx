@@ -9,13 +9,12 @@ import {
 import { getProjectByIdAPI } from "@/lib/api/clientAPI";
 import { formatDate } from "@/lib/utils";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useEffect } from "react";
 import { toast } from "sonner";
 
 export default function ProjectDetails() {
-  const { project_id } = useParams();
-  const router = useRouter();
+  const { project_id } = useParams(); 
 
   const {
     data: project,
@@ -52,7 +51,10 @@ export default function ProjectDetails() {
       createAssignmentAPI(data),
     onSuccess: () => {
       toast.success("Freelancer assigned successfully");
-      router.refresh();
+      // Force a complete data refetch instead of just refreshing the page
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
     },
     onError: (error) => {
       toast.error("Failed to assign freelancer");

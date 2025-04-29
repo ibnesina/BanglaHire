@@ -1,8 +1,9 @@
 "use client";
-import { useQuery } from "@tanstack/react-query";
-import { getMyBiddingsAPI } from "@/lib/api/bidAPI";
 import { Loader } from "@/components/ui/loader";
+import {  MyBid } from "@/contracts/posts";
+import { getMyBiddingsAPI } from "@/lib/api/bidAPI";
 import { formatDate } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { toast } from "sonner";
 
@@ -30,7 +31,7 @@ export default function MyBids() {
       <div className="max-w-5xl mx-auto py-10 px-4 sm:px-6">
         <div className="text-center p-8 bg-white rounded-xl shadow-md">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">No Bids Yet</h2>
-          <p className="text-gray-600 mb-6">You haven't placed any bids on projects yet.</p>
+          <p className="text-gray-600 mb-6">You haven&apos;t placed any bids on projects yet.</p>
           <Link href="/dashboard">
             <button className="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
               Browse Projects
@@ -46,7 +47,7 @@ export default function MyBids() {
       <h1 className="text-3xl font-bold text-gray-800 mb-8">My Bids</h1>
       
       <div className="grid grid-cols-1 gap-6">
-        {biddings.map((bid) => (
+        {biddings.map((bid:MyBid) => (
           <div key={bid.id} className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition-all duration-300">
             <div className="p-6">
               <div className="flex justify-between items-start">
@@ -111,7 +112,7 @@ export default function MyBids() {
               </div>
               
               <div className="mt-4 flex flex-wrap gap-2">
-                {bid.project.required_skills && bid.project.required_skills.map((skill, index) => (
+                {bid.project.required_skills && bid.project.required_skills.map((skill :string, index:number) => (
                   <span key={index} className="px-2 py-1 bg-blue-50 text-blue-700 rounded-md text-xs">
                     {skill}
                   </span>

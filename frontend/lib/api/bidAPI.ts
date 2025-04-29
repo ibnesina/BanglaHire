@@ -124,3 +124,61 @@ export const getMyBiddingsAPI = async () => {
     return null;
   }
 };
+
+
+export const getMyAssignmentsAPI = async () => {
+  const response = await apiRequest({
+    method: "GET",
+    url: "/freelancer/assignments",
+  });
+
+  if (response.status === 200) {
+    return response.data;
+  } else if (response.status === 401) {
+    toast.error("Unauthorized. Please sign in as a freelancer.");
+    return null;
+  } else {
+    toast.error(response.data.message || "Failed to retrieve your assignments");
+    return null;
+  }
+};
+
+
+export const updateAssignmentAPI = async (
+  projectId: number,
+  data: {
+    status?: 'Assigned' | 'Submitted' | 'In Progress' | 'Completed' | 'Canceled';
+    completion_date?: string | null;
+    review_id?: number | null;
+  }
+) => {
+  const response = await apiRequest({
+    method: "PUT",
+    url: `/assignments/${projectId}`,
+    data: {
+      status: data.status,
+      completion_date: data.completion_date || null,
+      review_id: data.review_id || null
+    },
+  });
+
+  if (response.status === 200) {
+    toast.success("Assignment updated successfully");
+    return response.data;
+  } else if (response.status === 422) {
+    toast.error(response.data.message || "Validation error");
+    return null;
+  } else if (response.status === 401) {
+    toast.error("Unauthorized");
+    return null;
+  } else if (response.status === 404) {
+    toast.error("Assignment not found for this project");
+    return null;
+  } else if (response.status === 400) {
+    toast.error("Client has insufficient balance");
+    return null;
+  } else {
+    toast.error(response.data.message || "Failed to update assignment");
+    return null;
+  }
+};
