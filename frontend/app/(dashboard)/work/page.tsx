@@ -1,37 +1,10 @@
 "use client";
 import CategorySelectionOnFnd from "@/components/CategorySelectionOnFnd";
-import PostList from "@/components/FrelancerComponent";
 import UserDetails from "@/components/UserDetails";
 import WorkComponent from "@/components/WorkComponent";
-import { Post } from "@/contracts/posts";
-import { User } from "@/contracts/users";
 import { getWorkAPI } from "@/lib/api/FindAPI";
-import { generateRandomPosts } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-
-const userData: User = {
-  name: "John Smith",
-  company: "Tech Solutions Ltd",
-  averageRating: 4.8,
-  totalSpending: "$5,240",
-  totalPosts: 12,
-  ongoingProjects: 3,
-  paymentVerified: true,
-  id: "1",
-  type: "Freelancer",
-  email: "john.smith@example.com",
-  profile_picture: null,
-  payment_phone: null,
-  balance: "0.00",
-  google_id: null,
-  avatar: null,
-  payment_history_id: null,
-  nationality: null,
-  email_verified_at: null,
-  created_at: "2023-01-01T00:00:00.000Z",
-  updated_at: "2023-01-01T00:00:00.000Z",
-};
 
 
 

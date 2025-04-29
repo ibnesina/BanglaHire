@@ -1,0 +1,209 @@
+{
+  "listAssignments": {
+    "method": "GET",
+    "url": "/assignments",
+    "description": "Retrieves all project assignments (visible to clients, freelancers, and admins).",
+    "response": {
+      "assignments": [
+        {
+          "id": "number",
+          "project_id": "number",
+          "client_id": "string (UUID)",
+          "freelancer_id": "string (UUID)",
+          "assigned_date": "string (datetime)",
+          "status": "'Assigned' | 'Submitted' | 'Completed' | 'Canceled'",
+          "deadline": "string (date)",
+          "payment_amount": "number (decimal)",
+          "payment_status": "'Pending' | 'Released' | 'Failed' | 'Disputed'",
+          "completion_date": "string (date) | null",
+          "review_id": "number | null"
+        }
+      ]
+    }
+  },
+
+  "getAssignment": {
+    "method": "GET",
+    "url": "/assignments/{project_id}",
+    "url_params": {
+      "project_id": "number"
+    },
+    "description": "Retrieves the assignment record for the given project.",
+    "response": {
+      "assignment": {
+        "id": "number",
+        "project_id": "number",
+        "client_id": "string (UUID)",
+        "freelancer_id": "string (UUID)",
+        "assigned_date": "string (datetime)",
+        "status": "'Assigned' | 'Submitted' | 'Completed' | 'Canceled'",
+        "deadline": "string (date)",
+        "payment_amount": "number",
+        "payment_status": "'Pending' | 'Released' | 'Failed' | 'Disputed'",
+        "completion_date": "string (date) | null",
+        "review_id": "number | null"
+      }
+    },
+    "error": {
+      "not_found": {
+        "message": "Assignment not found for this project"
+      }
+    }
+  },
+
+  "createAssignment": {
+    "method": "POST",
+    "url": "/assignments",
+    "headers": {
+      "Authorization": "string (Bearer token - Client only)"
+    },
+    "request": {
+      "project_id": "number (required, must exist in projects table)",
+      "freelancer_id": "string (UUID, required, must exist in freelancers table)"
+    },
+    "description": "Assigns a freelancer to a project using the freelancer’s bidding amount. Automatically sets deadline, status, and payment_status.",
+    "response": {
+      "assignment": {
+        "id": "number",
+        "project_id": "number",
+        "client_id": "string (UUID)",
+        "freelancer_id": "string (UUID)",
+        "assigned_date": "string (datetime)",
+        "status": "'Assigned'",
+        "deadline": "string (date)",
+        "payment_amount": "number",
+        "payment_status": "'Pending'"
+      }
+    },
+    "error": {
+      "validation_error": {
+        "errors": {
+          "project_id": ["required", "exists"],
+          "freelancer_id": ["required", "exists"]
+        }
+      },
+      "unauthorized": {
+        "message": "Unauthorized: You do not own this project"
+      },
+      "not_found": {
+        "message": "No bid found from the selected freelancer for this project"
+      }
+    }
+  },
+
+  "updateAssignment": {
+    "method": "PUT",
+    "url": "/assignments/{project_id}",
+    "url_params": {
+      "project_id": "number"
+    },
+    "headers": {
+      "Authorization": "string (Bearer token - Client or Freelancer)"
+    },
+    "request": {
+      "status": "string (optional, one of 'Assigned', 'Submitted', 'In Progress', 'Completed', 'Canceled')",
+      "completion_date": "string (nullable, date)",
+      "review_id": "number (nullable, must exist in reviews table)"
+    },
+    "description": "Updates the assignment’s status and triggers corresponding changes: on Submitted marks project submitted; on Completed creates or releases payment, deducts client balance, splits funds, and closes project; on Canceled marks assignment canceled, creates/fails payment history and cancels project.",
+    "response": {
+      "assignment": {
+        "id": "number",
+        "project_id": "number",
+        "client_id": "string (UUID)",
+        "freelancer_id": "string (UUID)",
+        "status": "string",
+        "deadline": "string (date)",
+        "payment_amount": "number",
+        "payment_status": "string",
+        "completion_date": "string (date) | null",
+        "review_id": "number | null"
+      }
+    },
+    "error": {
+      "validation_error": {
+        "errors": {
+          "status": ["in:Assigned,Submitted,In Progress,Completed,Canceled"],
+          "completion_date": ["nullable", "date"],
+          "review_id": ["exists:reviews,id"]
+        }
+      },
+      "unauthorized": {
+        "message": "Unauthorized"
+      },
+      "not_found": {
+        "message": "Assignment not found for this project"
+      },
+      "insufficient_balance": {
+        "message": "Client has insufficient balance."
+      }
+    }
+  },
+
+  "deleteAssignment": {
+    "method": "DELETE",
+    "url": "/assignments/{project_id}",
+    "url_params": {
+      "project_id": "number"
+    },
+    "headers": {
+      "Authorization": "string (Bearer token - Client only)"
+    },
+    "description": "Deletes the assignment for the given project.",
+    "response": {
+      "message": "Assignment deleted successfully."
+    },
+    "error": {
+      "not_found": {
+        "message": "Assignment not found for this project"
+      },
+      "unauthorized": {
+        "message": "Unauthorized"
+      }
+    }
+  },
+
+  "getMyAssignments": {
+    "method": "GET",
+    "url": "/freelancer/assignments",
+    "headers": {
+      "Authorization": "string (Bearer token - Freelancer only)"
+    },
+    "description": "Retrieves all project assignments for the authenticated freelancer, including project, client, and review details.",
+    "response": {
+      "assignments": [
+        {
+          "id": "number",
+          "project_id": "number",
+          "client_id": "string (UUID)",
+          "freelancer_id": "string (UUID)",
+          "assigned_date": "string (datetime)",
+          "status": "'Assigned' | 'Submitted' | 'Completed' | 'Canceled'",
+          "deadline": "string (date)",
+          "payment_amount": "number",
+          "payment_status": "'Pending' | 'Released' | 'Failed' | 'Disputed'",
+          "completion_date": "string (date) | null",
+          "review_id": "number | null",
+          "project": {
+            "id": "number",
+            "title": "string",
+            "description": "string | null"
+          },
+          "client": {
+            "client_id": "string (UUID)",
+            "company_name": "string | null"
+          },
+          "freelancer": {
+            "freelancer_id": "string (UUID)",
+            "bio": "string | null"
+          },
+          "review": {
+            "id": "number",
+            "rating": "number",
+            "comment": "string | null"
+          }
+        }
+      ]
+    }
+  }
+}

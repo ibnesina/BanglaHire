@@ -25,7 +25,7 @@ return new class extends Migration
             $table->timestamp('assigned_date')->useCurrent();
 
             // Status enum: Assigned, In Progress, Completed, Canceled
-            $table->enum('status', ['Assigned', 'In Progress', 'Completed', 'Canceled'])->default('Assigned');
+            $table->enum('status', ['Assigned', 'Submitted', 'Completed', 'Canceled'])->default('Assigned');
 
             // Deadline (date)
             $table->date('deadline');
