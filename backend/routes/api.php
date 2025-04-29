@@ -148,6 +148,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::delete('/freelancers/{id}', [FreelancerController::class, 'destroy']);
 
         // Bidding
+        Route::get('/freelancer/biddings', [BiddingController::class, 'myBiddings']);
         Route::post('/projects/{project_id}/biddings', [BiddingController::class, 'store']);
 
         // Fetch reviews by freelancer ID for profile views
