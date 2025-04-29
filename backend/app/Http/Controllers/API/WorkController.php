@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Project;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class WorkController extends Controller
 {
@@ -24,51 +25,46 @@ class WorkController extends Controller
      */
     public function index(Request $request)
     {
-        $json = null;
-        $query = Project::with(['client', 'category']);
+        $user = Auth::user();
 
-        // If a category filter is provided, validate and apply it.
-        if ($request->has('category_id')) {
+        // Base query with eager loads; exclude projects the freelancer has already bid on
+        $query = Project::with(['client', 'category', 'biddings'])
+            ->when(
+                optional($user)->type === 'Freelancer',
+                fn($q) => $q->whereDoesntHave('biddings', fn($qb) =>
+                    $qb->where('freelancer_id', Auth::id())
+                )
+            );
+
+        // If filtering by category, validate first
+        if ($request->filled('category_id')) {
             $categoryId = $request->input('category_id');
-            $category = Category::find($categoryId);
-            if (!$category) {
-                $json = response()->json(['message' => 'Category not found'], 404);
-            } else {
-                $query->where('category_id', $categoryId);
+            if (! Category::find($categoryId)) {
+                return response()->json(['message' => 'Category not found'], 404);
             }
+            $query->where('category_id', $categoryId);
         }
 
-        // If no error response has been set, continue building the response.
-        if (is_null($json)) {
-            // When no filters are provided, return the 20 most recent projects.
-            if (!$request->has('category_id') && !$request->has('skills')) {
-                $projects = $query->orderBy('created_at', 'desc')->limit(20)->get();
-                $json = response()->json($projects, 200);
-            }
-            // When a category is provided but no skills filter.
-            elseif (!$request->has('skills')) {
-                $projects = $query->orderBy('created_at', 'desc')->get();
-                $json = response()->json($projects, 200);
-            }
-            // When the 'skills' parameter is provided, handle best-match sorting.
-            else {
-                $requestedSkills = array_map('trim', explode(',', $request->input('skills')));
-                $projects = $query->get();
-                $sorted = $projects->sort(function ($a, $b) use ($requestedSkills) {
-                    $aOverlap = $this->countSkillOverlap($a->required_skills, $requestedSkills);
-                    $bOverlap = $this->countSkillOverlap($b->required_skills, $requestedSkills);
-                    // Descending order by overlap count.
-                    if ($bOverlap !== $aOverlap) {
-                        return $bOverlap <=> $aOverlap;
-                    }
-                    // Tiebreaker: most recent projects first.
-                    return $b->created_at <=> $a->created_at;
-                })->values();
-                $json = response()->json($sorted, 200);
-            }
+        // Decide whether to sort by skills or by recency
+        if ($request->filled('skills')) {
+            $requestedSkills = array_map('trim', explode(',', $request->input('skills')));
+            $projects = $query->get()->sort(function ($a, $b) use ($requestedSkills) {
+                $aOverlap = $this->countSkillOverlap($a->required_skills, $requestedSkills);
+                $bOverlap = $this->countSkillOverlap($b->required_skills, $requestedSkills);
+                if ($bOverlap !== $aOverlap) {
+                    return $bOverlap <=> $aOverlap;
+                }
+                return $b->created_at <=> $a->created_at;
+            })->values();
+        } else {
+            // No skills filter: limit to 20 most recent if no category, else all in category
+            $projects = $query
+                ->orderBy('created_at', 'desc')
+                ->when(! $request->filled('category_id'), fn($q) => $q->limit(20))
+                ->get();
         }
 
-        return $json;
+        return response()->json($projects, 200);
     }
 
     /**
@@ -78,9 +74,9 @@ class WorkController extends Controller
      * @param array $requestedSkills
      * @return int
      */
-    private function countSkillOverlap($projectSkills, $requestedSkills)
+    private function countSkillOverlap($projectSkills, array $requestedSkills): int
     {
-        if (!is_array($projectSkills)) {
+        if (! is_array($projectSkills)) {
             return 0;
         }
         return count(array_intersect($projectSkills, $requestedSkills));
