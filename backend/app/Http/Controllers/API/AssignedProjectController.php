@@ -186,5 +186,23 @@ class AssignedProjectController extends Controller
 
         return response()->json(['message' => 'Assignment deleted'], 200);
     }
+
+
+    /**
+     * GET /freelancer/assignments
+     *
+     * Returns all assignments assigned to the authenticated freelancer.
+     */
+    public function myAssignments()
+    {
+        $freelancerId = Auth::id();
+
+        $assignments = AssignedProject::where('freelancer_id', $freelancerId)
+            ->with(['project', 'client', 'freelancer', 'review'])
+            ->get();
+
+        return response()->json($assignments, 200);
+    }
+
 }
 
