@@ -7,7 +7,6 @@ use App\Models\Category;
 use App\Models\Freelancer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
 class FreelancerController extends Controller
 {
@@ -66,7 +65,7 @@ class FreelancerController extends Controller
             'freelancer' => $freelancer
         ], 200);
     }
-    
+
 
     /**
      * Checks the list of provided skills against the available skills.
