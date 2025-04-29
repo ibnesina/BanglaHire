@@ -20,11 +20,11 @@ class PaymentController extends Controller
     public function process(Request $request)
     {
         $data = $request->validate([
-            'amount'         => 'required|numeric|min:100',
+            'amount'         => 'required|numeric|min:1',
             'payment_method' => 'required|in:sslcommerz,stripe',
         ]);
 
-        // 1) Auth check
+        // 1) Auth
         $user = Auth::user();
         if (! $user) {
             return response()->json(['message' => 'Unauthorized'], 401);
@@ -34,6 +34,7 @@ class PaymentController extends Controller
         $trx = uniqid('trx_');
         $amt = $data['amount'];
         $cur = 'BDT';
+
         Transaction::create([
             'user_id'        => $user->id,
             'payment_method' => $data['payment_method'],
@@ -43,8 +44,9 @@ class PaymentController extends Controller
             'status'         => 'Pending',
         ]);
 
-        // 3) Gateway initialization
+        // 3) Gateway init
         if ($data['payment_method'] === 'sslcommerz') {
+            // SSLCommerz uses the routes defined in config/sslcommerz.php
             $resp = Sslcommerz::setOrder($amt, $trx, 'Account Top-Up')
                 ->setCustomer($user->name, $user->email, $user->payment_phone ?? '')
                 ->setShippingInfo(0, '')
@@ -58,8 +60,12 @@ class PaymentController extends Controller
             }
 
             $checkoutUrl = $resp->gatewayPageURL();
+
         } else {
+            // 4) Stripe init
             Stripe::setApiKey(config('services.stripe.secret'));
+            $frontend = config('app.frontend_url');
+
             $session = StripeSession::create([
                 'payment_method_types' => ['card'],
                 'mode'                 => 'payment',
@@ -73,14 +79,14 @@ class PaymentController extends Controller
                     ],
                     'quantity'   => 1,
                 ]],
-                'success_url' => route('api.addBalance.stripe-success')
-                      . '?session_id={CHECKOUT_SESSION_ID}',
-                'cancel_url'  => route('api.addBalance.stripe-cancel'),
+                'success_url' => "{$frontend}/add-balance/stripe-success?session_id={CHECKOUT_SESSION_ID}",
+                'cancel_url'  => "{$frontend}/add-balance/stripe-cancel",
             ]);
 
             $checkoutUrl = $session->url;
         }
 
+        // 5) Final return
         return response()->json([
             'transaction_id' => $trx,
             'checkout_url'   => $checkoutUrl,
