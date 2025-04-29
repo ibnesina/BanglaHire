@@ -119,35 +119,35 @@ class PaymentController extends Controller
     }
 
     /**
-     * GET|POST /api/payments/ssl-success
-     * SSLCommerz success callback.
+     * SSLCommerz success callback (public route).
      */
     public function sslSuccess(Request $request)
     {
         $data = $request->all();
         $trx  = $data['tran_id'] ?? null;
 
+        // 1) Find the pending transaction
         $order = Transaction::where('transaction_id', $trx)
                             ->where('status', 'Pending')
                             ->first();
+
         if (! $order || ! Sslcommerz::validatePayment($data, $trx, $order->amount)) {
-            return response()->json(['message' => 'Payment validation failed'], 400);
+            // Redirect to your frontend’s “fail” page
+            return redirect()->away(config('app.frontend_url')
+                . '/add-balance/ssl-fail?tran_id=' . urlencode($trx));
         }
 
+        // 2) Mark completed
         $order->update(['status' => 'Completed', 'metadata' => $data]);
         $order->user->increment('balance', $order->amount);
 
-        return response()->json([
-            'message'        => 'Payment successful',
-            'amount'         => $order->amount,
-            'currency'       => $order->currency,
-            'transaction_id' => $trx,
-        ], 200);
+        // 3) Redirect to your frontend’s “success” page
+        return redirect()->away(config('app.frontend_url')
+            . '/add-balance/ssl-success?tran_id=' . urlencode($trx));
     }
 
     /**
-     * POST /api/payments/ssl-fail
-     * SSLCommerz failure/cancel callback.
+     * SSLCommerz failure callback (public route).
      */
     public function sslFail(Request $request)
     {
@@ -156,12 +156,13 @@ class PaymentController extends Controller
                    ->where('status', 'Pending')
                    ->update(['status' => 'Failed']);
 
-        return response()->json(['message' => 'Payment failed or cancelled'], 200);
+        // Send user to Next.js “fail” UI
+        return redirect()->away(config('app.frontend_url')
+            . '/add-balance/ssl-fail?tran_id=' . urlencode($trx));
     }
 
     /**
-     * POST /api/payments/ssl-cancel
-     * SSLCommerz explicit cancel callback.
+     * SSLCommerz cancel callback (public route).
      */
     public function sslCancel(Request $request)
     {
@@ -170,7 +171,9 @@ class PaymentController extends Controller
                    ->where('status', 'Pending')
                    ->update(['status' => 'Canceled']);
 
-        return response()->json(['message' => 'Payment cancelled'], 200);
+        // Send user to Next.js “cancel” UI
+        return redirect()->away(config('app.frontend_url')
+            . '/add-balance/ssl-cancel?tran_id=' . urlencode($trx));
     }
 
     /**
