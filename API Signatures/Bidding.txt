@@ -15,7 +15,25 @@
           "cover_letter": "string | null",
           "bidding_amount": "number (decimal, e.g., 500.00)",
           "created_at": "string (datetime)",
-          "updated_at": "string (datetime)"
+          "updated_at": "string (datetime)",
+          "freelancer": {
+            "freelancer_id": "string (UUID)",
+            "bio": "string | null",
+            "category_id": "number | null",
+            "skills": ["string"],
+            "experiences": "string | null",
+            "hourly_rate": "number | null",
+            "certifications": ["string"],
+            "portfolio_link": "string | null",
+            "created_at": "string (datetime)",
+            "updated_at": "string (datetime)",
+            "user": {
+              "id": "string (UUID)",
+              "name": "string",
+              "email": "string",
+              "profile_picture": "string | null"
+            }
+          }
         }
       ]
     }
