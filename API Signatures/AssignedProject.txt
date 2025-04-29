@@ -161,5 +161,49 @@
         "message": "Unauthorized"
       }
     }
+  },
+
+  "getMyAssignments": {
+    "method": "GET",
+    "url": "/freelancer/assignments",
+    "headers": {
+      "Authorization": "string (Bearer token - Freelancer only)"
+    },
+    "description": "Retrieves all project assignments for the authenticated freelancer, including project, client, and review details.",
+    "response": {
+      "assignments": [
+        {
+          "id": "number",
+          "project_id": "number",
+          "client_id": "string (UUID)",
+          "freelancer_id": "string (UUID)",
+          "assigned_date": "string (datetime)",
+          "status": "'Assigned' | 'Submitted' | 'Completed' | 'Canceled'",
+          "deadline": "string (date)",
+          "payment_amount": "number",
+          "payment_status": "'Pending' | 'Released' | 'Failed' | 'Disputed'",
+          "completion_date": "string (date) | null",
+          "review_id": "number | null",
+          "project": {
+            "id": "number",
+            "title": "string",
+            "description": "string | null"
+          },
+          "client": {
+            "client_id": "string (UUID)",
+            "company_name": "string | null"
+          },
+          "freelancer": {
+            "freelancer_id": "string (UUID)",
+            "bio": "string | null"
+          },
+          "review": {
+            "id": "number",
+            "rating": "number",
+            "comment": "string | null"
+          }
+        }
+      ]
+    }
   }
 }
