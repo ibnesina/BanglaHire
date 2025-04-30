@@ -116,14 +116,14 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 
     // Withdraw Balance
     Route::get('/withdraw-requests', [WithdrawRequestController::class, 'index']);
-    Route::get('/withdraw-requests/{id}', [WithdrawRequestController::class, 'show']);
+    Route::get('/withdraw-requests/{withdraw_request}', [WithdrawRequestController::class, 'show']);
     Route::post('/withdraw-requests', [WithdrawRequestController::class, 'store']);
 
     // Admin-only routes
     Route::middleware('role:Admin')->group(function () {
         // Withdraw Balance
-        Route::post('/withdraw-requests/{id}/approve', [WithdrawRequestController::class, 'approve']);
-        Route::post('/withdraw-requests/{id}/reject', [WithdrawRequestController::class, 'reject']);
+        Route::post('/withdraw-requests/{withdraw_request}/approve', [WithdrawRequestController::class, 'approve']);
+        Route::post('/withdraw-requests/{withdraw_request}/reject', [WithdrawRequestController::class, 'reject']);
 
         // Profile
         Route::get('/admin-dashboard', function () {

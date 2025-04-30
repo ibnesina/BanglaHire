@@ -12,7 +12,7 @@ class StoreWithdrawRequest extends FormRequest
     public function authorize(): bool
     {
          // Only allow if balance > 1000
-         return $this->user()->balance >= 1000;
+         return $this->user()->balance >= 1;
     }
 
     /**
