@@ -50,10 +50,11 @@ Route::post('/add-balance/ssl-cancel', [PaymentController::class, 'sslCancel'])
 ->name('api.addBalance.ssl-cancel');
 
 // Stripe user-redirect callbacks
-Route::get('/add-balance/stripe-success', [PaymentController::class, 'stripeSuccess'])
-->name('api.addBalance.stripe-success');
-Route::get('/add-balance/stripe-cancel', [PaymentController::class, 'stripeCancel'])
-->name('api.addBalance.stripe-cancel');
+Route::get('/payments/stripe-success', [PaymentController::class, 'stripeSuccess'])
+     ->name('api.payments.stripe-success');
+Route::get('/payments/stripe-cancel', [PaymentController::class, 'stripeCancel'])
+     ->name('api.payments.stripe-cancel');
+
 
 Route::middleware(['web'])->group(function () {
     // Initiate Google login.
