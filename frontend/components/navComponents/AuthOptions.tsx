@@ -32,11 +32,12 @@ const AuthOptions = observer(() => {
 
   const dropdownOptions = [
     { label: "My Profile", href: "/profile" },
-    {
-      label: "Add Balance",
-      href: "/add-balance",
-      visibility: user?.type === "Client",
-    },
+    {label: "Add Balance", href: "/add-balance", visibility: user?.type === "Client",},
+    {label: "Create Project", href: "/profile/create-project", visibility: user?.type === "Client",},
+    {label: "My Projects", href: "/profile/my-projects", visibility: user?.type === "Client",},
+    { label: "My Bids", href: "/profile/my-bids", visibility: user?.type === "Freelancer" },
+    { label: "Assigned Projects", href: "/profile/assigned-projects", visibility: user?.type === "Freelancer" },
+
     { label: "Settings", href: "/settings" },
   ];
 
@@ -90,7 +91,7 @@ const AuthOptions = observer(() => {
             <li>
               <button
                 type="button"
-                className="w-full text-left block hover:bg-gray-100 px-4 py-2"
+                className="w-full text-left block hover:bg-gray-100 px-4 py-2 cursor-pointer"
                 onClick={async () => {
                   await logoutAPI();
                 }}
