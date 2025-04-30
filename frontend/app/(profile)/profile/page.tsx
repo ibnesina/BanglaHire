@@ -1,13 +1,23 @@
 "use client";
 import UserDetails from "@/components/UserDetails";
+import { observer } from "mobx-react";
+import userStore from "@/lib/store";
+import FreelancerDetails from "@/components/FreelancerDetails";
 
-const Profile = () => {
+const Profile = observer(() => {
+  const { user } = userStore;
+
   return (
     <main className="p-6 bg-white rounded-lg">
-      <h2 className="text-2xl font-bold mb-6">User Profile</h2>
-      <UserDetails />
+      {user?.type === "Freelancer" ? (
+        <FreelancerDetails userId={user.id} />
+      ) : user?.type === "Client" ? (
+        <ClientComponent userId={user.id} />
+      ) : (
+        <UserDetails />
+      )}
     </main>
   );
-};
+});
 
 export default Profile;
