@@ -83,7 +83,6 @@ class WithdrawRequestController extends Controller
     // Admin-only: approve
     public function approve(WithdrawRequest $withdraw_request)
     {
-        $this->authorize('approve', $withdraw_request);
         $withdraw_request->update(['status' => 'approved']);
         return response()->noContent();
     }
@@ -91,7 +90,6 @@ class WithdrawRequestController extends Controller
     // Admin-only: reject
     public function reject(WithdrawRequest $withdraw_request)
     {
-        $this->authorize('approve', $withdraw_request);
         $withdraw_request->update(['status' => 'rejected']);
         return response()->noContent();
     }
