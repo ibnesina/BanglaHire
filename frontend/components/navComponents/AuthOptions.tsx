@@ -69,7 +69,6 @@ const AuthOptions = observer(() => {
         </Avatar>
         <span>{user.name}</span>
       </button>
-
       {open && (
         <div
           className="absolute right-0 mt-2 w-48 bg-white text-black rounded-md shadow-lg z-10"
