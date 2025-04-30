@@ -1,11 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { CreditCard, ShieldCheck } from "lucide-react";
-import { toast } from "sonner";
 import apiRequest from "@/lib/api/apiRequest";
-import NavBar from "@/components/navComponents/NavBar";
-import Footer from "@/components/Footer";
+import { CreditCard, ShieldCheck } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 
 export default function AddBalancePage() {
   const [amount, setAmount] = useState("");
@@ -35,8 +33,6 @@ export default function AddBalancePage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
-      <NavBar />
-
       {/* Added py-24 for top/bottom padding */}
       <main className="flex-grow flex items-center justify-center px-6 py-24">
         <div className="relative w-full max-w-2xl p-12 bg-white bg-opacity-40 backdrop-blur-md rounded-3xl shadow-2xl overflow-hidden">
@@ -51,7 +47,10 @@ export default function AddBalancePage() {
           <form onSubmit={handleSubmit} className="relative space-y-10">
             {/* Amount */}
             <div>
-              <label htmlFor="amount" className="block mb-2 text-lg font-medium text-gray-800">
+              <label
+                htmlFor="amount"
+                className="block mb-2 text-lg font-medium text-gray-800"
+              >
                 Amount (BDT)
               </label>
               <div className="flex">
@@ -134,8 +133,6 @@ export default function AddBalancePage() {
           </form>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 }

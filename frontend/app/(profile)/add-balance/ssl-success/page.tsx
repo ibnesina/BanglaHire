@@ -1,11 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { CheckCircle2 } from "lucide-react";
 import Link from "next/link";
-import NavBar from "@/components/navComponents/NavBar";
-import Footer from "@/components/Footer";
 
 const CONFETTI_COUNT = 30;
 const CONFETTI_COLORS = ["#F59E0B","#10B981","#3B82F6","#EF4444","#8B5CF6"];
@@ -14,7 +11,7 @@ export default function SslSuccessPage() {
   // no extra logic needed here
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-indigo-600 to-blue-500 overflow-hidden flex flex-col">
-      <NavBar />
+
 
       {/* Confetti */}
       {Array.from({ length: CONFETTI_COUNT }).map((_, i) => {
@@ -93,7 +90,7 @@ export default function SslSuccessPage() {
         </motion.div>
       </main>
 
-      <Footer />
+  
 
       <style jsx>{`
         @keyframes confetti-fall {

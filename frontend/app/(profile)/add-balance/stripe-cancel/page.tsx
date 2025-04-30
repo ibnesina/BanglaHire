@@ -1,15 +1,11 @@
 "use client";
 
 import { XCircle } from "lucide-react";
-import NavBar from "@/components/navComponents/NavBar";
-import Footer from "@/components/Footer";
 import Link from "next/link";
 
 export default function StripeCancelPage() {
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
-      <NavBar />
-
       <main className="flex-grow flex flex-col items-center justify-center px-4 py-16">
         <XCircle className="w-20 h-20 text-red-500 mb-6" />
         <h1 className="text-3xl font-bold text-gray-800 mb-2">
@@ -26,8 +22,6 @@ export default function StripeCancelPage() {
           Try Again
         </Link>
       </main>
-
-      <Footer />
     </div>
   );
 }
