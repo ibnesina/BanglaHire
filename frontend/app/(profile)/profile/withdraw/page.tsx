@@ -1,122 +1,156 @@
 "use client";
 
-import { createWithdrawRequest } from "@/lib/api/withdrawAPI";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { toast } from "sonner";
+import { useMutation } from "@tanstack/react-query";
+import { createWithdrawRequestAPI } from "@/lib/api/withdrawAPI";
+import { Banknote, CreditCard, Wallet } from "lucide-react";
 
 const withdrawSchema = z.object({
-  amount: z.number().positive(),
-  gateway: z.enum(["stripe", "sslcommerz", "bkash"]),
-  payment_details: z.string(),
+  amount: z.number().min(0.01, "Amount must be at least 0.01"),
+  gateway: z.enum(["stripe", "sslcommerz", "bkash"], {
+    required_error: "Please select a payment gateway",
+  }),
+  account_no: z.string().min(1, "Account number is required"),
 });
 
 type WithdrawFormValues = z.infer<typeof withdrawSchema>;
 
 export default function WithdrawPage() {
-  const [loading, setLoading] = useState(false);
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<WithdrawFormValues>({
+  const [isLoading, setIsLoading] = useState(false);
+  
+  const form = useForm<WithdrawFormValues>({
     resolver: zodResolver(withdrawSchema),
+    defaultValues: {
+      amount: 0,
+      gateway: "stripe",
+      account_no: "",
+    },
   });
 
   const withdrawMutation = useMutation({
-    mutationFn: createWithdrawRequest,
+    mutationFn: (data: { amount: number; gateway: string; payment_details: { account_no: string } }) => 
+      createWithdrawRequestAPI(data.amount, data.gateway, data.payment_details.account_no),
     onSuccess: () => {
-      toast.success("Withdraw request submitted successfully");
-      setLoading(false);
-      // Clear the form
-      reset();
-
+      toast.success("Withdrawal request submitted successfully");
+      form.reset();
     },
     onError: (error) => {
-      toast.error(error.message || "Failed to submit withdraw request");
-      setLoading(false);
+      toast.error("Failed to submit withdrawal request");
+      console.error(error);
     },
   });
 
   const onSubmit = (data: WithdrawFormValues) => {
-    setLoading(true);
-    withdrawMutation.mutate(data);
+    setIsLoading(true);
+    
+    withdrawMutation.mutate({
+      amount: data.amount,
+      gateway: data.gateway,
+      payment_details: {
+        account_no: data.account_no,
+      },
+    }, {
+      onSettled: () => setIsLoading(false),
+    });
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-8 bg-white rounded-xl shadow-lg">
-  <h1 className="text-3xl font-bold mb-8 text-center text-indigo-700">Withdraw Funds</h1>
-  <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-    <div>
-      <label className="block text-sm font-semibold text-gray-700 mb-2">
-        Amount
-      </label>
-      <div className="relative">
-        <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">৳</span>
-        <input
-          type="number"
-          {...register("amount", { valueAsNumber: true })}
-          className="pl-8 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-          placeholder="Enter amount"
-        />
+    <div className="max-w-md mx-auto p-6">
+      <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-6">
+          <div className="flex items-center gap-3">
+            <Wallet className="h-8 w-8 text-white" />
+            <h1 className="text-2xl font-bold text-white">Withdraw Funds</h1>
+          </div>
+          <p className="text-blue-100 mt-2">Request to withdraw your available balance</p>
+        </div>
+        
+        <div className="p-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Amount
+              </label>
+              <div className="relative">
+                <Banknote className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                <input
+                  type="number"
+                  step="0.01"
+                  placeholder="0.00"
+                  className={`pl-10 w-full h-12 border ${form.formState.errors.amount ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500`}
+                  {...form.register("amount", { 
+                    valueAsNumber: true,
+                  })}
+                />
+              </div>
+              {form.formState.errors.amount && (
+                <p className="text-red-500 text-sm mt-1">{form.formState.errors.amount.message}</p>
+              )}
+              <p className="text-gray-500 text-sm">Enter the amount you wish to withdraw</p>
+            </div>
+            
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Payment Gateway
+              </label>
+              <div className="relative">
+                <select
+                  className={`w-full h-12 pl-3 pr-10 border ${form.formState.errors.gateway ? 'border-red-500' : 'border-gray-300'} rounded-lg appearance-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500`}
+                  {...form.register("gateway")}
+                >
+                  <option value="stripe">Stripe</option>
+                  <option value="sslcommerz">SSLCommerz</option>
+                  <option value="bkash">bKash</option>
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                  <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                  </svg>
+                </div>
+              </div>
+              {form.formState.errors.gateway && (
+                <p className="text-red-500 text-sm mt-1">{form.formState.errors.gateway.message}</p>
+              )}
+              <p className="text-gray-500 text-sm">Choose your preferred payment method</p>
+            </div>
+            
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Account Number
+              </label>
+              <div className="relative">
+                <CreditCard className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                <input
+                  type="text"
+                  placeholder="Enter your account number"
+                  className={`pl-10 w-full h-12 border ${form.formState.errors.account_no ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500`}
+                  {...form.register("account_no")}
+                />
+              </div>
+              {form.formState.errors.account_no && (
+                <p className="text-red-500 text-sm mt-1">{form.formState.errors.account_no.message}</p>
+              )}
+              <p className="text-gray-500 text-sm">Enter the account number for receiving funds</p>
+            </div>
+            
+            <button 
+              type="submit" 
+              disabled={isLoading}
+              className="w-full h-12 bg-gradient-to-r from-indigo-600 to-blue-500 text-white font-medium rounded-lg hover:from-indigo-700 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors disabled:opacity-70"
+            >
+              {isLoading ? "Processing..." : "Submit Withdrawal Request"}
+            </button>
+            
+            <div className="text-xs text-gray-500 text-center mt-4 px-4 py-3 bg-gray-50 rounded-lg">
+              A 2% processing fee will be applied to all withdrawals
+            </div>
+          </form>
+        </div>
       </div>
-      {errors.amount && (
-        <p className="mt-2 text-sm text-red-600">{errors.amount.message}</p>
-      )}
     </div>
-    <div>
-      <label className="block text-sm font-semibold text-gray-700 mb-2">
-        Gateway
-      </label>
-      <select
-        {...register("gateway")}
-        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-      >
-        <option value="">Select a gateway</option>
-        <option value="stripe">Stripe</option>
-        <option value="sslcommerz">SSLCommerz</option>
-        <option value="bkash">bKash</option>
-      </select>
-      {errors.gateway && (
-        <p className="mt-2 text-sm text-red-600">{errors.gateway.message}</p>
-      )}
-    </div>
-    <div>
-      <label className="block text-sm font-semibold text-gray-700 mb-2">
-        Payment Details
-      </label>
-      <textarea
-        {...register("payment_details")}
-        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-        placeholder="Enter payment details as JSON"
-        rows={4}
-      />
-      {errors.payment_details && (
-        <p className="mt-2 text-sm text-red-600">{errors.payment_details.message}</p>
-      )}
-    </div>
-    <button
-      type="submit"
-      disabled={loading}
-      className="w-full py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out"
-    >
-      {loading ? (
-        <span className="flex items-center justify-center">
-          <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-          Processing...
-        </span>
-      ) : (
-        "Submit Withdraw Request"
-      )}
-    </button>
-  </form>
-</div>
   );
 }

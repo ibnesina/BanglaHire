@@ -1,7 +1,7 @@
 import { toast } from "sonner";
 import apiRequest from "./apiRequest";
 
-export const getWithdrawRequests = async () => {
+export const getWithdrawRequestsAPI = async () => {
   const response = await apiRequest({
     method: "GET",
     url: "/withdraw-requests",
@@ -14,28 +14,23 @@ export const getWithdrawRequests = async () => {
   }
 };
 
-export const getWithdrawRequest = async (id: string) => {
-  const response = await apiRequest({
-    method: "GET",
-    url: `/withdraw-requests/${id}`,
-  });
-  if (response.status === 200) {
-    return response.data.withdraw_request;
-  } else {
-    toast.error(response.data.message);
-    return null;
-  }
-};
+ 
 
-export const createWithdrawRequest = async (data: {
-  amount: number;
-  gateway: string;
-  payment_details: object;
-}) => {
+export const createWithdrawRequestAPI = async (
+  amount: number,
+  gateway: string,
+  account_no: string,
+) => {
   const response = await apiRequest({
     method: "POST",
     url: "/withdraw-requests",
-    data,
+    data: {
+      amount,
+      gateway,
+      payment_details: {
+        account_no,
+      },
+    },
   });
   if (response.status === 200) {
     toast.success("Withdraw request created successfully");
@@ -46,7 +41,7 @@ export const createWithdrawRequest = async (data: {
   }
 };
 
-export const approveWithdrawRequest = async (id: string) => {
+export const approveWithdrawRequestAPI = async (id: string) => {
   const response = await apiRequest({
     method: "POST",
     url: `/withdraw-requests/${id}/approve`,
@@ -60,7 +55,7 @@ export const approveWithdrawRequest = async (id: string) => {
   }
 };
 
-export const rejectWithdrawRequest = async (id: string) => {
+export const rejectWithdrawRequestAPI = async (id: string) => {
   const response = await apiRequest({
     method: "POST",
     url: `/withdraw-requests/${id}/reject`,

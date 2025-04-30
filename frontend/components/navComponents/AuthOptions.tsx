@@ -38,6 +38,7 @@ const AuthOptions = observer(() => {
     { label: "My Bids", href: "/profile/my-bids", visibility: user?.type === "Freelancer" },
     { label: "Assigned Projects", href: "/profile/assigned-projects", visibility: user?.type === "Freelancer" },
     { label: "Withdraw", href: "/profile/withdraw"},
+    { label: "Withdrawal List", href: "/profile/withdrawal-list", visibility: user?.type === "Admin"},
     { label: "Settings", href: "/settings" },
   ];
 
