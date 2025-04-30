@@ -64,7 +64,6 @@ class PaymentController extends Controller
         } else {
             // 4) Stripe init
             Stripe::setApiKey(config('services.stripe.secret'));
-            $frontend = config('app.frontend_url');
 
             $session = StripeSession::create([
                 'payment_method_types' => ['card'],
@@ -242,8 +241,8 @@ class PaymentController extends Controller
         }
 
         // 4) Redirect the user back to your frontend’s cancel UI
-        $tranIdParam = $sessionId && isset($session) 
-            ? '?tran_id=' . urlencode($session->client_reference_id) 
+        $tranIdParam = $sessionId && isset($session)
+            ? '?tran_id=' . urlencode($session->client_reference_id)
             : '';
 
         return redirect()->away(
