@@ -3,6 +3,7 @@ import { getFreelancerByIdAPI } from '@/lib/api/profileUpdateAPI';
 import { useQuery } from '@tanstack/react-query';
 import { Loader } from '@/components/ui/loader';
 import Image from 'next/image';
+import Link from 'next/link';
 
 export default function FreelancerDetails({userId}: {userId: string}) {
   const { data: freelancerData, isLoading } = useQuery({
@@ -29,7 +30,7 @@ export default function FreelancerDetails({userId}: {userId: string}) {
         <h2 className="text-xl font-bold text-gray-800">{freelancerData?.user?.name}</h2>
         <p className="text-sm text-gray-600 mb-2">{freelancerData?.user?.email}</p>
         <div className="flex items-center gap-2 mb-4">
-          <span className="bg-blue-500 text-white px-2 py-1 rounded-md text-sm font-medium">${freelancerData?.hourly_rate}/hr</span>
+          <span className="bg-blue-500 text-white px-2 py-1 rounded-md text-sm font-medium">৳{freelancerData?.hourly_rate}/hr</span>
           {freelancerData?.user?.nationality && (
             <span className="text-gray-600 text-sm">{freelancerData.user.nationality}</span>
           )}
@@ -37,6 +38,9 @@ export default function FreelancerDetails({userId}: {userId: string}) {
         <div className="text-sm text-gray-500 mt-auto">
           <p>Member since: {new Date(freelancerData?.created_at).toLocaleDateString()}</p>
         </div>
+        <Link href="/settings" className="mt-4 inline-block px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors text-sm font-medium">
+          Edit Profile
+        </Link>
       </div>
     </div>
     
@@ -50,11 +54,16 @@ export default function FreelancerDetails({userId}: {userId: string}) {
         <div>
           <h3 className="text-md font-semibold text-gray-700 border-b border-gray-200 pb-1">Skills</h3>
           <div className="flex flex-wrap gap-1 mt-2">
-            {freelancerData?.skills && JSON.parse(freelancerData.skills).map((skill: string, index: number) => (
-              <span key={index} className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">
-                {skill}
-              </span>
-            ))}
+            {freelancerData?.skills && 
+              (Array.isArray(freelancerData.skills) 
+                ? freelancerData.skills 
+                : JSON.parse(freelancerData.skills)
+              ).map((skill: string, index: number) => (
+                <span key={index} className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">
+                  {skill}
+                </span>
+              ))
+            }
           </div>
         </div>
         
@@ -63,11 +72,14 @@ export default function FreelancerDetails({userId}: {userId: string}) {
           <p className="text-gray-600 text-sm mt-2">{freelancerData?.experiences}</p>
         </div>
         
-        {freelancerData?.certifications && JSON.parse(freelancerData.certifications).length > 0 && (
+        {freelancerData?.certifications && (
           <div>
             <h3 className="text-md font-semibold text-gray-700 border-b border-gray-200 pb-1">Certifications</h3>
             <div className="mt-2 grid grid-cols-2 gap-2">
-              {JSON.parse(freelancerData.certifications).map((cert: string, index: number) => (
+              {(typeof freelancerData.certifications === 'string' 
+                ? JSON.parse(freelancerData.certifications) 
+                : freelancerData.certifications
+              ).map((cert: string, index: number) => (
                 <a key={index} href={cert} target="_blank" rel="noopener noreferrer" 
                    className="text-blue-500 hover:text-blue-700 text-sm flex items-center">
                   <span className="mr-1">📜</span> Certification {index + 1}

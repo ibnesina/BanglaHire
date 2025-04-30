@@ -7,9 +7,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   const settingsLinks = [
     { name: 'General', href: '/settings' },
-    { name: 'Password', href: '/settings/change-password' },
-    { name: 'Notifications', href: '/settings/notifications' },
-    { name: 'Privacy', href: '/settings/privacy' },
+    { name: 'Password', href: '/settings/change-password' }
   ];
 
   return (

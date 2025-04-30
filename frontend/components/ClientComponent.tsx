@@ -24,7 +24,7 @@ export default function ClientComponent({userId}: {userId: string}) {
             <Avatar className="h-32 w-32 border-4 border-white shadow-lg mb-6">
               <AvatarImage src={data?.user?.profile_picture || data?.user?.avatar} />
               <AvatarFallback className="text-2xl bg-blue-100 text-blue-800">
-                {data?.user?.name?.split(' ').map(n => n[0]).join('')}
+                {data?.user?.name?.split(' ').map((n: string) => n[0]).join('')}
               </AvatarFallback>
             </Avatar>
             <h2 className="text-2xl font-bold text-gray-800 mb-2">{data?.user?.name}</h2>
