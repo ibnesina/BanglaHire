@@ -1,5 +1,6 @@
 "use client";
 
+import { Loader } from "@/components/ui/loader";
 import { getMeAPI } from "@/lib/api/authAPI";
 import userStore from "@/lib/store";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -7,7 +8,6 @@ import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
 import { Toaster } from "sonner";
 import "./globals.css";
-import { Loader } from "@/components/ui/loader";
 
 export default observer(function RootLayout({
   children,
@@ -33,7 +33,7 @@ export default observer(function RootLayout({
     };
 
     fetchUser();
-  }, [userStore]);
+  }, []);
 
   const queryClient = new QueryClient();
 

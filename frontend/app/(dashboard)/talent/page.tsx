@@ -3,7 +3,6 @@ import CategorySelectionOnFnd from "@/components/CategorySelectionOnFnd";
 import FreelancerComponent from "@/components/FrelancerComponent";
 import UserDetails from "@/components/UserDetails";
 import { Category } from "@/contracts/posts";
-import { User } from "@/contracts/users";
 import { getTalentAPI } from "@/lib/api/FindAPI";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
