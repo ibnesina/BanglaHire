@@ -1,7 +1,7 @@
 <div align="center">
   
 <p>
-  <img src="https://github.com/Learnathon-By-Geeky-Solutions/bladerunners/blob/main/logo.png" alt="BanglaHire Logo" width="180"/>
+  <img src="https://github.com/Learnathon-By-Geeky-Solutions/bladerunners/blob/main/long_banner.png" alt="BanglaHire Logo" width="100%" height="400"/>
 </p>
 
 # BanglaHire 🚀
