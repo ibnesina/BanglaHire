@@ -3,6 +3,7 @@ import UserDetails from "@/components/UserDetails";
 import { observer } from "mobx-react";
 import userStore from "@/lib/store";
 import FreelancerDetails from "@/components/FreelancerDetails";
+import ClientComponent from "@/components/ClientComponent";
 
 const Profile = observer(() => {
   const { user } = userStore;
