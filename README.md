@@ -9,6 +9,17 @@
 **A next-gen freelancing platform built with Next.js & Laravel for Bangladesh 🇧🇩**
 
 <p align="center">
+  <a href="https://bladerunners.proactive-coder.xyz">
+    <img src="https://img.shields.io/badge/Live%20Demo-Visit-green?style=for-the-badge&logo=vercel&logoColor=white" />
+  </a>
+  <a href="https://github.com/Learnathon-By-Geeky-Solutions/bladerunners/wiki">
+    <img src="https://img.shields.io/badge/Wiki-Documentation-blue?style=for-the-badge&logo=readthedocs&logoColor=white" />
+  </a>
+</p>
+
+#
+
+<p align="center">
   <a href="https://nextjs.org">
     <img src="https://img.shields.io/badge/Frontend-Next.js-black?style=for-the-badge&logo=nextdotjs&logoColor=white" />
   </a>
