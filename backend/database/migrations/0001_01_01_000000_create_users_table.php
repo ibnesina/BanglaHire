@@ -26,6 +26,7 @@ return new class extends Migration
             $table->unsignedBigInteger('payment_history_id')->nullable();
             $table->string('nationality')->nullable();
             $table->dateTime('email_verified_at')->nullable();
+            $table->rememberToken();
             $table->timestamps();
         });
 

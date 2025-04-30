@@ -64,7 +64,6 @@ class PaymentController extends Controller
         } else {
             // 4) Stripe init
             Stripe::setApiKey(config('services.stripe.secret'));
-            $frontend = config('app.frontend_url');
 
             $session = StripeSession::create([
                 'payment_method_types' => ['card'],
@@ -79,8 +78,8 @@ class PaymentController extends Controller
                     ],
                     'quantity'   => 1,
                 ]],
-                'success_url' => "{$frontend}/add-balance/stripe-success?session_id={CHECKOUT_SESSION_ID}",
-                'cancel_url'  => "{$frontend}/add-balance/stripe-cancel",
+                'success_url' => url("/api/payments/stripe-success?session_id={CHECKOUT_SESSION_ID}"),
+                'cancel_url'  => url("/api/payments/stripe-cancel?session_id={CHECKOUT_SESSION_ID}"),
             ]);
 
             $checkoutUrl = $session->url;
@@ -189,6 +188,7 @@ class PaymentController extends Controller
 
         Stripe::setApiKey(config('services.stripe.secret'));
         $session = StripeSession::retrieve($sessionId);
+
         if ($session->payment_status !== 'paid') {
             return response()->json(['message' => 'Payment not completed'], 400);
         }
@@ -203,20 +203,50 @@ class PaymentController extends Controller
         ]);
         $order->user->increment('balance', $order->amount);
 
-        return response()->json([
-            'message'        => 'Payment successful',
-            'amount'         => $order->amount,
-            'currency'       => $order->currency,
-            'transaction_id' => $order->transaction_id,
-        ], 200);
+        // now send them back to your Next.js success UI:
+        return redirect()->away(
+            config('app.frontend_url') . '/add-balance/stripe-success?tran_id='
+            . urlencode($order->transaction_id)
+        );
     }
+
 
     /**
      * GET /api/payments/stripe-cancel
      * Stripe cancel callback.
      */
-    public function stripeCancel()
+    public function stripeCancel(Request $request)
     {
-        return response()->json(['message' => 'Payment cancelled'], 200);
+        // 1) Grab the Stripe session_id
+        $sessionId = $request->query('session_id');
+
+        if ($sessionId) {
+            Stripe::setApiKey(config('services.stripe.secret'));
+
+            try {
+                // 2) Retrieve the Checkout Session
+                $session = StripeSession::retrieve($sessionId);
+
+                // 3) Find any pending transaction and mark cancelled
+                $order = Transaction::where('transaction_id', $session->client_reference_id)
+                                    ->where('status', 'Pending')
+                                    ->first();
+
+                if ($order) {
+                    $order->update(['status' => 'Canceled']);
+                }
+            } catch (\Exception $e) {
+                // retrieval failed—nothing we can do, just continue to redirect
+            }
+        }
+
+        // 4) Redirect the user back to your frontend’s cancel UI
+        $tranIdParam = $sessionId && isset($session)
+            ? '?tran_id=' . urlencode($session->client_reference_id)
+            : '';
+
+        return redirect()->away(
+            config('app.frontend_url') . '/add-balance/stripe-cancel' . $tranIdParam
+        );
     }
 }
