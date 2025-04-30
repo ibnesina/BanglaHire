@@ -1,16 +1,28 @@
 "use client";
 
 import { Loader } from "@/components/ui/loader";
-import { getWithdrawRequestsAPI, approveWithdrawRequestAPI, rejectWithdrawRequestAPI } from "@/lib/api/withdrawAPI";
+import {
+  getWithdrawRequestsAPI,
+  approveWithdrawRequestAPI,
+  rejectWithdrawRequestAPI,
+} from "@/lib/api/withdrawAPI";
 import { formatDate } from "@/lib/utils";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Calendar, Clock, CreditCard, DollarSign, User, CheckCircle, XCircle } from "lucide-react";
+import {
+  Calendar,
+  Clock,
+  CreditCard,
+  DollarSign,
+  User,
+  CheckCircle,
+  XCircle,
+} from "lucide-react";
 import { WithdrawalRequest } from "@/contracts/types";
 import { toast } from "sonner";
 
 export default function WithdrawalListPage() {
   const queryClient = useQueryClient();
-  
+
   const { data, isPending } = useQuery({
     queryKey: ["withdrawals"],
     queryFn: getWithdrawRequestsAPI,
@@ -24,7 +36,7 @@ export default function WithdrawalListPage() {
     },
     onError: () => {
       toast.error("Failed to approve withdrawal request");
-    }
+    },
   });
 
   const rejectMutation = useMutation({
@@ -35,7 +47,7 @@ export default function WithdrawalListPage() {
     },
     onError: () => {
       toast.error("Failed to reject withdrawal request");
-    }
+    },
   });
 
   if (isPending) return <Loader />;
@@ -58,7 +70,13 @@ export default function WithdrawalListPage() {
                       ৳{parseFloat(withdrawal.amount).toFixed(2)}
                     </span>
                   </div>
-                  <div className="px-3 py-1 rounded-full text-sm font-medium capitalize bg-yellow-100 text-yellow-800">
+                  <div className={`px-3 py-1 rounded-full text-sm font-medium capitalize ${
+                    withdrawal.status === "approved" 
+                      ? "bg-green-100 text-green-800" 
+                      : withdrawal.status === "rejected"
+                        ? "bg-red-100 text-red-800"
+                        : "bg-yellow-100 text-yellow-800"
+                  }`}>
                     {withdrawal.status}
                   </div>
                 </div>
@@ -101,25 +119,37 @@ export default function WithdrawalListPage() {
                     </span>
                   </div>
                 </div>
-                
-                <div className="mt-4 flex justify-end gap-3">
-                  <button
-                    onClick={() => approveMutation.mutate(withdrawal.id)}
-                    disabled={approveMutation.isPending}
-                    className="flex items-center gap-1 px-3 py-1.5 bg-green-100 text-green-700 rounded-md hover:bg-green-200 transition-colors cursor-pointer"
-                  >
-                    <CheckCircle className="h-4 w-4" />
-                    Approve
-                  </button>
-                  <button
-                    onClick={() => rejectMutation.mutate(withdrawal.id)}
-                    disabled={rejectMutation.isPending}
-                    className="flex items-center gap-1 px-3 py-1.5 bg-red-100 text-red-700 rounded-md hover:bg-red-200 transition-colors cursor-pointer"
-                  >
-                    <XCircle className="h-4 w-4" />
-                    Reject
-                  </button>
-                </div>
+
+                {withdrawal.status === "pending" && (
+                  <div className="mt-4 flex justify-end gap-3">
+                    <button
+                      onClick={() => {
+                        approveMutation.mutate(withdrawal.id);
+                        setTimeout(() => {
+                          window.location.reload();
+                        }, 500);
+                      }}
+                      disabled={approveMutation.isPending}
+                      className="flex items-center gap-1 px-3 py-1.5 bg-green-100 text-green-700 rounded-md hover:bg-green-200 transition-colors cursor-pointer"
+                    >
+                      <CheckCircle className="h-4 w-4" />
+                      Approve
+                    </button>
+                    <button
+                      onClick={() => {
+                        rejectMutation.mutate(withdrawal.id);
+                        setTimeout(() => {
+                          window.location.reload();
+                        }, 500);
+                      }}
+                      disabled={rejectMutation.isPending}
+                      className="flex items-center gap-1 px-3 py-1.5 bg-red-100 text-red-700 rounded-md hover:bg-red-200 transition-colors cursor-pointer"
+                    >
+                      <XCircle className="h-4 w-4" />
+                      Reject
+                    </button>
+                  </div>
+                )}
               </div>
             ))}
           </div>
