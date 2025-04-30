@@ -1,5 +1,4 @@
 "use client";
-import Image from "next/image";
 
 export default function AboutPage() {
   return (
@@ -9,10 +8,18 @@ export default function AboutPage() {
         <div className="bg-white rounded-lg shadow-md p-6">
           <h2 className="text-2xl font-semibold mb-4">Project Overview</h2>
           <p className="mb-4">
-            <strong>BanglaHire</strong> is a cutting-edge freelancing platform designed to empower the thriving community of Bangladeshi freelancers 🇧🇩. It seamlessly connects talented professionals with clients through a secure, feature-rich environment that simplifies collaboration and builds trust.
+            <strong>BanglaHire</strong> is a cutting-edge freelancing platform
+            designed to empower the thriving community of Bangladeshi
+            freelancers 🇧🇩. It seamlessly connects talented professionals with
+            clients through a secure, feature-rich environment that simplifies
+            collaboration and builds trust.
           </p>
           <p className="mb-4">
-            Whether you're a <strong>Client</strong> looking to get work done or a <strong>Freelancer</strong> seeking new opportunities. Tailored specifically for Bangladesh, BanglaHire integrates local payment gateways and cultural workflows, making it the go-to platform for freelance work in the region.
+            Whether you&apos;re a <strong>Client</strong> looking to get work done or
+            a <strong>Freelancer</strong> seeking new opportunities. Tailored
+            specifically for Bangladesh, BanglaHire integrates local payment
+            gateways and cultural workflows, making it the go-to platform for
+            freelance work in the region.
           </p>
         </div>
       </section>
@@ -22,7 +29,7 @@ export default function AboutPage() {
         <div className="bg-white rounded-lg shadow-md p-6">
           <h3 className="text-xl font-medium mb-3">Project Mentor</h3>
           <p className="mb-4">Shadman Ahmed</p>
-          
+
           <h3 className="text-xl font-medium mb-3">Developers</h3>
           <table className="w-full border-collapse mb-4">
             <thead>
@@ -53,28 +60,55 @@ export default function AboutPage() {
         <h2 className="text-2xl font-semibold mb-4">✨ Features</h2>
         <div className="bg-white rounded-lg shadow-md p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="border-b pb-4 md:border-b-0 md:pb-0">
-            <h3 className="text-xl font-medium mb-2">🔐 Secure Authentication</h3>
-            <p>Registration, login, email verification, password reset, and role-based access for Clients and Freelancers.</p>
+            <h3 className="text-xl font-medium mb-2">
+              🔐 Secure Authentication
+            </h3>
+            <p>
+              Registration, login, email verification, password reset, and
+              role-based access for Clients and Freelancers.
+            </p>
           </div>
           <div className="border-b pb-4 md:border-b-0 md:pb-0">
-            <h3 className="text-xl font-medium mb-2">👤 Comprehensive Profiles</h3>
-            <p>Freelancer profiles include skills, experience, hourly rate, certifications, and portfolio links—fully editable and searchable.</p>
+            <h3 className="text-xl font-medium mb-2">
+              👤 Comprehensive Profiles
+            </h3>
+            <p>
+              Freelancer profiles include skills, experience, hourly rate,
+              certifications, and portfolio links—fully editable and searchable.
+            </p>
           </div>
           <div className="border-b pb-4 md:border-b-0 md:pb-0">
             <h3 className="text-xl font-medium mb-2">💼 Project Marketplace</h3>
-            <p>Clients can post projects, define milestones, and manage bids. Freelancers can submit proposals, negotiate terms, and accept offers.</p>
+            <p>
+              Clients can post projects, define milestones, and manage bids.
+              Freelancers can submit proposals, negotiate terms, and accept
+              offers.
+            </p>
           </div>
           <div className="border-b pb-4 md:border-b-0 md:pb-0">
-            <h3 className="text-xl font-medium mb-2">🤖 Smart Talent Matching</h3>
-            <p>SQL-driven logic suggests the most suitable freelancers for each job based on skills, availability, and performance history.</p>
+            <h3 className="text-xl font-medium mb-2">
+              🤖 Smart Talent Matching
+            </h3>
+            <p>
+              SQL-driven logic suggests the most suitable freelancers for each
+              job based on skills, availability, and performance history.
+            </p>
           </div>
           <div className="border-b pb-4 md:border-b-0 md:pb-0">
             <h3 className="text-xl font-medium mb-2">💬 Real-Time Messaging</h3>
-            <p>Built-in chat system for seamless communication between clients and freelancers, including read receipts and timestamps.</p>
+            <p>
+              Built-in chat system for seamless communication between clients
+              and freelancers, including read receipts and timestamps.
+            </p>
           </div>
           <div>
-            <h3 className="text-xl font-medium mb-2">💰 Escrow Payment System</h3>
-            <p>Secure, milestone-based payment handling with SSLCommerz and Stripe integration. Funds are released only upon client approval.</p>
+            <h3 className="text-xl font-medium mb-2">
+              💰 Escrow Payment System
+            </h3>
+            <p>
+              Secure, milestone-based payment handling with SSLCommerz and
+              Stripe integration. Funds are released only upon client approval.
+            </p>
           </div>
         </div>
       </section>
