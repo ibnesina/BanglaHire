@@ -1,7 +1,7 @@
 <div align="center">
   
 <p>
-  <img src="https://github.com/Learnathon-By-Geeky-Solutions/bladerunners/blob/main/long_banner.png" alt="BanglaHire Logo" width="100%" height="300"/>
+  <img src="https://github.com/Learnathon-By-Geeky-Solutions/bladerunners/blob/main/Design%20Structure/long_banner.png" alt="BanglaHire Logo" width="100%" height="300"/>
 </p>
 
 # BanglaHire 🚀
@@ -53,17 +53,20 @@
 </table>
 </div>
 
+---
 
 ## 📖 Table of Contents
-1. [Project Overview](#project-overview)    
-2. [✨ Features](#-features)  
-3. [🛠 Tech Stack](#-tech-stack)  
-4. [⚙️ Installation](#-installation)  
-5. [🚀 Usage](#-usage)  
-6. [🔗 API Reference](#-api-reference)  
-7. [🤝 Contributing](#-contributing)  
-8. [📄 License](#-license)  
-9. [👥 Acknowledgments](#-acknowledgments)
+
+- [Project Overview](#project-overview)  
+- [👥 Team](#team)
+- [✨ Features](#-features)  
+- [📊 Database Design](#-database-design)  
+- [🛠 Tech Stack](#-tech-stack)  
+- [🏁 Getting Started](#-getting-started)  
+- [🚀 Usage](#-usage)  
+- [👥 Acknowledgments](#-acknowledgments)  
+- [📄 License](#-license)
+
 
 ---
 
@@ -86,7 +89,6 @@ Whether you're a **Client** looking to get work done or a **Freelancer** seeking
 | **Team Leader** | Md. Ibne Sina | [![GitHub](https://img.shields.io/badge/GitHub-100000?style=flat&logo=github&logoColor=white)](https://github.com/ibnesina) |
 | **Developer** | Pantho Haque | [![GitHub](https://img.shields.io/badge/GitHub-100000?style=flat&logo=github&logoColor=white)](https://github.com/Pantho-Haque) |
 | **Developer** | Doniel Tripura | [![GitHub](https://img.shields.io/badge/GitHub-100000?style=flat&logo=github&logoColor=white)](https://github.com/MachangDoniel) |
-
 
 ---
 
@@ -118,10 +120,18 @@ Whether you're a **Client** looking to get work done or a **Freelancer** seeking
 
 ---
 
+## 📊 Database Design
+
+The ER diagram illustrates our relational database structure, showing the relationships between client, freelancer, project, transactions, and other key entities.
+
+![ER Diagram](https://github.com/Learnathon-By-Geeky-Solutions/bladerunners/blob/main/Design%20Structure/database_schema.png)
+
+
+---
+
 
 ## 🛠 Tech Stack
 
-<div align="center">
 
 | 🧩 **Layer**         | ⚙️ **Technology & Tools**                                                       |
 |---------------------|----------------------------------------------------------------------------------|
@@ -133,7 +143,42 @@ Whether you're a **Client** looking to get work done or a **Freelancer** seeking
 | 🔁 **CI/CD**         | [GitHub Actions](https://github.com/features/actions)                            |
 | ✅ **Code Quality**  | ESLint, Prettier, PHP CS Fixer, [SonarCloud](https://sonarcloud.io)               |
 
-</div>
+
+---
+
+## 🏁 Getting Started
+
+Follow these steps to set up the development environment:
+
+```bash
+# 🚀 Clone the repository
+git clone https://github.com/Learnathon-By-Geeky-Solutions/bladerunners
+
+# 📁 Navigate into the project directory
+cd bladerunners
+
+# ⚙️ Set up environment configuration files
+# - Copy and configure 'backend/.env' and 'frontend/.env.local' with appropriate values
+
+# 📦 Install Laravel PHP dependencies (without dev packages or scripts)
+docker compose run --build --rm backend composer install --prefer-dist --no-scripts --no-dev --no-interaction
+
+# 🔑 Generate Laravel application key
+docker compose run --build --rm backend php artisan key:generate --force
+
+# 🧼 Reset database, run migrations, and seed initial data
+docker compose run --build --rm backend php artisan migrate:fresh --seed
+
+# 🧹 Clean npm cache (helps avoid potential install issues)
+npm cache clean --force
+
+# 📦 Install frontend dependencies
+docker compose run --build --rm frontend npm install
+
+# 🏗️ Build and start all services using Docker
+docker compose up --build --remove-orphans 
+
+```
 
 ---
 
@@ -150,41 +195,12 @@ Whether you're a **Client** looking to get work done or a **Freelancer** seeking
 
 ## 👥 Acknowledgments
 - **Mentor**: Shadman Ahmed Vai for his for his great support
-- The Learnathon community.
+- The **Learnathon** community and **Geeky Solutions**.
 
 ---
 
 ## 📄 License
 © 2025 Learnathon by Geeky Solutions – MIT License. See [LICENSE](LICENSE) for details.
 
----
 
-
-
-## Team Members
-
-- ibnesina (Team Leader)
-- Pantho-Haque
-- MachangDoniel
-
-## Mentor
-
-- shadman-ahmed-bs23
-
-
-## Docker
-```bash
-docker compose run --build --rm backend composer install --prefer-dist --no-scripts --no-dev --no-interaction
-
-docker compose run --build --rm backend php artisan key:generate --force
-
-docker compose run --build --rm backend php artisan migrate:fresh --seed
-
-npm cache clean --force
-
-docker compose run --build --rm frontend npm install
-
-docker compose up --build --remove-orphans 
-
-```
-<div align="center">
+</div>
