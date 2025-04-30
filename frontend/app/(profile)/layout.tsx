@@ -13,11 +13,11 @@ export default function Layout({
   const user = userStore.user;
 
   if (user === null) redirect("/signin");
-  return <div>
-    <NavBar />
-    <div className="w-[60%] mx-auto py-8 px-4">
-    {children}
+  return (
+    <div>
+      <NavBar />
+      <div className="w-[60%] mx-auto py-8 px-4">{children}</div>
+      <Footer />
     </div>
-    <Footer />
-    </div>;
+  );
 }
