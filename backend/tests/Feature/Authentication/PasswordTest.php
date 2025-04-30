@@ -7,14 +7,13 @@ use Laravel\Sanctum\Sanctum;
 
 use function Pest\Laravel\postJson;
 
-
 uses(Tests\TestCase::class, Illuminate\Foundation\Testing\RefreshDatabase::class)
     ->in('Feature/Authentication');
 
-const FORGOT_URL    = '/api/forgot-password';
-const CHANGE_URL    = '/api/password/change';
-const RESET_URL     = '/api/reset-password';
-const NEW_PASSWORD  = 'BrandNew1!';
+const FORGOT_URL     = '/api/forgot-password';
+const CHANGE_URL     = '/api/password/change';
+const RESET_URL      = '/api/reset-password';
+const TEST_NEW_PWD   = 'BrandNew1!';
 
 test('sends password reset link when email exists', function () {
     $user = User::factory()->create();
@@ -41,12 +40,12 @@ test('resets password via token endpoint', function () {
     postJson(CHANGE_URL, [
         'token'                 => $token,
         'email'                 => $user->email,
-        'password'              => NEW_PASSWORD,
-        'password_confirmation' => NEW_PASSWORD,
+        'password'              => TEST_NEW_PWD,
+        'password_confirmation' => TEST_NEW_PWD,
     ])->assertStatus(200)
       ->assertJson(['message' => 'Password reset successful']);
 
-    expect(Hash::check(NEW_PASSWORD, $user->fresh()->password))->toBeTrue();
+    expect(Hash::check(TEST_NEW_PWD, $user->fresh()->password))->toBeTrue();
 });
 
 test('reset password validation errors', function () {
@@ -68,10 +67,10 @@ test('changes password with old password', function () {
     postJson(RESET_URL, [
         'email'                 => $user->email,
         'old_password'          => 'mypwd',
-        'password'              => NEW_PASSWORD,
-        'password_confirmation' => NEW_PASSWORD,
+        'password'              => TEST_NEW_PWD,
+        'password_confirmation' => TEST_NEW_PWD,
     ])->assertStatus(200)
       ->assertJson(['message' => 'Password updated successfully']);
 
-    expect(Hash::check(NEW_PASSWORD, $user->fresh()->password))->toBeTrue();
+    expect(Hash::check(TEST_NEW_PWD, $user->fresh()->password))->toBeTrue();
 });
