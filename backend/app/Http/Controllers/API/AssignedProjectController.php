@@ -121,7 +121,7 @@ class AssignedProjectController extends Controller
                 $assignment->payment_status = 'Released';
 
                 // b) If payment is brand-new, deduct from client
-                if (! $payment->exists) {
+                if ($payment->status !== 'Completed') {
                     $client = User::findOrFail($assignment->client_id);
                     if ($client->balance < $assignment->payment_amount) {
                         return response()->json(['error' => 'Client has insufficient balance.'], 400);
