@@ -13,7 +13,7 @@ uses(Tests\TestCase::class, Illuminate\Foundation\Testing\RefreshDatabase::class
 const FORGOT_URL     = '/api/forgot-password';
 const CHANGE_URL     = '/api/password/change';
 const RESET_URL      = '/api/reset-password';
-const TEST_NEW_PWD   = 'BrandNew1!';
+const TEST_NEW   = 'BrandNew1!';
 
 test('sends password reset link when email exists', function () {
     $user = User::factory()->create();
@@ -40,12 +40,12 @@ test('resets password via token endpoint', function () {
     postJson(CHANGE_URL, [
         'token'                 => $token,
         'email'                 => $user->email,
-        'password'              => TEST_NEW_PWD,
-        'password_confirmation' => TEST_NEW_PWD,
+        'password'              => TEST_NEW,
+        'password_confirmation' => TEST_NEW,
     ])->assertStatus(200)
       ->assertJson(['message' => 'Password reset successful']);
 
-    expect(Hash::check(TEST_NEW_PWD, $user->fresh()->password))->toBeTrue();
+    expect(Hash::check(TEST_NEW, $user->fresh()->password))->toBeTrue();
 });
 
 test('reset password validation errors', function () {
@@ -67,10 +67,10 @@ test('changes password with old password', function () {
     postJson(RESET_URL, [
         'email'                 => $user->email,
         'old_password'          => 'mypwd',
-        'password'              => TEST_NEW_PWD,
-        'password_confirmation' => TEST_NEW_PWD,
+        'password'              => TEST_NEW,
+        'password_confirmation' => TEST_NEW,
     ])->assertStatus(200)
       ->assertJson(['message' => 'Password updated successfully']);
 
-    expect(Hash::check(TEST_NEW_PWD, $user->fresh()->password))->toBeTrue();
+    expect(Hash::check(TEST_NEW, $user->fresh()->password))->toBeTrue();
 });
