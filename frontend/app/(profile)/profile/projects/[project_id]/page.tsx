@@ -397,7 +397,7 @@ export default function ProjectDetails() {
                       status: "Completed",
                     }).then(() => {
                       setTimeout(() => {
-                        // window.location.reload();
+                        window.location.reload();
                       }, 500);
                     })
                   }
@@ -411,7 +411,7 @@ export default function ProjectDetails() {
                       status: "Canceled",
                     }).then(() => {
                       setTimeout(() => {
-                        // window.location.reload();
+                        window.location.reload();
                       }, 500);
                     })
                   }
