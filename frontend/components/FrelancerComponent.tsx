@@ -42,7 +42,9 @@ const FreelancerComponent = ({
           </p>
 
           <div className="flex flex-wrap gap-2 mb-4">
-            {JSON.parse(freelancer.skills).map((skill: string, idx: number) => (
+            {(typeof freelancer.skills === 'string' 
+              ? JSON.parse(freelancer.skills) 
+              : freelancer.skills).map((skill: string, idx: number) => (
               <span
                 key={idx}
                 className="px-2 py-1 bg-gray-100 text-gray-700 rounded-md text-xs font-medium"
