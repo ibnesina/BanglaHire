@@ -1,5 +1,6 @@
 import CategoriesWithMatrix from "@/components/CategoriesWithMatrix";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -23,12 +24,12 @@ export default function Home() {
             for growth and innovation.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4 animate-fade-in-up animation-delay-600">
-            <button className="bg-yellow-400 text-blue-900 font-bold py-3 px-6 rounded-full hover:bg-yellow-300 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer">
+            <Link href="/talent" className="bg-yellow-400 text-blue-900 font-bold py-3 px-6 rounded-full hover:bg-yellow-300 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer">
               Find Talent
-            </button>
-            <button className="bg-transparent border-2 border-white text-white font-bold py-3 px-6 rounded-full hover:bg-white hover:text-blue-900 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer">
+            </Link>
+            <Link href="/profile/create-project" className="bg-transparent border-2 border-white text-white font-bold py-3 px-6 rounded-full hover:bg-white hover:text-blue-900 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer">
               Post a Job
-            </button>
+            </Link>
           </div>
         </div>
         <div className="absolute bottom-0 left-0 right-0 flex justify-center pb-8 animate-bounce">

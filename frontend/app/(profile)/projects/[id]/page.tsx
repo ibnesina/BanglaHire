@@ -63,7 +63,7 @@ export default function MyBids() {
         <div className="mt-4">
           <h3 className="font-medium mb-2">Required Skills</h3>
           <div className="flex flex-wrap gap-2">
-            {selectedBidding.project.required_skills.map((skill, index) => (
+            {selectedBidding.project.required_skills.map((skill: string, index: number) => (
               <span key={index} className="bg-gray-100 px-3 py-1 rounded-full text-sm">
                 {skill}
               </span>
