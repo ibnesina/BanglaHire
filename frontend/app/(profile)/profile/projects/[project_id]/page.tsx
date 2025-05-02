@@ -8,6 +8,7 @@ import {
   updateAssignmentAPI,
 } from "@/lib/api/bidAPI";
 import { getProjectByIdAPI } from "@/lib/api/clientAPI";
+import { getFreelancerByIdAPI } from "@/lib/api/profileUpdateAPI";
 import { formatDate } from "@/lib/utils";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
@@ -43,9 +44,17 @@ export default function ProjectDetails() {
     enabled: !!project_id && project?.status === "Assigned",
   });
 
+const {
+  data: freelancer
+} = useQuery({
+  queryKey: ["freelancer", assignment?.freelancer_id],
+  queryFn: () => getFreelancerByIdAPI(assignment?.freelancer_id),
+  enabled: !!assignment?.freelancer_id,
+});
+
   useEffect(() => {
-    console.log(assignment);
-  }, [assignment]);
+    console.log((freelancer));
+  }, [freelancer]);
 
   const assignFreelancerMutation = useMutation({
     mutationFn: (data: { project_id: number; freelancer_id: string }) =>
@@ -302,7 +311,7 @@ export default function ProjectDetails() {
                       {assignment?.freelancer?.bio?.charAt(0) || "F"}
                     </div>
                     <div>
-                      <p className="font-medium text-lg">Freelancer</p>
+                      <p className="font-medium text-lg">{freelancer?.name}</p>
                       <p className="text-gray-600 text-sm">
                         {assignment?.freelancer?.bio}
                       </p>
@@ -311,9 +320,9 @@ export default function ProjectDetails() {
                   <div className="mt-3 space-y-2">
                     <p className="text-sm">
                       <span className="font-medium">Skills:</span>{" "}
-                      {JSON.parse(assignment.freelancer.skills || "[]").join(
-                        ", "
-                      )}
+                      {Array.isArray(assignment.freelancer.skills) 
+                        ? assignment.freelancer.skills.join(", ") 
+                        : JSON.parse(assignment.freelancer.skills || "[]").join(", ")}
                     </p>
                     <p className="text-sm">
                       <span className="font-medium">Hourly Rate:</span> ৳
