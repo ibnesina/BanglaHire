@@ -128,7 +128,7 @@ export default function AddBalancePage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex items-center justify-center space-x-2 py-5 bg-gradient-to-r from-violet-600 via-indigo-600 to-blue-600 text-white text-xl font-bold rounded-xl shadow-lg hover:shadow-xl hover:from-violet-700 hover:via-indigo-700 hover:to-blue-700 transform transition-all duration-300 hover:-translate-y-1 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
+              className="w-full flex items-center justify-center space-x-2 py-5 bg-gradient-to-r from-violet-600 via-indigo-600 to-blue-600 text-white text-xl font-bold rounded-xl shadow-lg hover:shadow-xl hover:from-violet-700 hover:via-indigo-700 hover:to-blue-700 transform transition-all duration-300 hover:-translate-y-1 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none cursor-pointer"
             >
               {loading ? (
                 <svg className="animate-spin mr-2 h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
