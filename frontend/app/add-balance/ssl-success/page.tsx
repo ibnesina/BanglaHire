@@ -58,7 +58,7 @@ export default function SslSuccessPage() {
             initial={{ y: 50, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.4, duration: 0.6 }}
-            className="mt-4 text-4xl font-extrabold text-white drop-shadow-md bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-100"
+            className="mt-4 text-4xl font-extrabold text-white drop-shadow-md bg-clip-text bg-gradient-to-r from-white to-blue-100"
           >
             Payment Successful!
           </motion.h1>

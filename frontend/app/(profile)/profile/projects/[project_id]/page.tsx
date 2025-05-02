@@ -8,11 +8,9 @@ import {
   updateAssignmentAPI,
 } from "@/lib/api/bidAPI";
 import { getProjectByIdAPI } from "@/lib/api/clientAPI";
-import { getFreelancerByIdAPI } from "@/lib/api/profileUpdateAPI";
 import { formatDate } from "@/lib/utils";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
-import { useEffect } from "react";
 import { toast } from "sonner";
 
 export default function ProjectDetails() {
@@ -44,17 +42,7 @@ export default function ProjectDetails() {
     enabled: !!project_id && project?.status === "Assigned",
   });
 
-const {
-  data: freelancer
-} = useQuery({
-  queryKey: ["freelancer", assignment?.freelancer_id],
-  queryFn: () => getFreelancerByIdAPI(assignment?.freelancer_id),
-  enabled: !!assignment?.freelancer_id,
-});
-
-  useEffect(() => {
-    console.log((freelancer));
-  }, [freelancer]);
+ 
 
   const assignFreelancerMutation = useMutation({
     mutationFn: (data: { project_id: number; freelancer_id: string }) =>
@@ -311,7 +299,7 @@ const {
                       {assignment?.freelancer?.bio?.charAt(0) || "F"}
                     </div>
                     <div>
-                      <p className="font-medium text-lg">{freelancer?.name}</p>
+                      <p className="font-medium text-lg">{assignment?.freelancer?.user?.name}</p>
                       <p className="text-gray-600 text-sm">
                         {assignment?.freelancer?.bio}
                       </p>
