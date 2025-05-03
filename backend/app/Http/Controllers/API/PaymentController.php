@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\Client;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -140,6 +141,10 @@ class PaymentController extends Controller
         $order->update(['status' => 'Completed', 'metadata' => $data]);
         $order->user->increment('balance', $order->amount);
 
+        Client::where('client_id', $order->user_id)
+                    ->update(['payment_method_verified' => true]);
+
+
         // 3) Redirect to your frontend’s “success” page
         return redirect()->away(config('app.frontend_url')
             . '/add-balance/ssl-success?tran_id=' . urlencode($trx));
@@ -202,6 +207,9 @@ class PaymentController extends Controller
             'metadata' => ['stripe_session_id' => $sessionId],
         ]);
         $order->user->increment('balance', $order->amount);
+
+        Client::where('client_id', $order->user_id)
+                    ->update(['payment_method_verified' => true]);
 
         // now send them back to your Next.js success UI:
         return redirect()->away(
