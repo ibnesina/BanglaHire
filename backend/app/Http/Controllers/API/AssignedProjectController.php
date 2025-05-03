@@ -16,7 +16,7 @@ class AssignedProjectController extends Controller
     // List all assignments (visible to clients, freelancers, and admins)
     public function index()
     {
-        $assignments = AssignedProject::with(['project', 'client', 'freelancer', 'review'])->get();
+        $assignments = AssignedProject::with(['project', 'client', 'freelancer.user', 'review'])->get();
         return response()->json($assignments, 200);
     }
 
@@ -24,7 +24,7 @@ class AssignedProjectController extends Controller
     public function show($projectId)
     {
         $assignment = AssignedProject::where('project_id', $projectId)
-                                    ->with(['project', 'client', 'freelancer', 'review'])
+                                    ->with(['project', 'client', 'freelancer.user', 'review'])
                                     ->firstOrFail();
 
         return response()->json($assignment, 200);

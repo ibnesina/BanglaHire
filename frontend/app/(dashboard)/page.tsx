@@ -1,7 +1,13 @@
+"use client";
 import CategoriesWithMatrix from "@/components/CategoriesWithMatrix";
 import Image from "next/image";
+import Link from "next/link";
+import userStore from "@/lib/store";
+import { toast } from "sonner";
 
 export default function Home() {
+  const user = userStore.user;
+
   return (
     <div>
       <div className="relative flex flex-col justify-center items-center h-screen bg-gradient-to-br from-blue-900 to-indigo-900 overflow-hidden">
@@ -23,12 +29,36 @@ export default function Home() {
             for growth and innovation.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4 animate-fade-in-up animation-delay-600">
-            <button className="bg-yellow-400 text-blue-900 font-bold py-3 px-6 rounded-full hover:bg-yellow-300 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer">
-              Find Talent
-            </button>
-            <button className="bg-transparent border-2 border-white text-white font-bold py-3 px-6 rounded-full hover:bg-white hover:text-blue-900 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer">
-              Post a Job
-            </button>
+            {user?.type === "Client" ? (
+              <Link
+                href="/talent"
+                className="bg-yellow-400 text-blue-900 font-bold py-3 px-6 rounded-full hover:bg-yellow-300 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer"
+              >
+                Find Talent
+              </Link>
+            ) : (
+              <button
+                className="bg-transparent border-2 border-gray-400 text-gray-400 font-bold py-3 px-6 rounded-full cursor-not-allowed opacity-70"
+                onClick={() => toast("You must be a client to find talent")}
+              >
+                Find Talent
+              </button>
+            )}
+            {user?.type === "Client" ? (
+              <Link
+                href="/profile/create-project"
+                className="bg-transparent border-2 border-white text-white font-bold py-3 px-6 rounded-full hover:bg-white hover:text-blue-900 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer"
+              >
+                Post a Job
+              </Link>
+            ) : (
+              <button
+                className="bg-transparent border-2 border-gray-400 text-gray-400 font-bold py-3 px-6 rounded-full cursor-not-allowed opacity-70"
+                onClick={() => toast("You must be a client to post a job")}
+              >
+                Post a Job
+              </button>
+            )}
           </div>
         </div>
         <div className="absolute bottom-0 left-0 right-0 flex justify-center pb-8 animate-bounce">

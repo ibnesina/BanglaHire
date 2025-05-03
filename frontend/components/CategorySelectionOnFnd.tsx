@@ -2,7 +2,7 @@
 
 import { Category } from "@/contracts/posts";
 import { getCategoriesAPI } from "@/lib/api/FindAPI";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 const CategorySelectionOnFnd = ({
@@ -10,30 +10,36 @@ const CategorySelectionOnFnd = ({
   setSelectedCategory,
   selectedSkills,
   setSelectedSkills,
+  initialCategoryId,
 }: {
   selectedCategory: Category | null;
   setSelectedCategory: (category: Category | null) => void;
   selectedSkills: string[];
   setSelectedSkills: (skills: string[]) => void;
+  initialCategoryId?: number;
 }) => {
-
-const { data: categories, isLoading } = useQuery<Category[]>({
-  queryKey: ['categories'],
-  queryFn: getCategoriesAPI,
-  initialData: []
-});
+  const { data: categories, isLoading } = useQuery<Category[]>({
+    queryKey: ['categories'],
+    queryFn: getCategoriesAPI,
+    initialData: []
+  });
   
-
-
-
-
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (!isLoading && categories && initialCategoryId && !selectedCategory) {
+      const category = categories.find((cat: Category) => cat.id === initialCategoryId);
+      if (category) {
+        setSelectedCategory(category);
+      }
+    }
+  }, [categories, initialCategoryId, isLoading, selectedCategory, setSelectedCategory]);
 
   const handleCategoryChange = (
     event: React.ChangeEvent<HTMLSelectElement>
   ) => {
     const categoryId = parseInt(event.target.value);
-    const category = categories?.find((cat:Category) => cat.id === categoryId);
+    const category = categories?.find((cat: Category) => cat.id === categoryId);
     setSelectedCategory(category || null);
     setSelectedSkills([]); // Reset skills when category changes
     setError("");
@@ -63,13 +69,14 @@ const { data: categories, isLoading } = useQuery<Category[]>({
           </label>
           <select
             onChange={handleCategoryChange}
+            value={selectedCategory?.id || ""}
             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="">-- Select Category --</option>
             {isLoading ? (
               <option>Loading...</option>
             ) : (
-              categories?.map((category:Category) => (
+              categories?.map((category: Category) => (
                 <option key={category.id} value={category.id}>
                   {category.name}
                 </option>

@@ -6,9 +6,12 @@ import { Category } from "@/contracts/posts";
 import { getTalentAPI } from "@/lib/api/FindAPI";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 
 export default function TalentPage() {
+  const searchParams = useSearchParams();
+  const categoryParam = searchParams.get('category');
   
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(
@@ -68,6 +71,7 @@ export default function TalentPage() {
             setSelectedCategory={setSelectedCategory}
             selectedSkills={selectedSkills}
             setSelectedSkills={setSelectedSkills}
+            initialCategoryId={categoryParam ? parseInt(categoryParam) : undefined}
           />
         </div>
         <div className="w-full md:w-2/4">

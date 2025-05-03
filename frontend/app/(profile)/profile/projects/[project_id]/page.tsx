@@ -11,7 +11,6 @@ import { getProjectByIdAPI } from "@/lib/api/clientAPI";
 import { formatDate } from "@/lib/utils";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
-import { useEffect } from "react";
 import { toast } from "sonner";
 
 export default function ProjectDetails() {
@@ -43,9 +42,7 @@ export default function ProjectDetails() {
     enabled: !!project_id && project?.status === "Assigned",
   });
 
-  useEffect(() => {
-    console.log(assignment);
-  }, [assignment]);
+ 
 
   const assignFreelancerMutation = useMutation({
     mutationFn: (data: { project_id: number; freelancer_id: string }) =>
@@ -302,7 +299,7 @@ export default function ProjectDetails() {
                       {assignment?.freelancer?.bio?.charAt(0) || "F"}
                     </div>
                     <div>
-                      <p className="font-medium text-lg">Freelancer</p>
+                      <p className="font-medium text-lg">{assignment?.freelancer?.user?.name}</p>
                       <p className="text-gray-600 text-sm">
                         {assignment?.freelancer?.bio}
                       </p>
@@ -311,9 +308,9 @@ export default function ProjectDetails() {
                   <div className="mt-3 space-y-2">
                     <p className="text-sm">
                       <span className="font-medium">Skills:</span>{" "}
-                      {JSON.parse(assignment.freelancer.skills || "[]").join(
-                        ", "
-                      )}
+                      {Array.isArray(assignment.freelancer.skills) 
+                        ? assignment.freelancer.skills.join(", ") 
+                        : JSON.parse(assignment.freelancer.skills || "[]").join(", ")}
                     </p>
                     <p className="text-sm">
                       <span className="font-medium">Hourly Rate:</span> ৳
