@@ -19,21 +19,29 @@ const CategorySelectionOnFnd = ({
   initialCategoryId?: number;
 }) => {
   const { data: categories, isLoading } = useQuery<Category[]>({
-    queryKey: ['categories'],
+    queryKey: ["categories"],
     queryFn: getCategoriesAPI,
-    initialData: []
+    initialData: [],
   });
-  
+
   const [error, setError] = useState("");
 
   useEffect(() => {
     if (!isLoading && categories && initialCategoryId && !selectedCategory) {
-      const category = categories.find((cat: Category) => cat.id === initialCategoryId);
+      const category = categories.find(
+        (cat: Category) => cat.id === initialCategoryId
+      );
       if (category) {
         setSelectedCategory(category);
       }
     }
-  }, [categories, initialCategoryId, isLoading, selectedCategory, setSelectedCategory]);
+  }, [
+    categories,
+    initialCategoryId,
+    isLoading,
+    selectedCategory,
+    setSelectedCategory,
+  ]);
 
   const handleCategoryChange = (
     event: React.ChangeEvent<HTMLSelectElement>
