@@ -23,7 +23,7 @@ const WorkComponent = ({
       </div>
     )}
 
-      {works.map((work, index) => (
+      {works.map((work, index) => work.status === "Open" && (
         <div
           key={index}
           className="p-6 bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100"
