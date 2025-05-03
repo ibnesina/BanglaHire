@@ -35,6 +35,12 @@ export default function FreelancerDetails({userId}: {userId: string}) {
             <span className="text-gray-600 text-sm">{freelancerData.user.nationality}</span>
           )}
         </div>
+        <div className="w-full py-2 px-3 bg-white rounded-md shadow-sm mb-4">
+          <div className="flex justify-between items-center">
+            <span className="text-gray-600 text-sm">Balance:</span>
+            <span className="font-medium text-gray-800">৳{freelancerData?.user?.balance}</span>
+          </div>
+        </div>
         <div className="text-sm text-gray-500 mt-auto">
           <p>Member since: {new Date(freelancerData?.created_at).toLocaleDateString()}</p>
         </div>
