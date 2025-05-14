@@ -11,27 +11,45 @@ jobs:
     needs: [test-frontend, test-backend]
     steps:
       - uses: actions/checkout@v3
+
+      - name: Build Frontend
+        run: |
+          cd frontend
+          npm ci
+          npm run build
+
       - name: Sync Frontend
         uses: appleboy/rsync-deploy@v0.1.4
         with:
-          local_path: frontend/
+          local_path: frontend/.next/
           remote_host: ${{ secrets.SSH_HOST }}
           remote_user: ${{ secrets.SSH_USER }}
           remote_key: ${{ secrets.SSH_KEY }}
           remote_path: /var/www/html/frontend
+          exclude: node_modules/
+
+      - name: Sync Public Assets
+        uses: appleboy/rsync-deploy@v0.1.4
+        with:
+          local_path: frontend/public/
+          remote_host: ${{ secrets.SSH_HOST }}
+          remote_user: ${{ secrets.SSH_USER }}
+          remote_key: ${{ secrets.SSH_KEY }}
+          remote_path: /var/www/html/frontend/public
+
       - name: Sync Backend
         uses: appleboy/rsync-deploy@v0.1.4
         with:
-          local_path: ./
+          local_path: backend/
           remote_host: ${{ secrets.SSH_HOST }}
           remote_user: ${{ secrets.SSH_USER }}
           remote_key: ${{ secrets.SSH_KEY }}
           remote_path: /var/www/html/backend
           exclude: |
-            frontend/
             node_modules/
             vendor/
-      - name: Install Backend Dependencies & Migrate
+
+      - name: Finalize Backend Setup
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -39,8 +57,10 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             cd /var/www/html/backend
+            # (Optional) Write .env from secrets here, if not already present
             composer install --no-dev --optimize-autoloader
             php artisan migrate --force
+            php artisan db:seed
             php artisan config:cache
             php artisan route:cache
-            
+            chmod -R ug+rwx storage bootstrap/cache

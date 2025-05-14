@@ -24,10 +24,6 @@ jobs:
         run: |
           cd frontend
           npm run lint
-      # - name: Run tests
-      #   run: |
-      #     cd frontend
-      #     npm test
 
   test-backend:
     name: Test Laravel
@@ -37,7 +33,9 @@ jobs:
         image: mysql:8.0
         env:
           MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: test_db
+          MYSQL_DATABASE: banglaHire
+          MYSQL_USER: ${{ secrets.DB_USERNAME }}
+          MYSQL_PASSWORD: ${{ secrets.DB_PASSWORD }}
         ports:
           - 3306:3306
         options: >-
@@ -60,13 +58,26 @@ jobs:
           cd backend
           composer install --prefer-dist --no-progress
 
-      - name: Set up environment
+      - name: Set environment values
         run: |
           cd backend
           cp .env.example .env
           php artisan key:generate
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: banglaHire
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          STRIPE_KEY: ${{ secrets.STRIPE_KEY }}
+          STRIPE_SECRET: ${{ secrets.STRIPE_SECRET }}
+          SSLC_STORE_ID: ${{ secrets.SSLC_STORE_ID }}
+          SSLC_STORE_PASSWORD: ${{ secrets.SSLC_STORE_PASSWORD }}
 
-      - name: Prepare Database
+      - name: Run database migrations
         run: |
           cd backend
           php artisan migrate --force
