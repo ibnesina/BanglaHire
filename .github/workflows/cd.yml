@@ -1,40 +1,49 @@
-# cd.yml
 name: CD
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
 
 jobs:
   deploy:
     name: Deploy to Server
     runs-on: ubuntu-latest
+    needs: [ test-frontend, test-backend ]
+
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - name: Sync Frontend
-        uses: appleboy/rsync-action@v0.1.3
+      - name: Start SSH agent
+        uses: webfactory/ssh-agent@v0.5.4
         with:
-          local_path: frontend/
-          remote_host: ${{ secrets.SSH_HOST }}
-          remote_user: ${{ secrets.SSH_USER }}
-          remote_key: ${{ secrets.SSH_KEY }}
-          remote_path: /var/www/html/frontend
+          ssh-private-key: ${{ secrets.SSH_KEY }}
 
-      - name: Sync Backend
-        uses: appleboy/rsync-action@v0.1.3
-        with:
-          local_path: ./
-          remote_host: ${{ secrets.SSH_HOST }}
-          remote_user: ${{ secrets.SSH_USER }}
-          remote_key: ${{ secrets.SSH_KEY }}
-          remote_path: /var/www/html/backend
-          exclude: |
-            frontend/
-            node_modules/
-            vendor/
+      - name: Build Frontend
+        run: |
+          cd frontend
+          npm ci
+          npm run build
 
-      - name: Install Backend Dependencies & Migrate
+      - name: Sync Frontend via rsync
+        run: |
+          rsync -avz --delete \
+            -e "ssh -o StrictHostKeyChecking=no" \
+            frontend/.next/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/var/www/html/frontend
+          rsync -avz --delete \
+            -e "ssh -o StrictHostKeyChecking=no" \
+            frontend/public/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/var/www/html/frontend/public
+
+      - name: Sync Backend via rsync
+        run: |
+          rsync -avz --delete \
+            --exclude 'node_modules/' \
+            --exclude 'vendor/' \
+            --exclude 'frontend/' \
+            -e "ssh -o StrictHostKeyChecking=no" \
+            backend/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/var/www/html/backend
+
+      - name: Finalize Backend Setup
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -42,8 +51,13 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             cd /var/www/html/backend
+            # install optimized dependencies
             composer install --no-dev --optimize-autoloader
+            # run migrations & seeds
             php artisan migrate --force
-            php artisan db:seed --force
+            php artisan db:seed --class=ProductionSeeder
+            # cache config & routes
             php artisan config:cache
             php artisan route:cache
+            # fix permissions
+            chmod -R ug+rwx storage bootstrap/cache
