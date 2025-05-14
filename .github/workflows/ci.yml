@@ -48,18 +48,30 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.1'
+          php-version: '8.2'
           extensions: mbstring, pdo_mysql, xml, curl
-      - name: Install dependencies
-        run: composer install --prefer-dist --no-progress --no-suggest
-      - name: Copy .env
+
+      - name: Install Laravel dependencies
         run: |
+          cd backend
+          composer install --prefer-dist --no-progress
+
+      - name: Set up environment
+        run: |
+          cd backend
           cp .env.example .env
           php artisan key:generate
+
       - name: Prepare Database
-        run: php artisan migrate --force
+        run: |
+          cd backend
+          php artisan migrate --force
+
       - name: Run PHPUnit
-        run: vendor/bin/phpunit --coverage-text
+        run: |
+          cd backend
+          ./vendor/bin/phpunit --coverage-text
