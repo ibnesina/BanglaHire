@@ -86,4 +86,5 @@ jobs:
       - name: Run PHPUnit
         run: |
           cd backend
-          ./vendor/bin/phpunit --coverage-text
+          ./vendor/bin/pest --coverage
+
