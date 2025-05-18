@@ -25,26 +25,33 @@ export const signupAPI = async (data: TUserRegistrationSchema) => {
 };
 
 export const signInAPI = async (data: TUserSignInSchema) => {
-  const response = await apiRequest({
-    method: "POST",
-    url: "/login",
-    data,
-  });
+  try {
+    const response = await apiRequest({
+      method: "POST",
+      url: "/login",
+      data,
+    });
 
-  if (response.status == 403) {
-    // forbidden error
-    toast.info(response.data.message);
-  } else if (response.status == 200) {
-    userStore.setUser(response.data.user);
-    userStore.setToken(response.data.token);
-    toast.success(response.data.message);
-    setTimeout(() => {
-      redirect("/");
-    }, 1000);
-  } else {
-    toast.error(response.data.message);
+    if (response.status === 200) {
+      userStore.setUser(response.data.user);
+      userStore.setToken(response.data.token);
+      toast.success(response.data.message);
+      setTimeout(() => {
+        redirect("/");
+      }, 1000);
+    } else if (response.status === 403) {
+      toast.info(response.data.message);
+    } else {
+      toast.error(response.data.message);
+    }
+    return response;  // Optional: return response for further handling
+  } catch (error) {
+    toast.error("Login failed. Please try again.");
+    throw error; // Optional: rethrow or handle differently
   }
 };
+
+
 
 export const getMeAPI = async () => {
   const response = await apiRequest({ method: "GET", url: "/me" });

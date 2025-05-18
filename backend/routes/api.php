@@ -16,6 +16,8 @@ use App\Http\Controllers\API\ProjectController;
 use App\Http\Controllers\API\ReviewController;
 use App\Http\Controllers\API\TalentController;
 use App\Http\Controllers\API\WorkController;
+use App\Http\Controllers\API\UserController;
+use App\Http\Controllers\ChatController;
 
 use App\Constants\RoutePaths;
 use App\Http\Controllers\API\PaymentController;
@@ -232,3 +234,10 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 
 });
 
+
+// Chat
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/chat-users', [UserController::class, 'index']);          // New route for user list
+    Route::get('/messages', [ChatController::class, 'fetchMessages']); // Filtered messages
+    Route::post('/send-message', [ChatController::class, 'sendMessage']); // Send message
+});

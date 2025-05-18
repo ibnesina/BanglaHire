@@ -14,6 +14,7 @@ const NavBar = observer(() => {
     { path: "/talent", label: "Hire Talent", visibility: user?.type === "Client" },
     { path: "/work", label: "Find Work", visibility: user?.type === "Freelancer" },
     { path: "/about", label: "About Us", visibility: true },
+    { path: "/chat", label: "Chat", visibility: true },
   ], [user?.type]);
 
 
