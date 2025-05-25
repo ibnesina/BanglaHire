@@ -3,7 +3,7 @@ import userStore from "../store";
 
 interface ApiFetchOptions extends RequestInit {
   url: string;
-  params?: Record<string, unknown>; // JSON-friendly object
+  params?: Record<string, unknown>;
   data?: unknown;
 }
 
@@ -20,25 +20,17 @@ export default async function apiRequest(meta: ApiFetchOptions) {
       encodedParams.append(key, JSON.stringify(value));
     }
     urlWithParams += `?${encodedParams.toString()}`;
-  } 
+  }
 
-  // Add auth token to headers
   const token = userStore.token;
-  userStore.setToken(token);
+
   let requestHeaders = {
     ...headers,
     "Content-Type": "application/json",
     Accept: "application/json",
-    Authorization: "",
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
   };
-  if (token) {
-    requestHeaders = {
-      ...requestHeaders,
-      Authorization: `Bearer ${token}`,
-    };
-  }
 
-  // Only send body for non-GET/HEAD
   const shouldHaveBody = !["GET", "HEAD"].includes(method.toUpperCase());
   const body = shouldHaveBody && data ? JSON.stringify(data) : undefined;
 
@@ -47,20 +39,22 @@ export default async function apiRequest(meta: ApiFetchOptions) {
       method: method.toUpperCase(),
       headers: requestHeaders,
       body,
-      credentials: token ? "include" : "omit",
+      credentials: "omit", // Important: no cookies for Bearer token auth
       ...rest,
     });
 
     if (response.status === 401) {
       localStorage.removeItem("token");
+      userStore.setToken(null);
+      toast.error("Unauthorized. Please login again.");
+      // Optionally redirect to login page here
     }
-    const responseData = await response.json();
 
-    // Return the JSON data along with the HTTP status code
-    return { data:responseData, status: response.status };
+    const responseData = await response.json();
+    return { data: responseData, status: response.status };
   } catch (error) {
     console.error("API request failed:", error);
     toast.error("Network error: Failed to reach the server");
-    throw error; // or return a consistent error object if you prefer
+    throw error;
   }
 }
